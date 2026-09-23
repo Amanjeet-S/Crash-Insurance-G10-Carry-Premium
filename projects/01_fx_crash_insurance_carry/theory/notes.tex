@@ -1,0 +1,151 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[british]{babel}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}[proposition]{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}[proposition]{Remark}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Q}{\mathbb{Q}}
+\renewcommand{\P}{\mathbb{P}}
+
+\title{Crash insurance and the G10 carry premium: theory notes}
+\date{Version of 23 September 2026}
+\author{}
+
+\begin{document}
+\maketitle
+
+\noindent These notes prove the results listed in \texttt{theory/README.md}. Throughout, $\Phi$ and $\varphi$ are the standard normal distribution and density functions, $s=\sigma\sqrt{\tau}$, and for forward $F$ and strike $K$
+\[
+d_\pm(K)=\frac{\ln(F/K)\pm s^2/2}{s}.
+\]
+We use the identity $K\varphi(d_-)=F\varphi(d_+)$ repeatedly.
+
+\section*{R2. Arbitrage-free call prices}
+
+\begin{proposition}
+Let $c:[0,\infty)\to\mathbb{R}$ and $F>0$. There is a random variable $X\ge 0$ with $\E X=F$ and $c(K)=\E(X-K)^+$ for all $K\ge0$ if and only if (i) $c$ is convex, (ii) $c(0)=F$, (iii) $c'_+(0)\ge -1$ and (iv) $c(K)\to0$ as $K\to\infty$. The law of $X$ is then unique, with distribution function $G=1+c'_+$ on $[0,\infty)$ and $\P(X=0)=1+c'_+(0)$.
+\end{proposition}
+
+\begin{proof}
+\emph{Necessity.} Convexity of $c$ follows from convexity of $K\mapsto(x-K)^+$ and linearity of expectation, and $c(0)=\E X=F$. Since $0\le(X-K)^+\le X\in L^1$ and $(X-K)^+\to0$ pointwise, dominated convergence gives (iv). For $h>0$, the difference quotient $[(X-K-h)^+-(X-K)^+]/h$ is bounded by $1$ in absolute value and converges to $-\mathbf 1\{X>K\}$ as $h\downarrow0$, so $c'_+(K)=-\P(X>K)$. In particular $c'_+(0)=-\P(X>0)\ge-1$.
+
+\emph{Sufficiency.} A convex function on $[0,\infty)$ has a right derivative $c'_+$ that is nondecreasing and right-continuous, and $c$ is absolutely continuous on compact intervals with $c(b)-c(a)=\int_a^b c'_+(u)\,du$. If $c'_+(K_0)>0$ for some $K_0$, then $c(K)\ge c(K_0)+c'_+(K_0)(K-K_0)\to\infty$, contradicting (iv); so $c'_+\le0$, $c$ is nonincreasing and, by (iv), $c\ge0$. Let $L=\lim_{K\to\infty}c'_+(K)\le0$. Since $c'_+$ is nondecreasing, $c'_+\le L$ everywhere, so $c(K)\le F+LK$; $L<0$ would force $c<0$ for large $K$. Hence $L=0$.
+
+Define $G(K)=0$ for $K<0$ and $G(K)=1+c'_+(K)$ for $K\ge0$. Then $G$ is nondecreasing and right-continuous, $G(0)=1+c'_+(0)\ge0$ by (iii), and $G(K)\to1$. It is therefore the distribution function of a random variable $X\ge0$ (Lebesgue--Stieltjes construction). By Tonelli's theorem,
+\[
+\E(X-K)^+=\int_K^\infty \P(X>u)\,du=\int_K^\infty\bigl(1-G(u)\bigr)du=-\int_K^\infty c'_+(u)\,du=c(K)-\lim_{b\to\infty}c(b)=c(K),
+\]
+and $\E X=c(0)=F$. Uniqueness holds because $c$ determines $c'_+$ and hence $G$.
+\end{proof}
+
+\begin{remark}
+Extending $c$ by $c(K)=F-K$ for $K<0$, the second distributional derivative of $c$ on $\mathbb{R}$ is the law of $X$; the jump of $c'$ at $0$ carries the atom $\P(X=0)$. On a finite strike grid the necessary conditions reduce to slopes in $[-1,0]$ that are nondecreasing, which is the discrete test used in \texttt{src/qef/fx/arbitrage.py}.
+\end{remark}
+
+\section*{R5(b). Premium-adjusted call delta}
+
+Let $D\in(0,1]$ and $h(K)=D\,(K/F)\,\Phi\bigl(d_-(K)\bigr)$ for $K>0$. With spot delta, $D$ is the base-currency discount factor; with forward delta, $D=1$.
+
+\begin{lemma}
+The inverse Mills ratio $\lambda(d)=\varphi(d)/\Phi(d)$ is strictly decreasing on $\mathbb{R}$, with $\lambda(d)\to\infty$ as $d\to-\infty$ and $\lambda(d)\to0$ as $d\to\infty$.
+\end{lemma}
+
+\begin{proof}
+Differentiation gives $\lambda'(d)=-\lambda(d)\,[d+\lambda(d)]$, so it suffices that $d\,\Phi(d)+\varphi(d)>0$. This function has derivative $\Phi(d)>0$ and tends to $0$ as $d\to-\infty$; hence $d\,\Phi(d)+\varphi(d)=\int_{-\infty}^d\Phi(u)\,du>0$. The limits follow from $\Phi\to0$, $\varphi\to0$ and the Mills-ratio asymptotics $\Phi(d)\sim\varphi(d)/|d|$ as $d\to-\infty$.
+\end{proof}
+
+\begin{proposition}
+The function $h$ is continuous on $(0,\infty)$, tends to $0$ as $K\downarrow0$ and as $K\to\infty$, and satisfies $h<D$. There is a unique $K^*$ such that $h$ is strictly increasing on $(0,K^*]$ and strictly decreasing on $[K^*,\infty)$; $K^*=F\exp(-d^*s-s^2/2)$, where $d^*$ is the unique solution of $\lambda(d)=s$. Each $\Delta\in(0,h(K^*))$ has exactly two preimages, one on each side of $K^*$.
+\end{proposition}
+
+\begin{proof}
+As $K\downarrow0$, $d_-\to\infty$, so $h\to0$. As $K\to\infty$, $d_-\to-\infty$ and, by the Mills-ratio asymptotics and the identity above, $K\Phi(d_-)\sim K\varphi(d_-)/|d_-|=F\varphi(d_+)/|d_-|\to0$. Moreover $F\Phi(d_+)-K\Phi(d_-)$ is the undiscounted call price, which is positive, so $h<D\,\Phi(d_+)<D$.
+
+Since $d_-'(K)=-1/(Ks)$,
+\[
+h'(K)=\frac{D}{F}\Bigl[\Phi(d_-)-\frac{\varphi(d_-)}{s}\Bigr]=\frac{D\,\Phi(d_-)}{F\,s}\,\bigl[s-\lambda(d_-)\bigr].
+\]
+By the lemma, $s-\lambda(d)$ is strictly increasing in $d$ and changes sign exactly once, at $d^*$. Because $d_-$ is strictly decreasing in $K$, $h'>0$ for $K<K^*$ and $h'<0$ for $K>K^*$, where $d_-(K^*)=d^*$. The stated formula for $K^*$ inverts $d_-$. The final claim follows from the intermediate value theorem and strict monotonicity on each side.
+\end{proof}
+
+\begin{remark}
+The market convention selects the preimage in $[K^*,\infty)$. At one month and $25\Delta$ this root lies far to the right of $K^*$; bracketing matters at long maturities and high volatilities.
+\end{remark}
+
+\section*{R6. Diffusive null of the hedge cost}
+
+Let the undiscounted put value with lognormal forward $G$ and volatility $\sigma$ be
+\[
+p(G)=K\,\Phi\bigl(-d_-(G)\bigr)-G\,\Phi\bigl(-d_+(G)\bigr),\qquad d_\pm(G)=\frac{\ln(G/K)\pm s^2/2}{s}.
+\]
+Using $K\varphi(d_-)=G\varphi(d_+)$, $p'(G)=-\Phi(-d_+(G))$.
+
+Suppose that under $\Q$, $S_\tau$ is lognormal with mean $F$ and log-variance $s^2$, and that under $\P$ it is lognormal with the same log-variance and mean $Fe^{\lambda\tau}$ (no jumps, no volatility premium). A unit long forward costs nothing and has $\P$-expected payoff $\mu_U=F(e^{\lambda\tau}-1)$. Adding a put bought at its $\Q$-value, with the premium financed to $\tau$, gives $\mu_H=\mu_U+p(Fe^{\lambda\tau})-p(F)$.
+
+\begin{proposition}
+If $\lambda\ne0$, the hedge-cost ratio $\theta_0=1-\mu_H/\mu_U$ satisfies $\theta_0=\Phi(-d_+(\xi))$ for some $\xi$ between $F$ and $Fe^{\lambda\tau}$, and
+\[
+\bigl|\theta_0-\Phi(-d_1)\bigr|\le\varphi(0)\,\frac{|\lambda|\sqrt{\tau}}{\sigma},\qquad d_1=d_+(F).
+\]
+\end{proposition}
+
+\begin{proof}
+By the mean value theorem, $p(Fe^{\lambda\tau})-p(F)=-\Phi(-d_+(\xi))\,F(e^{\lambda\tau}-1)$ for some $\xi$ between the two forwards, so $\theta_0=-[p(Fe^{\lambda\tau})-p(F)]/\mu_U=\Phi(-d_+(\xi))$. Since $|d_+(\xi)-d_+(F)|=|\ln(\xi/F)|/s\le|\lambda|\tau/s$ and $\Phi$ is Lipschitz with constant $\varphi(0)$, the bound follows.
+\end{proof}
+
+\begin{remark}
+With no crash premium at all, hedging with a put of forward delta $-\Phi(-d_1)$ surrenders approximately that fraction of the carry premium: about $0.25$ for a $25\Delta$ put and $0.10$ for a $10\Delta$ put. This is the null against which the realised ratio $\theta_{UB}$ and the skew component of E3 are read.
+\end{remark}
+
+\section*{R1. Domestic and foreign risk-neutral measures}
+
+Let $(\Omega,\mathcal F,(\mathcal F_t)_{t\in[0,T]},\Q^d)$ satisfy the usual conditions, let $B^d,B^f$ be strictly positive adapted money-market accounts with $B^d_0=B^f_0=1$, and let $S>0$ be adapted and c\`adl\`ag. Assume $Z_t=S_tB^f_t/(S_0B^d_t)$ is a true $\Q^d$-martingale and define $d\Q^f/d\Q^d=Z_T$ on $\mathcal F_T$.
+
+\begin{proposition}
+(a) $\Q^f$ is a probability measure equivalent to $\Q^d$. (b) For $\mathcal F_T$-measurable $X\ge0$ or $X\in L^1(\Q^f)$, $\E^{\Q^f}[X\mid\mathcal F_t]=\E^{\Q^d}[Z_TX\mid\mathcal F_t]/Z_t$. (c) An adapted process $Y$ with $Y_t\in L^1(\Q^f)$ is a $\Q^f$-martingale if and only if $ZY$ is a $\Q^d$-martingale; in particular a foreign price $V^f$ satisfies: $V^f/B^f$ is a $\Q^f$-martingale if and only if $SV^f/B^d=S_0Z\,(V^f/B^f)$ is a $\Q^d$-martingale. (d) If $dS_t/S_t=(r_d-r_f)\,dt+\sigma\,dW_t$ under $\Q^d$ with constant coefficients, then $W^f_t=W_t-\sigma t$ is a $\Q^f$-Brownian motion, $d(1/S_t)=(1/S_t)[(r_f-r_d)\,dt-\sigma\,dW^f_t]$, and $\E^{\Q^d}S_T=F$, $\E^{\Q^f}(1/S_T)=1/F$ with $F=S_0e^{(r_d-r_f)T}$.
+\end{proposition}
+
+\begin{proof}
+(a) $Z_T>0$ and $\E^{\Q^d}Z_T=Z_0=1$, so $\Q^f$ is a probability measure; positivity of $Z_T$ gives equivalence. (b) For $\mathcal F_t$-measurable $Y\ge0$, the tower property and the martingale property give $\E^{\Q^f}Y=\E^{\Q^d}[Z_TY]=\E^{\Q^d}[Z_tY]$. For $A\in\mathcal F_t$,
+\[
+\E^{\Q^f}[X\mathbf 1_A]=\E^{\Q^d}\bigl[\E^{\Q^d}[Z_TX\mid\mathcal F_t]\mathbf 1_A\bigr]=\E^{\Q^f}\Bigl[\frac{\E^{\Q^d}[Z_TX\mid\mathcal F_t]}{Z_t}\mathbf 1_A\Bigr],
+\]
+which characterises the conditional expectation. (c) Apply (b) on $[s,t]$: $\E^{\Q^f}[Y_t\mid\mathcal F_s]=\E^{\Q^d}[Z_tY_t\mid\mathcal F_s]/Z_s$, so $Y$ is a $\Q^f$-martingale exactly when $\E^{\Q^d}[Z_tY_t\mid\mathcal F_s]=Z_sY_s$. (d) Here $Z_t=\exp(\sigma W_t-\sigma^2t/2)$, so Girsanov's theorem gives the first claim, and It\^o's formula for $1/S$ gives the dynamics. The expectations follow from the lognormal law under each measure.
+\end{proof}
+
+\begin{remark}
+Jensen's inequality gives $\E^{\Q^d}(1/S_T)>1/\E^{\Q^d}S_T=1/F$. There is no contradiction with (d): the foreign investor's forward price is an expectation under $\Q^f$, not $\Q^d$ (Siegel's paradox). If $Z$ is only a strict local martingale, $\E Z_T<1$ and the construction fails (Carr, Fisher and Ruf, 2014).
+\end{remark}
+
+\section*{R7. Entropy decomposition of currency premia}
+
+Fix $t$ and write $\E_t$ for $\E[\cdot\mid\mathcal F_t]$. For a positive random variable $M$ with $\E_t|\log M|<\infty$, the conditional entropy is $L_t(M)=\log\E_tM-\E_t\log M\ge0$. Let $M,M^*>0$ be $\mathcal F_{t+1}$-measurable discount factors in $L^2$ that price domestic and foreign payoffs in their own currencies, with $\E_tM=e^{-r_t}$, $\E_tM^*=e^{-r^*_t}$, $\E_t|\log M|,\E_t|\log M^*|<\infty$ and $MS_{t+1}/S_t\in L^2$, where $S$ is the domestic price of foreign currency. Write $m=\log M$, $\Delta s=\log(S_{t+1}/S_t)$, and $x_t=(f_t-s_t)-(r_t-r^*_t)$ for the covered-interest-parity basis.
+
+\begin{lemma}
+Suppose every foreign payoff $X^*\in L^2(\mathcal F_{t+1})$ is traded and priced consistently in both currencies, $S_t\E_t[M^*X^*]=\E_t[MS_{t+1}X^*]$. Then $M^*=MS_{t+1}/S_t$ almost surely.
+\end{lemma}
+
+\begin{proof}
+The difference $D=M^*-MS_{t+1}/S_t$ lies in $L^2$ and satisfies $\E_t[DX^*]=0$ for all $X^*\in L^2$. Taking $X^*=D$ gives $\E_tD^2=0$.
+\end{proof}
+
+\begin{proposition}
+Under the lemma's conclusion, (i) $\E_t[\Delta s+r^*_t-r_t]=L_t(M)-L_t(M^*)$ and $\E_t[s_{t+1}-f_t]=L_t(M)-L_t(M^*)-x_t$. (ii) If $k(u)=\log\E_te^{um}$ is finite near $0$ and its Maclaurin series has radius of convergence greater than $1$, then $L_t(M)=\sum_{j\ge2}\kappa_{j,t}/j!$, where $\kappa_{j,t}$ are the conditional cumulants of $m$. (iii) For any gross return $R>0$ with $\E_t[MR]=1$ and $\E_t|\log R|<\infty$, $L_t(M)\ge\E_t\log R-r_t$.
+\end{proposition}
+
+\begin{proof}
+(i) By definition, $\E_tm=-r_t-L_t(M)$ and $\E_tm^*=-r^*_t-L_t(M^*)$. The lemma gives $\Delta s=m^*-m$, so $\E_t\Delta s=r_t-r^*_t+L_t(M)-L_t(M^*)$. The second identity follows from $s_{t+1}-f_t=\Delta s-(f_t-s_t)=\Delta s-(r_t-r^*_t)-x_t$. (ii) $L_t(M)=k(1)-k'(0)$ with $k'(0)=\kappa_{1,t}$, and $k(1)=\sum_{j\ge1}\kappa_{j,t}/j!$ under the stated convergence. (iii) By Jensen's inequality, $0=\log\E_t[MR]\ge\E_tm+\E_t\log R$, so $L_t(M)=-r_t-\E_tm\ge\E_t\log R-r_t$.
+\end{proof}
+
+\begin{remark}
+The identity in (i) needs only that some pair of discount factors prices bonds and exchange rates consistently; completeness makes the pair unique. Complete markets imply cross-country discount-factor correlations that are hard to reconcile with consumption data (Brandt, Cochrane and Santa-Clara, 2006). Options on $S$ reveal the risk-neutral law of $\Delta s=m^*-m$, not the separate cumulants of $m$ and $m^*$, so they constrain but do not identify the split of $L_t(M)-L_t(M^*)$ across cumulant orders. Part (iii) is the entropy bound of Bansal and Lehmann (1997); hedged and unhedged carry returns bound the same $L_t(M)$.
+\end{remark}
+
+\section*{Results still to be written}
+
+R3, R4, R5(c), R8 and the Garman--Kohlhagen PDE, as stated in \texttt{theory/README.md}.
+
+\end{document}
