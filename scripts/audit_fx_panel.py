@@ -339,7 +339,7 @@ def conventions(panel, meta):
                "forward_scaling_metadata": scaling, "pip_factor_config": cfg.pip_factor,
                "pip_factor_matches": bool(np.isclose(1.0 / scaling, cfg.pip_factor)) if pd.notna(scaling) else False,
                "delta_convention_config": ("spot, premium-adjusted" if cfg.delta.premium_adjusted else "spot, pips"),
-               "delta_convention_source": "Clark (2011); Reiswich and Wystup (2010); provisional"}
+               "delta_convention_source": "Reiswich and Wystup (2012), reporting Clark (2011); provisional"}
 
         # Scaling test: implied (F/S - 1)·360/days against the deposit differential.
         if panel.has(f"{c}1M=") and panel.has(f"{c}=") and panel.has(f"{c}1MD=") and panel.has("USD1MD="):

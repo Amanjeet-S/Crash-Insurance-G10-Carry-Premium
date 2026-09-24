@@ -1,4 +1,4 @@
-"""Hagan et al. (2002) lognormal implied volatility for the SABR model.
+"""Lognormal implied volatility for the SABR model (Hagan, Kumar, Lesniewski and Woodward, 2002).
 
 The expansion is an asymptotic approximation, not an exact model price, so
 SABR is used as an interpolator of quoted smiles, never as a closed-form

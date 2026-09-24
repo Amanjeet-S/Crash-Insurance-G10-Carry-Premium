@@ -11,19 +11,43 @@
 \renewcommand{\P}{\mathbb{P}}
 
 \title{Crash insurance and the G10 carry premium: theory notes}
-\date{Version of 23 September 2026}
-\author{}
+\author{Amanjeet Singh}
+\date{Version of 24 September 2026}
 
 \begin{document}
 \maketitle
 
-\noindent These notes prove the results listed in \texttt{theory/README.md}. Throughout, $\Phi$ and $\varphi$ are the standard normal distribution and density functions, $s=\sigma\sqrt{\tau}$, and for forward $F$ and strike $K$
+\noindent These notes prove the results listed in \texttt{theory/README.md}. Results that are standard are marked as such and attributed; the proofs written here are the author's own unless a source is named. Throughout, $\Phi$ and $\varphi$ are the standard normal distribution and density functions, $s=\sigma\sqrt{\tau}$, and for forward $F$ and strike $K$
 \[
 d_\pm(K)=\frac{\ln(F/K)\pm s^2/2}{s}.
 \]
-We use the identity $K\varphi(d_-)=F\varphi(d_+)$ repeatedly.
+The identity $K\varphi(d_-)=F\varphi(d_+)$ is used repeatedly.
+
+\section*{R1. Domestic and foreign risk-neutral measures}
+
+This is the change of numeraire of Geman, El Karoui and Rochet (1995); the statement and proof are included for completeness. Girsanov's theorem and It\^o's formula are used in the form given by Shreve (2004).
+
+Let $(\Omega,\mathcal F,(\mathcal F_t)_{t\in[0,T]},\Q^d)$ satisfy the usual conditions, let $B^d,B^f$ be strictly positive adapted money-market accounts with $B^d_0=B^f_0=1$, and let $S>0$ be adapted and c\`adl\`ag. Assume $Z_t=S_tB^f_t/(S_0B^d_t)$ is a true $\Q^d$-martingale and define $d\Q^f/d\Q^d=Z_T$ on $\mathcal F_T$.
+
+\begin{proposition}
+(a) $\Q^f$ is a probability measure equivalent to $\Q^d$. (b) For $\mathcal F_T$-measurable $X\ge0$ or $X\in L^1(\Q^f)$, $\E^{\Q^f}[X\mid\mathcal F_t]=\E^{\Q^d}[Z_TX\mid\mathcal F_t]/Z_t$. (c) An adapted process $Y$ with $Y_t\in L^1(\Q^f)$ is a $\Q^f$-martingale if and only if $ZY$ is a $\Q^d$-martingale; in particular a foreign price $V^f$ satisfies: $V^f/B^f$ is a $\Q^f$-martingale if and only if $SV^f/B^d=S_0Z\,(V^f/B^f)$ is a $\Q^d$-martingale. (d) If $dS_t/S_t=(r_d-r_f)\,dt+\sigma\,dW_t$ under $\Q^d$ with constant coefficients, then $W^f_t=W_t-\sigma t$ is a $\Q^f$-Brownian motion, $d(1/S_t)=(1/S_t)[(r_f-r_d)\,dt-\sigma\,dW^f_t]$, and $\E^{\Q^d}S_T=F$, $\E^{\Q^f}(1/S_T)=1/F$ with $F=S_0e^{(r_d-r_f)T}$.
+\end{proposition}
+
+\begin{proof}
+(a) $Z_T>0$ and $\E^{\Q^d}Z_T=Z_0=1$, so $\Q^f$ is a probability measure; positivity of $Z_T$ gives equivalence. (b) For $\mathcal F_t$-measurable $Y\ge0$, the tower property and the martingale property give $\E^{\Q^f}Y=\E^{\Q^d}[Z_TY]=\E^{\Q^d}[Z_tY]$. For $A\in\mathcal F_t$,
+\[
+\E^{\Q^f}[X\mathbf 1_A]=\E^{\Q^d}\bigl[\E^{\Q^d}[Z_TX\mid\mathcal F_t]\mathbf 1_A\bigr]=\E^{\Q^f}\Bigl[\frac{\E^{\Q^d}[Z_TX\mid\mathcal F_t]}{Z_t}\mathbf 1_A\Bigr],
+\]
+which characterises the conditional expectation. (c) Apply (b) on $[s,t]$: $\E^{\Q^f}[Y_t\mid\mathcal F_s]=\E^{\Q^d}[Z_tY_t\mid\mathcal F_s]/Z_s$, so $Y$ is a $\Q^f$-martingale exactly when $\E^{\Q^d}[Z_tY_t\mid\mathcal F_s]=Z_sY_s$. (d) Here $Z_t=\exp(\sigma W_t-\sigma^2t/2)$, so Girsanov's theorem gives the first claim, and It\^o's formula for $1/S$ gives the dynamics. The expectations follow from the lognormal law under each measure.
+\end{proof}
+
+\begin{remark}
+Jensen's inequality gives $\E^{\Q^d}(1/S_T)>1/\E^{\Q^d}S_T=1/F$. There is no contradiction with (d): the foreign investor's forward price is an expectation under $\Q^f$, not $\Q^d$ (Siegel's paradox). If $Z$ is only a strict local martingale, then $\E Z_T<1$ and $Z_T$ does not define an equivalent probability measure. Carr, Fisher and Ruf (2014) construct the foreign measure in that case as a F\"ollmer measure that is not equivalent to $\Q^d$, and restore the domestic--foreign symmetry with a modified pricing operator.
+\end{remark}
 
 \section*{R2. Arbitrage-free call prices}
+
+The link between the second strike derivative of call prices and state prices is due to Breeden and Litzenberger (1978). The characterisation below, with its measure-theoretic proof, is stated and proved here.
 
 \begin{proposition}
 Let $c:[0,\infty)\to\mathbb{R}$ and $F>0$. There is a random variable $X\ge 0$ with $\E X=F$ and $c(K)=\E(X-K)^+$ for all $K\ge0$ if and only if (i) $c$ is convex, (ii) $c(0)=F$, (iii) $c'_+(0)\ge -1$ and (iv) $c(K)\to0$ as $K\to\infty$. The law of $X$ is then unique, with distribution function $G=1+c'_+$ on $[0,\infty)$ and $\P(X=0)=1+c'_+(0)$.
@@ -42,10 +66,82 @@ and $\E X=c(0)=F$. Uniqueness holds because $c$ determines $c'_+$ and hence $G$.
 \end{proof}
 
 \begin{remark}
-Extending $c$ by $c(K)=F-K$ for $K<0$, the second distributional derivative of $c$ on $\mathbb{R}$ is the law of $X$; the jump of $c'$ at $0$ carries the atom $\P(X=0)$. On a finite strike grid the necessary conditions reduce to slopes in $[-1,0]$ that are nondecreasing, which is the discrete test used in \texttt{src/qef/fx/arbitrage.py}.
+Extending $c$ by $c(K)=F-K$ for $K<0$, the second distributional derivative of $c$ on $\mathbb{R}$ is the law of $X$; the jump of $c'$ at $0$ carries the atom $\P(X=0)$. On a finite strike grid the necessary conditions reduce to slopes in $[-1,0]$ that are nondecreasing, which is the discrete test used in \texttt{src/qef/fx/arbitrage.py}. The implementation also applies the density condition on implied total variance of Gatheral and Jacquier (2014, eq.~(2.1) and Lemma~2.2).
+\end{remark}
+
+\section*{R3. Spanning}
+
+The representation of a payoff by bonds, forwards and out-of-the-money options is the spanning formula of Carr and Madan (2001; first published 1998). The version below states explicit sufficient hypotheses, including the integrability condition under which expectations can be taken term by term; the proof is written here. In R3 and R4, $X$ is the terminal exchange rate and $\E$ and $\Q$ refer to the same pricing measure.
+
+\begin{proposition}
+Let $f:(0,\infty)\to\mathbb{R}$ have a locally absolutely continuous derivative $f'$, so that $f''$ exists almost everywhere and is locally integrable. Let $X>0$ almost surely with $\E X=F<\infty$, and write $P(K)=\E(K-X)^+$ and $C(K)=\E(X-K)^+$. If
+\[
+I=\int_0^F|f''(K)|\,P(K)\,dK+\int_F^\infty|f''(K)|\,C(K)\,dK<\infty,
+\]
+then $f(X)\in L^1$ and
+\[
+\E f(X)=f(F)+\int_0^F f''(K)\,P(K)\,dK+\int_F^\infty f''(K)\,C(K)\,dK.
+\]
+\end{proposition}
+
+\begin{proof}
+Fix $x>0$. Absolute continuity of $f$ and $f'$ on the interval between $x$ and $F$ gives $f(x)-f(F)=\int_F^x f'(u)\,du$ and $f'(u)=f'(F)+\int_F^u f''(K)\,dK$. Substituting and applying Fubini's theorem on the bounded interval (where $f''$ is integrable),
+\[
+f(x)=f(F)+f'(F)(x-F)+\int_F^x f''(K)(x-K)\,dK.
+\]
+For $x>F$ the last integral equals $\int_F^\infty f''(K)(x-K)^+dK$; for $x<F$ it equals $\int_x^F f''(K)(K-x)\,dK=\int_0^F f''(K)(K-x)^+dK$. Hence, for every $x>0$,
+\[
+f(x)=f(F)+f'(F)(x-F)+\int_0^F f''(K)(K-x)^+dK+\int_F^\infty f''(K)(x-K)^+dK.
+\]
+The map $(K,\omega)\mapsto f''(K)(K-X(\omega))^+$ is jointly measurable. By Tonelli's theorem, $\E\int_0^F|f''(K)|(K-X)^+dK=\int_0^F|f''(K)|P(K)\,dK$, and similarly for the call term, so both are at most $I<\infty$. Each term on the right is therefore integrable, hence so is $f(X)$, and Fubini's theorem allows expectation and integral to be exchanged. Since $\E(X-F)=0$, the formula follows.
+\end{proof}
+
+\begin{remark}
+For $f(x)=\ln(x/F)$, $f''(K)=-K^{-2}$, which gives the log contract $\E\ln(X/F)=-\int_0^F P(K)K^{-2}dK-\int_F^\infty C(K)K^{-2}dK$. For $f(x)=(\ln(x/F))^2$, $f''(K)=2(1+\ln(F/K))/K^2$, which changes sign at $K=eF$; the absolute-value condition in the proposition covers such weights. The moment contracts of Bakshi, Kapadia and Madan (2003, Theorem 1) are of this type; they expand around the spot price with a constant interest rate, whereas the contracts here are centred at the forward $F$. Quotes observe $P$ and $C$ only between the $10\Delta$ strikes, so the tails of these integrals must be bounded (R4).
+\end{remark}
+
+\section*{R4. Bounds on the unobserved tails}
+
+Let $G(u)=\Q(X\le u)$ and $\bar G(u)=\Q(X>u)$. By Tonelli's theorem, $P(K)=\int_0^K G(u)\,du$ and $C(K)=\int_K^\infty\bar G(u)\,du$. Let $K_{\min}<F<K_{\max}$ be the lowest and highest strikes at which prices are observed.
+
+\begin{lemma}
+(a) If $u\mapsto G(u)/u^\gamma$ is nondecreasing on $(0,K_{\min}]$ for some $\gamma>0$, then $P(K)\le P(K_{\min})(K/K_{\min})^{\gamma+1}$ for $0<K\le K_{\min}$. (b) If $u\mapsto u^\eta\bar G(u)$ is nonincreasing on $[K_{\max},\infty)$ for some $\eta>1$, then $C(K)\le C(K_{\max})(K/K_{\max})^{1-\eta}$ for $K\ge K_{\max}$.
+\end{lemma}
+
+\begin{proof}
+(a) With $\lambda=K/K_{\min}\in(0,1]$ and the substitution $u=\lambda v$, $P(K)=\lambda\int_0^{K_{\min}}G(\lambda v)\,dv$. Since $\lambda v\le v$ and $G(w)/w^\gamma$ is nondecreasing, $G(\lambda v)\le\lambda^\gamma G(v)$. Hence $P(K)\le\lambda^{\gamma+1}\int_0^{K_{\min}}G(v)\,dv=\lambda^{\gamma+1}P(K_{\min})$. (b) With $\lambda=K/K_{\max}\ge1$ and $u=\lambda v$, $C(K)=\lambda\int_{K_{\max}}^\infty\bar G(\lambda v)\,dv$, and $\bar G(\lambda v)\le\lambda^{-\eta}\bar G(v)$ because $w^\eta\bar G(w)$ is nonincreasing. Hence $C(K)\le\lambda^{1-\eta}C(K_{\max})$.
+\end{proof}
+
+\begin{proposition}
+Under the hypotheses of the lemma, for any measurable $w\ge0$ on $(0,K_{\min}]$,
+\[
+\int_0^{K_{\min}}w(K)P(K)\,dK\le\frac{P(K_{\min})}{K_{\min}^{\gamma+1}}\int_0^{K_{\min}}w(K)K^{\gamma+1}dK.
+\]
+In particular $\int_0^{K_{\min}}P(K)K^{-2}dK\le P(K_{\min})/(\gamma K_{\min})$. For $w(K)=2(1+\ln(F/K))K^{-2}$,
+\[
+\int_0^{K_{\min}}w(K)P(K)\,dK\le\frac{2P(K_{\min})}{K_{\min}}\Bigl[\frac{1+\ln(F/K_{\min})}{\gamma}+\frac{1}{\gamma^2}\Bigr].
+\]
+For the upper tail and any measurable $w$ on $[K_{\max},\infty)$,
+\[
+\int_{K_{\max}}^\infty|w(K)|\,C(K)\,dK\le C(K_{\max})K_{\max}^{\eta-1}\int_{K_{\max}}^\infty|w(K)|\,K^{1-\eta}dK;
+\]
+in particular $\int_{K_{\max}}^\infty C(K)K^{-2}dK\le C(K_{\max})/(\eta K_{\max})$, and for $w(K)=2(1-\ln(K/F))K^{-2}$ with $F<K_{\max}\le eF$ and $\ell=\ln(K_{\max}/F)$,
+\[
+\int_{K_{\max}}^\infty|w(K)|\,C(K)\,dK\le\frac{2C(K_{\max})}{K_{\max}}\Bigl[\frac{1-\ell}{\eta}-\frac{1}{\eta^2}+\frac{2e^{-\eta(1-\ell)}}{\eta^2}\Bigr].
+\]
+\end{proposition}
+
+\begin{proof}
+The first inequality is the lemma multiplied by $w\ge0$ and integrated. For $w(K)=K^{-2}$, $\int_0^{K_{\min}}K^{\gamma-1}dK=K_{\min}^\gamma/\gamma$. For the logarithmic weight, integration by parts gives $\int_0^{K_{\min}}K^{\gamma-1}\ln(F/K)\,dK=K_{\min}^\gamma\ln(F/K_{\min})/\gamma+K_{\min}^\gamma/\gamma^2$, the boundary term at zero vanishing because $K^\gamma\ln(F/K)\to0$. The upper-tail bounds follow from part (b) of the lemma. For $w(K)=K^{-2}$, $\int_{K_{\max}}^\infty K^{-1-\eta}dK=K_{\max}^{-\eta}/\eta$. For the logarithmic weight, the substitution $u=\ln(K/F)$ gives $F^{-\eta}\int_\ell^\infty|1-u|e^{-\eta u}du$, which is split at $u=1$ and integrated by parts.
+\end{proof}
+
+\begin{remark}
+The bounds use only observed wing prices and an assumed tail exponent. A tail term whose weight has constant sign lies between $0$ and its bound, taken with the sign of the weight; a term with a sign-changing weight lies in $[-B,B]$, where $B$ bounds the integral of $|w|$. Because $\gamma$ and $\eta$ are not observed, risk-neutral variance and skewness are reported as intervals over a stated range of exponents, obtained by propagating the intervals of the individual contracts, never as point values. Between $K_{\min}$ and $K_{\max}$, $P$ and $C$ are taken from the calibrated smile and the integrals are to be computed by composite quadrature (research design, section 6), with $F$ a node and each side integrated separately, because the out-of-the-money integrand has a kink at $F$ where $P'-C'=1$. With node spacing $h$ on a side $[a,b]$ and an even number of subintervals for Simpson's rule, the composite trapezium error is at most $(b-a)h^2\max|g''|/12$ if $g\in C^2[a,b]$, and the composite Simpson error at most $(b-a)h^4\max|g^{(4)}|/180$ if $g\in C^4[a,b]$ (S\"uli and Mayers, 2003).
 \end{remark}
 
 \section*{R5(b). Premium-adjusted call delta}
+
+The premium-adjusted delta, its non-monotonicity in the strike and the market practice of taking the strike to the right of the delta maximum are described by Reiswich and Wystup (2012). The proposition below makes the shape precise and is proved here.
 
 Let $D\in(0,1]$ and $h(K)=D\,(K/F)\,\Phi\bigl(d_-(K)\bigr)$ for $K>0$. With spot delta, $D$ is the base-currency discount factor; with forward delta, $D=1$.
 
@@ -54,7 +150,7 @@ The inverse Mills ratio $\lambda(d)=\varphi(d)/\Phi(d)$ is strictly decreasing o
 \end{lemma}
 
 \begin{proof}
-Differentiation gives $\lambda'(d)=-\lambda(d)\,[d+\lambda(d)]$, so it suffices that $d\,\Phi(d)+\varphi(d)>0$. This function has derivative $\Phi(d)>0$ and tends to $0$ as $d\to-\infty$; hence $d\,\Phi(d)+\varphi(d)=\int_{-\infty}^d\Phi(u)\,du>0$. The limits follow from $\Phi\to0$, $\varphi\to0$ and the Mills-ratio asymptotics $\Phi(d)\sim\varphi(d)/|d|$ as $d\to-\infty$.
+Differentiation gives $\lambda'(d)=-\lambda(d)\,[d+\lambda(d)]$, so it suffices that $d\,\Phi(d)+\varphi(d)>0$. This function has derivative $\Phi(d)>0$ and tends to $0$ as $d\to-\infty$; hence $d\,\Phi(d)+\varphi(d)=\int_{-\infty}^d\Phi(u)\,du>0$. The limits follow from $\Phi\to0$, $\varphi\to0$ and the Mills-ratio asymptotics $\Phi(d)\sim\varphi(d)/|d|$ as $d\to-\infty$. Inequalities of this type for the Mills ratio are classical; see Sampford (1953).
 \end{proof}
 
 \begin{proposition}
@@ -75,7 +171,31 @@ By the lemma, $s-\lambda(d)$ is strictly increasing in $d$ and changes sign exac
 The market convention selects the preimage in $[K^*,\infty)$. At one month and $25\Delta$ this root lies far to the right of $K^*$; bracketing matters at long maturities and high volatilities.
 \end{remark}
 
+\section*{R5(c). Delta-to-strike inversion with a smile}
+
+\begin{proposition}
+Let $\sigma:(0,\infty)\to(0,\infty)$ be continuously differentiable and let $\Delta_\phi(K)=\phi D\,\Phi\bigl(\phi\,d_+(K,\sigma(K))\bigr)$ be the pips spot delta ($D$ the base-currency discount factor) or forward delta ($D=1$) of a call ($\phi=1$) or put ($\phi=-1$). On an interval $J$, if
+\[
+|\sigma'(K)|\,K\sqrt\tau\,|d_-(K,\sigma(K))|<1\qquad\text{for all }K\in J,
+\]
+then $\Delta_\phi$ is strictly decreasing on $J$, and each delta attained on $J$ is attained at exactly one strike in $J$.
+\end{proposition}
+
+\begin{proof}
+With $d_+=\ln(F/K)/(\sigma\sqrt\tau)+\sigma\sqrt\tau/2$, one has $\partial_Kd_+=-1/(K\sigma\sqrt\tau)$ and $\partial_\sigma d_+=-d_-/\sigma$. By the chain rule,
+\[
+\frac{d}{dK}\,d_+\bigl(K,\sigma(K)\bigr)=-\frac{1}{K\sigma\sqrt\tau}\Bigl[1+K\sqrt\tau\,d_-\,\sigma'(K)\Bigr],
+\]
+which is negative on $J$ under the stated condition. Since $\Delta_\phi'(K)=\phi^2D\,\varphi(d_+)\,\frac{d}{dK}d_+=D\,\varphi(d_+)\,\frac{d}{dK}d_+$, the function $\Delta_\phi$ is strictly decreasing on $J$, and injectivity gives uniqueness.
+\end{proof}
+
+\begin{remark}
+In log-moneyness $k=\ln(K/F)$, $K\sigma'(K)=\partial\sigma/\partial k$, so the condition reads $|\partial\sigma/\partial k|\sqrt\tau\,|d_-|<1$. Across the calibrated one-month smiles of the primary sample, its maximum over $\pm4$ ATM standard deviations is $0.76$, so the smile delta-to-strike map is injective on that range at every month-end. For premium-adjusted delta $\phi D(K/F)\Phi(\phi d_-)$ the analogous derivative is $\phi(D/F)\bigl[\Phi(\phi d_-)+\phi K\varphi(d_-)\,\tfrac{d}{dK}d_-\bigr]$ with $\tfrac{d}{dK}d_-=-\bigl[1+K\sqrt\tau\,d_+\sigma'(K)\bigr]/(K\sigma\sqrt\tau)$; numerically, the premium-adjusted put delta is strictly monotone and the call delta strictly decreasing to the right of its maximum on the same range at every month-end.
+\end{remark}
+
 \section*{R6. Diffusive null of the hedge cost}
+
+The comparison of hedged and unhedged carry returns follows Jurek (2014), who reads the resulting ratio as an upper bound on the crash share and notes that an unlevered option hedge also gives up part of the diffusive premium (working-paper version of August 2013, Section 2.2). Farhi et al. (2015, Section 5.1, eqs. (8)--(9)) state the leading-order version of the result below: a put of delta $\Delta_P$ leaves a fraction $1+\Delta_P$ of the Gaussian risk premium. The exact mean-value form and the error bound below are the author's.
 
 Let the undiscounted put value with lognormal forward $G$ and volatility $\sigma$ be
 \[
@@ -100,29 +220,11 @@ By the mean value theorem, $p(Fe^{\lambda\tau})-p(F)=-\Phi(-d_+(\xi))\,F(e^{\lam
 With no crash premium at all, hedging with a put of forward delta $-\Phi(-d_1)$ surrenders approximately that fraction of the carry premium: about $0.25$ for a $25\Delta$ put and $0.10$ for a $10\Delta$ put. This is the null against which the realised ratio $\theta_{UB}$ and the skew component of E3 are read.
 \end{remark}
 
-\section*{R1. Domestic and foreign risk-neutral measures}
-
-Let $(\Omega,\mathcal F,(\mathcal F_t)_{t\in[0,T]},\Q^d)$ satisfy the usual conditions, let $B^d,B^f$ be strictly positive adapted money-market accounts with $B^d_0=B^f_0=1$, and let $S>0$ be adapted and c\`adl\`ag. Assume $Z_t=S_tB^f_t/(S_0B^d_t)$ is a true $\Q^d$-martingale and define $d\Q^f/d\Q^d=Z_T$ on $\mathcal F_T$.
-
-\begin{proposition}
-(a) $\Q^f$ is a probability measure equivalent to $\Q^d$. (b) For $\mathcal F_T$-measurable $X\ge0$ or $X\in L^1(\Q^f)$, $\E^{\Q^f}[X\mid\mathcal F_t]=\E^{\Q^d}[Z_TX\mid\mathcal F_t]/Z_t$. (c) An adapted process $Y$ with $Y_t\in L^1(\Q^f)$ is a $\Q^f$-martingale if and only if $ZY$ is a $\Q^d$-martingale; in particular a foreign price $V^f$ satisfies: $V^f/B^f$ is a $\Q^f$-martingale if and only if $SV^f/B^d=S_0Z\,(V^f/B^f)$ is a $\Q^d$-martingale. (d) If $dS_t/S_t=(r_d-r_f)\,dt+\sigma\,dW_t$ under $\Q^d$ with constant coefficients, then $W^f_t=W_t-\sigma t$ is a $\Q^f$-Brownian motion, $d(1/S_t)=(1/S_t)[(r_f-r_d)\,dt-\sigma\,dW^f_t]$, and $\E^{\Q^d}S_T=F$, $\E^{\Q^f}(1/S_T)=1/F$ with $F=S_0e^{(r_d-r_f)T}$.
-\end{proposition}
-
-\begin{proof}
-(a) $Z_T>0$ and $\E^{\Q^d}Z_T=Z_0=1$, so $\Q^f$ is a probability measure; positivity of $Z_T$ gives equivalence. (b) For $\mathcal F_t$-measurable $Y\ge0$, the tower property and the martingale property give $\E^{\Q^f}Y=\E^{\Q^d}[Z_TY]=\E^{\Q^d}[Z_tY]$. For $A\in\mathcal F_t$,
-\[
-\E^{\Q^f}[X\mathbf 1_A]=\E^{\Q^d}\bigl[\E^{\Q^d}[Z_TX\mid\mathcal F_t]\mathbf 1_A\bigr]=\E^{\Q^f}\Bigl[\frac{\E^{\Q^d}[Z_TX\mid\mathcal F_t]}{Z_t}\mathbf 1_A\Bigr],
-\]
-which characterises the conditional expectation. (c) Apply (b) on $[s,t]$: $\E^{\Q^f}[Y_t\mid\mathcal F_s]=\E^{\Q^d}[Z_tY_t\mid\mathcal F_s]/Z_s$, so $Y$ is a $\Q^f$-martingale exactly when $\E^{\Q^d}[Z_tY_t\mid\mathcal F_s]=Z_sY_s$. (d) Here $Z_t=\exp(\sigma W_t-\sigma^2t/2)$, so Girsanov's theorem gives the first claim, and It\^o's formula for $1/S$ gives the dynamics. The expectations follow from the lognormal law under each measure.
-\end{proof}
-
-\begin{remark}
-Jensen's inequality gives $\E^{\Q^d}(1/S_T)>1/\E^{\Q^d}S_T=1/F$. There is no contradiction with (d): the foreign investor's forward price is an expectation under $\Q^f$, not $\Q^d$ (Siegel's paradox). If $Z$ is only a strict local martingale, $\E Z_T<1$ and the construction fails (Carr, Fisher and Ruf, 2014).
-\end{remark}
-
 \section*{R7. Entropy decomposition of currency premia}
 
-Fix $t$ and write $\E_t$ for $\E[\cdot\mid\mathcal F_t]$. For a positive random variable $M$ with $\E_t|\log M|<\infty$, the conditional entropy is $L_t(M)=\log\E_tM-\E_t\log M\ge0$. Let $M,M^*>0$ be $\mathcal F_{t+1}$-measurable discount factors in $L^2$ that price domestic and foreign payoffs in their own currencies, with $\E_tM=e^{-r_t}$, $\E_tM^*=e^{-r^*_t}$, $\E_t|\log M|,\E_t|\log M^*|<\infty$ and $MS_{t+1}/S_t\in L^2$, where $S$ is the domestic price of foreign currency. Write $m=\log M$, $\Delta s=\log(S_{t+1}/S_t)$, and $x_t=(f_t-s_t)-(r_t-r^*_t)$ for the covered-interest-parity basis.
+The relation between the exchange rate and the two pricing kernels is that of Backus, Foresi and Telmer (2001). Conditional entropy, its cumulant expansion and the entropy bound are as in Backus, Chernov and Zin (2014), who relate the bound to Bansal and Lehmann (1997) and Alvarez and Jermann (2005). The combination below, including the covered-interest-parity term, is derived here.
+
+Fix $t$ and write $\E_t$ for $\E[\cdot\mid\mathcal F_t]$. For a positive random variable $M$ with $\E_t|\log M|<\infty$, the conditional entropy is $L_t(M)=\log\E_tM-\E_t\log M\ge0$. Let $M,M^*>0$ be $\mathcal F_{t+1}$-measurable discount factors in $L^2$ that price domestic and foreign payoffs in their own currencies, with $\E_tM=e^{-r_t}$, $\E_tM^*=e^{-r^*_t}$, $\E_t|\log M|,\E_t|\log M^*|<\infty$ and $MS_{t+1}/S_t\in L^2$, where $S$ is the domestic price of foreign currency. Write $m=\log M$, $\Delta s=\log(S_{t+1}/S_t)$, and $x_t=(f_t-s_t)-(r_t-r^*_t)$ for the covered-interest-parity basis. With exchange rates quoted in foreign currency per USD, as in Du, Tepper and Verdelhan (2018; NBER Working Paper 23170, eq. (4)), $x_t$ is minus their basis.
 
 \begin{lemma}
 Suppose every foreign payoff $X^*\in L^2(\mathcal F_{t+1})$ is traded and priced consistently in both currencies, $S_t\E_t[M^*X^*]=\E_t[MS_{t+1}X^*]$. Then $M^*=MS_{t+1}/S_t$ almost surely.
@@ -141,11 +243,83 @@ Under the lemma's conclusion, (i) $\E_t[\Delta s+r^*_t-r_t]=L_t(M)-L_t(M^*)$ and
 \end{proof}
 
 \begin{remark}
-The identity in (i) needs only that some pair of discount factors prices bonds and exchange rates consistently; completeness makes the pair unique. Complete markets imply cross-country discount-factor correlations that are hard to reconcile with consumption data (Brandt, Cochrane and Santa-Clara, 2006). Options on $S$ reveal the risk-neutral law of $\Delta s=m^*-m$, not the separate cumulants of $m$ and $m^*$, so they constrain but do not identify the split of $L_t(M)-L_t(M^*)$ across cumulant orders. Part (iii) is the entropy bound of Bansal and Lehmann (1997); hedged and unhedged carry returns bound the same $L_t(M)$.
+The identity in (i) needs only that some pair of discount factors prices bonds and exchange rates consistently; completeness makes the pair unique. Brandt, Cochrane and Santa-Clara (2006) show that the smoothness of exchange rates relative to the volatility of marginal utility implied by equity premia requires a very high degree of international risk sharing. Options on $S$ reveal the risk-neutral law of $\Delta s=m^*-m$, not the separate cumulants of $m$ and $m^*$, so they constrain but do not identify the split of $L_t(M)-L_t(M^*)$ across cumulant orders. Hedged and unhedged carry returns give two lower bounds on the same $L_t(M)$ through (iii).
 \end{remark}
 
-\section*{Results still to be written}
+\section*{R8. Local well-posedness of the smile calibration}
 
-R3, R4, R5(c), R8 and the Garman--Kohlhagen PDE, as stated in \texttt{theory/README.md}.
+\begin{lemma}
+For $\beta=1$ the Hagan, Kumar, Lesniewski and Woodward (2002) implied volatility $\sigma(K;\theta)$, $\theta=(\alpha,\rho,\nu)$, is infinitely differentiable on $\{K>0\}\times(0,\infty)\times(-1,1)\times[0,\infty)$.
+\end{lemma}
+
+\begin{proof}
+For $\beta=1$, $\sigma=\alpha\,\bigl(z/x(z)\bigr)\bigl[1+\bigl(\rho\nu\alpha/4+(2-3\rho^2)\nu^2/24\bigr)\tau\bigr]$ with $z=(\nu/\alpha)\ln(F/K)$ and $x(z)=\ln\bigl[(\sqrt{1-2\rho z+z^2}+z-\rho)/(1-\rho)\bigr]$. Since $(1-2\rho z+z^2)-(z-\rho)^2=1-\rho^2>0$, the square root exceeds $|z-\rho|$, so the argument of the logarithm is positive and $x$ is smooth. Moreover $x'(z)=(1-2\rho z+z^2)^{-1/2}>0$ and $x(0)=0$, so $x(z,\rho)=z\,h(z,\rho)$ with $h(z,\rho)=\int_0^1(1-2\rho tz+t^2z^2)^{-1/2}\,dt$. Since $1-2\rho tz+t^2z^2\ge1-\rho^2>0$, the integrand is smooth and positive on $\mathbb R\times(-1,1)\times[0,1]$, so by differentiation under the integral $h$ is smooth and positive, and $z/x(z)=1/h(z,\rho)$ (equal to $1$ at $z=0$) is jointly smooth in $(z,\rho)$. Compositions and products of smooth maps are smooth.
+\end{proof}
+
+Fix $F,\tau,D$ and the delta convention, and write $q=(\sigma_{ATM},RR,BF)$ for the quotes. For parameters $\theta$, let $K_A(\theta)$ solve $\ln(K/F)\mp\sigma(K;\theta)^2\tau/2=0$ (the delta-neutral-straddle strike, with the sign given by the premium convention). Let $K_c(\theta)$ and $K_p(\theta)$ solve $\Delta\bigl(K,\sigma(K;\theta)\bigr)=\pm0.25$. Let $K^{ms}_{c}(q)$ and $K^{ms}_{p}(q)$ be the $\pm25\Delta$ strikes at the single volatility $\sigma_{ATM}+BF$. Define $\Psi=(\Psi_1,\Psi_2,\Psi_3)$ by
+\[
+\Psi_1=\sigma(K_A;\theta)-\sigma_{ATM},\qquad \Psi_2=\sigma(K_c;\theta)-\sigma(K_p;\theta)-RR,
+\]
+\[
+\Psi_3=\sum_{i\in\{c,p\}}\bigl[V\bigl(K^{ms}_i,\sigma(K^{ms}_i;\theta)\bigr)-V\bigl(K^{ms}_i,\sigma_{ATM}+BF\bigr)\bigr],
+\]
+where $V$ is the undiscounted Garman--Kohlhagen premium of the corresponding option. The calibrated smile solves $\Psi(\theta,q)=0$. The market-strangle condition is that of Reiswich and Wystup (2012). For $\theta$ near $\theta^*$, $K_A(\theta)$, $K_c(\theta)$ and $K_p(\theta)$ denote the $C^1$ branches through the strikes at $\theta^*$ given by the implicit function theorem under (i) and (ii) below; for a premium-adjusted call, the strike at $\theta^*$ is the root with $\partial_K\Delta<0$ (the conventional branch), which is the root that \texttt{strike\_from\_delta\_smile} selects.
+
+\begin{proposition}
+Let $\Psi(\theta^*,q^*)=0$. Suppose that at $(\theta^*,q^*)$: (i) $1\mp K\sigma\sigma'(K)\tau\ne0$ at $K_A$; (ii) the strike derivative of $\Delta(K,\sigma(K;\theta^*))$ is non-zero at $K_c$ and $K_p$ (for pips delta, for instance under the condition of R5(c); for premium-adjusted delta the derivative in the remark after R5(c) must be checked directly, since a flat smile satisfies the R5(c) condition while the call derivative vanishes at $K^*$); (iii) for premium-adjusted delta, the $25\Delta$ call strike at the flat volatility $\sigma^*_{ATM}+BF^*$ lies strictly to the right of the maximiser, $K^{ms}_c>K^*$ (equivalently $0.25<h(K^*)$ in the notation of R5(b)); and (iv) $D_\theta \Psi(\theta^*,q^*)$ is non-singular. Then there are neighbourhoods $U\ni q^*$ and $W\ni\theta^*$ and a unique $C^1$ map $\theta:U\to W$ with $\Psi(\theta(q),q)=0$. In particular $\theta^*$ is the only calibration in $W$ with strikes on these branches, and the calibrated smile varies smoothly with the quotes.
+\end{proposition}
+
+\begin{proof}
+Since $x$ has the sign of $z$, $z/x(z)>0$, so $\sigma(\cdot;\theta)>0$ for all $K$ exactly when $1+\bigl(\rho\nu\alpha/4+(2-3\rho^2)\nu^2/24\bigr)\tau>0$. This holds at $\theta^*$ because $\sigma(K_A;\theta^*)=\sigma_{ATM}>0$, hence near $\theta^*$, and $\Delta$ and $V$ are evaluated only at positive volatilities. By the lemma, each defining equation of $K_A$, $K_c$, $K_p$ is then $C^1$ in $(K,\theta)$. Condition (i) is the non-vanishing of the $K$-derivative of the first; condition (ii) that of the other two. The implicit function theorem therefore makes $K_A$, $K_c$ and $K_p$ $C^1$ functions of $\theta$ near $\theta^*$. The strikes $K^{ms}_i$ depend on $q$ through $\sigma_{ATM}+BF$: in closed form for pips delta, $K^{ms}_{c,p}=F\exp\bigl(\tfrac12s_q^2\mp s_q\Phi^{-1}(0.25/D)\bigr)$ with $s_q=(\sigma_{ATM}+BF)\sqrt\tau$; and by the implicit function theorem for premium-adjusted delta, since $h'<0$ on $(K^*,\infty)$ by the proof of R5(b) and condition (iii), and $\partial_K\bigl[-D(K/F)\Phi(-d_-)\bigr]=-(D/F)\bigl[\Phi(-d_-)+\varphi(d_-)/s\bigr]<0$ for the put. Hence $G$ is $C^1$ in $(\theta,q)$ near $(\theta^*,q^*)$, and the implicit function theorem applied to $G$ with (iv) gives the claim.
+\end{proof}
+
+\begin{remark}
+Condition (iv) is checked at every calibration through the finite-difference Jacobian $J$ returned by the solver. $J$ is taken in $x=(\ln\alpha,\operatorname{atanh}\rho,\ln\nu)$, with $\Psi_3$ divided by the flat-volatility strangle vega $\mathcal V$, so $J=\operatorname{diag}(1,1,\mathcal V^{-1})\,D_\theta\Psi\,\operatorname{diag}(\alpha,1-\rho^2,\nu)$, which is non-singular exactly when $D_\theta\Psi$ is. Across the primary sample $\operatorname{cond}(J)$ is at most 125 under the market-strangle reading and at most 634 under the smile-strangle reading. Under the smile-strangle reading, $\Psi_3$ is replaced by $\tfrac12[\sigma(K_c;\theta)+\sigma(K_p;\theta)]-\sigma_{ATM}-BF$, and the proposition and its proof hold without condition (iii). The proposition is local: it does not assert existence of a solution for arbitrary quotes, and it does not exclude other solutions far from $\theta^*$. The implementation therefore restarts from several points and records non-convergence.
+\end{remark}
+
+\section*{The Garman--Kohlhagen PDE}
+
+Let $dS_t=(r_d-r_f)S_t\,dt+\sigma S_t\,dW_t$ under $\Q^d$ with constant coefficients, and let $c(t,S)$ be the Garman and Kohlhagen (1983) call price with strike $K$ and expiry $T$,
+\[
+c(t,S)=Se^{-r_f(T-t)}\Phi(d_+)-Ke^{-r_d(T-t)}\Phi(d_-),\qquad d_\pm=\frac{\ln(S/K)+(r_d-r_f\pm\sigma^2/2)(T-t)}{\sigma\sqrt{T-t}}.
+\]
+
+\begin{proposition}
+(a) $c\in C^{1,2}([0,T)\times(0,\infty))$ satisfies
+\[
+\partial_tc+(r_d-r_f)S\,\partial_Sc+\tfrac12\sigma^2S^2\,\partial_{SS}c-r_dc=0,
+\]
+$0\le c\le Se^{-r_f(T-t)}$, and $c(t,S)\to(S-K)^+$ as $t\uparrow T$, locally uniformly in $S$. (b) If $u\in C^{1,2}([0,T)\times(0,\infty))\cap C([0,T]\times(0,\infty))$ solves the same equation with $u(T,S)=(S-K)^+$ and $|u(t,S)|\le a(1+S^m)$ for some $a,m$, then $u=c$. No boundary condition at $S=0$ is required.
+\end{proposition}
+
+\begin{proof}
+(a) Write $\tau=T-t$. The identity $Se^{-r_f\tau}\varphi(d_+)=Ke^{-r_d\tau}\varphi(d_-)$ gives $\partial_Sc=e^{-r_f\tau}\Phi(d_+)$ and $\partial_{SS}c=e^{-r_f\tau}\varphi(d_+)/(S\sigma\sqrt\tau)$. The same identity gives $\partial_tc=r_fSe^{-r_f\tau}\Phi(d_+)-r_dKe^{-r_d\tau}\Phi(d_-)-Se^{-r_f\tau}\varphi(d_+)\sigma/(2\sqrt\tau)$. Substitution verifies the equation. The bounds follow from $c=e^{-r_d\tau}\E[(S_T-K)^+\mid S_t=S]$ and $\E[S_T\mid S_t=S]=Se^{(r_d-r_f)\tau}$. As $\tau\downarrow0$, $\Phi(d_\pm)\to\mathbf 1\{S>K\}$ for $S\ne K$ and $c(t,K)\to0$, and $c$ is Lipschitz in $S$ with constant $e^{|r_f|T}$ uniformly in $t$, which gives locally uniform convergence.
+
+(b) Fix $(t,S)$ and let $\tau_n=\inf\{s\ge t:S_s\notin(1/n,n)\}\wedge(T-1/n)$. It\^o's formula for $e^{-r_d(s-t)}u(s,S_s)$ on $[t,\tau_n]$, the equation, and the boundedness of $\partial_Su$ on compact sets give $u(t,S)=\E\bigl[e^{-r_d(\tau_n-t)}u(\tau_n,S_{\tau_n})\bigr]$. Because $S$ is a geometric Brownian motion started at $S>0$, it reaches neither $0$ nor $\infty$ before $T$, so $\tau_n\to T$ almost surely. Continuity of $u$ on $[0,T]\times(0,\infty)$ then gives $u(\tau_n,S_{\tau_n})\to(S_T-K)^+$. The growth bound and $\E\sup_{s\le T}S_s^m<\infty$ allow dominated convergence, so $u(t,S)=e^{-r_d(T-t)}\E(S_T-K)^+=c(t,S)$. The representation uses only values in the interior $(0,\infty)$, which the process never leaves, so no condition at $S=0$ enters. It\^o's formula and the Feynman--Kac representation are used in the forms given by Shreve (2004).
+\end{proof}
+
+\section*{References}
+\begin{list}{}{\leftmargin=1.5em \itemindent=-1.5em \itemsep=2pt \parsep=0pt}\small
+\item Alvarez, F. and Jermann, U. J. (2005). Using asset prices to measure the persistence of the marginal utility of wealth. \emph{Econometrica} 73(6), 1977--2016.
+\item Backus, D., Chernov, M. and Zin, S. (2014). Sources of entropy in representative agent models. \emph{Journal of Finance} 69(1), 51--99.
+\item Backus, D. K., Foresi, S. and Telmer, C. I. (2001). Affine term structure models and the forward premium anomaly. \emph{Journal of Finance} 56(1), 279--304.
+\item Bakshi, G., Kapadia, N. and Madan, D. (2003). Stock return characteristics, skew laws, and the differential pricing of individual equity options. \emph{Review of Financial Studies} 16(1), 101--143.
+\item Bansal, R. and Lehmann, B. N. (1997). Growth-optimal portfolio restrictions on asset pricing models. \emph{Macroeconomic Dynamics} 1(2), 333--354.
+\item Brandt, M. W., Cochrane, J. H. and Santa-Clara, P. (2006). International risk sharing is better than you think, or exchange rates are too smooth. \emph{Journal of Monetary Economics} 53(4), 671--698.
+\item Breeden, D. T. and Litzenberger, R. H. (1978). Prices of state-contingent claims implicit in option prices. \emph{Journal of Business} 51(4), 621--651.
+\item Carr, P., Fisher, T. and Ruf, J. (2014). On the hedging of options on exploding exchange rates. \emph{Finance and Stochastics} 18(1), 115--144.
+\item Carr, P. and Madan, D. (2001). Towards a theory of volatility trading. In E. Jouini, J. Cvitani\'c and M. Musiela (eds), \emph{Option Pricing, Interest Rates and Risk Management}, Cambridge University Press, 458--476.
+\item Du, W., Tepper, A. and Verdelhan, A. (2018). Deviations from covered interest rate parity. \emph{Journal of Finance} 73(3), 915--957. Version consulted: NBER Working Paper 23170, February 2017.
+\item Farhi, E., Fraiberger, S. P., Gabaix, X., Ranci\`ere, R. and Verdelhan, A. (2015). Crash risk in currency markets. Working paper, version of 12 March 2015, SSRN 1397668; first issued as NBER Working Paper 15062 (2009).
+\item Garman, M. B. and Kohlhagen, S. W. (1983). Foreign currency option values. \emph{Journal of International Money and Finance} 2(3), 231--237.
+\item Gatheral, J. and Jacquier, A. (2014). Arbitrage-free SVI volatility surfaces. \emph{Quantitative Finance} 14(1), 59--71.
+\item Geman, H., El Karoui, N. and Rochet, J.-C. (1995). Changes of num\'eraire, changes of probability measure and option pricing. \emph{Journal of Applied Probability} 32(2), 443--458.
+\item Hagan, P. S., Kumar, D., Lesniewski, A. S. and Woodward, D. E. (2002). Managing smile risk. \emph{Wilmott Magazine}, 84--108.
+\item Jurek, J. W. (2014). Crash-neutral currency carry trades. \emph{Journal of Financial Economics} 113(3), 325--347. Version consulted for Section 2.2: SSRN 1262934, August 2013.
+\item Reiswich, D. and Wystup, U. (2012). FX volatility smile construction. \emph{Wilmott} 2012(60), 58--69. Version consulted: CPQF Working Paper No.~20, version 2, Frankfurt School of Finance \& Management, 20 March 2010.
+\item Sampford, M. R. (1953). Some inequalities on Mill's ratio and related functions. \emph{Annals of Mathematical Statistics} 24(1), 130--132.
+\item Shreve, S. E. (2004). \emph{Stochastic Calculus for Finance II: Continuous-Time Models}. Springer.
+\item S\"uli, E. and Mayers, D. F. (2003). \emph{An Introduction to Numerical Analysis}. Cambridge University Press.
+\end{list}
 
 \end{document}

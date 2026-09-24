@@ -105,7 +105,8 @@ def read_raw(path: Path) -> pd.DataFrame:
 
 
 class NewYorkCalendar(AbstractHolidayCalendar):
-    """Federal Reserve holidays.
+    """Federal Reserve holidays (Federal Reserve Board, "Holidays Observed - K.8",
+    https://www.federalreserve.gov/aboutthefed/k8.htm).
 
     A holiday on Sunday is observed on Monday. A holiday on Saturday is not
     moved, so the preceding Friday (for example 31 December 2021) remains a

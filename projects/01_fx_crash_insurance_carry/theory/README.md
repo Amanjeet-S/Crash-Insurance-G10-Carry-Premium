@@ -1,6 +1,6 @@
 # Theory
 
-Results used in the [research design](../research_design.md). Proofs are written in `notes.tex`.
+Results used in the [research design](../research_design.md). Every result marked P or P\* is proved in `notes.tex` (compiled as `notes.pdf`); R9 is cited with its conditions.
 
 **Labels:**
 
@@ -23,7 +23,7 @@ Results used in the [research design](../research_design.md). Proofs are written
 - (c) Foreign prices discounted by B^f are Q^f-martingales exactly when their domestic values discounted by B^d are Q^d-martingales.
 - (d) Under Garman–Kohlhagen, E^{Q^d} S_T = F and E^{Q^f}(1/S_T) = 1/F. This is Siegel's paradox resolved.
 
-**Remark.** If Z is a strict local martingale, then E Z_T < 1 and the symmetry fails (Carr, Fisher and Ruf, 2014).
+**Remark.** If Z is only a strict local martingale, then E Z_T < 1 and Z_T does not define an equivalent measure. Carr, Fisher and Ruf (2014) construct the foreign measure as a Föllmer measure that is not equivalent to Q^d, and restore the domestic-foreign symmetry with a modified pricing operator.
 
 **Source.** Geman, El Karoui and Rochet (1995).
 
@@ -66,7 +66,7 @@ Results used in the [research design](../research_design.md). Proofs are written
 
 **Output.** Variance and skewness are reported as intervals over a stated range of α, truncating at the 10Δ strikes.
 
-**Quadrature.** F is a node, because the integrand has a kink there. Trapezoid error is O(h²) and Simpson error O(h⁴) on each side.
+**Quadrature.** F is a node, because the integrand has a kink there. Trapezium error is O(h²) and Simpson error O(h⁴) on each side.
 
 ## R5. Delta-to-strike inversion
 
@@ -78,7 +78,9 @@ Results used in the [research design](../research_design.md). Proofs are written
 - Since φ/Φ is strictly decreasing, h is strictly increasing then strictly decreasing, with a unique maximiser K*.
 - Each attainable Δ has exactly two strikes; the convention takes the root in [K*, ∞).
 
-**(c)** Conditions on σ(·) under which K ↦ Δ(K, σ(K)) is monotone; checked numerically on the panel.
+**(c) (P)** For pips delta Δ_φ(K) = φ D Φ(φ d₊(K, σ(K))): if |∂σ/∂k| √τ |d₋| < 1 on an interval (k = ln(K/F)), Δ_φ is strictly decreasing there, so the smile delta-to-strike map is injective. The condition holds over ±4 ATM standard deviations at every calibrated month-end; premium-adjusted deltas are checked numerically.
+
+**Sources.** Reiswich and Wystup (2012) give the delta definitions, the non-monotonicity of the premium-adjusted call delta and the right-branch convention; the proof of (b) is written here.
 
 **Implementation.** `src/qef/fx/gk.py`.
 
@@ -90,7 +92,9 @@ Results used in the [research design](../research_design.md). Proofs are written
 - E^P(K − S_T)⁺ − E^Q(K − S_T)⁺ = −FλτΦ(−d₁) + o(λτ).
 - Hence θ₀ = Φ(−d₁) + O(λτ).
 
-**Proof.** Dominated convergence, together with ∂_F E(K − S_T)⁺ = −Φ(−d₁).
+**Source.** The leading-order form is stated by Farhi et al. (2015, Section 5.1, eqs. (8)–(9)). Jurek (2014) notes that an unlevered hedge gives up part of the diffusive premium. The exact mean-value form and the error bound are proved in notes.tex.
+
+**Proof.** Mean value theorem, with ∂_G p(G) = −Φ(−d₊(G)) for the undiscounted put.
 
 ## R7 (P). Entropy decomposition
 
@@ -106,7 +110,7 @@ Results used in the [research design](../research_design.md). Proofs are written
 - (i) E_t[Δs + r* − r] = L_t(M) − L_t(M*), and E_t[s_{t+1} − f_t] = L_t(M) − L_t(M*) − x_t.
 - (ii) If the cumulant generating function of m has a Maclaurin series with radius of convergence greater than 1, then L_t(M) = Σ_{j≥2} κ_j/j!.
 
-**Entropy bound** (Bansal and Lehmann, 1997). E L_t(M) ≥ E[log R − log R_f] for funded returns R > 0.
+**Entropy bound** (Bansal and Lehmann, 1997; Alvarez and Jermann, 2005; as stated in Backus, Chernov and Zin, 2014). E L_t(M) ≥ E[log R − log R_f] for funded returns R > 0.
 
 **Sources.** Backus, Foresi and Telmer (2001); Backus, Chernov and Zin (2014); Brandt, Cochrane and Santa-Clara (2006).
 
@@ -117,24 +121,24 @@ Results used in the [research design](../research_design.md). Proofs are written
 - the 25Δ risk reversal at the smile's own 25Δ strikes;
 - equality of the market-strangle premium under the smile and under the flat volatility σ_ATM + BF.
 
-**Statement.** If the Jacobian is non-singular at a solution and R5(c) holds at the three strikes, the solution is locally unique and C¹ in the quotes (implicit function theorem).
+**Statement.** If the Hagan volatility is smooth (a lemma for β = 1), the strike fixed points are non-degenerate (R5(c)) and the Jacobian is non-singular at a solution, the solution is locally unique and C¹ in the quotes (implicit function theorem, applied first to the strikes and then to the system).
 
 **Implementation.** `src/qef/fx/smile.py`, in the variables (ln α, atanh ρ, ln ν).
 
 ## R9 (C). Inference
 
-**Central limit theorem.**
+**Central limit theorem** (Ibragimov, 1962, Theorem 1.7).
 - Strict stationarity.
 - E|X|^{2+δ} < ∞.
 - Σ α(n)^{δ/(2+δ)} < ∞.
 - A positive long-run variance.
 
-**Stationary bootstrap.** Politis and Romano (1994, Thm 1), or Gonçalves and de Jong (2003).
+**Stationary bootstrap.** Politis and Romano (1994); the moment and mixing conditions are those of Theorem 2 in their technical-report version (Politis and Romano, 1991). Weaker conditions: Gonçalves and de Jong (2003).
 
 **The ratio θ.** Confidence procedures that are bounded with probability one have zero worst-case coverage (Gleser and Hwang, 1987; Dufour, 1997), so test inversion is used.
 
 ## Supporting derivation: the Garman–Kohlhagen PDE
 
-- Via Feynman–Kac, with terminal condition (S − K)⁺.
-- Unique among C^{1,2} solutions of polynomial growth.
-- No boundary condition at S = 0.
+- (P) The Garman–Kohlhagen price solves the PDE with terminal condition (S − K)⁺ (direct verification).
+- It is the unique C^{1,2} solution of polynomial growth that is continuous up to T (Feynman–Kac with localisation).
+- No boundary condition at S = 0 is needed, because the exchange rate never reaches zero.

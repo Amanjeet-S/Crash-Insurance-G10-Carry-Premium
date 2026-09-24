@@ -61,3 +61,11 @@ def test_arbitrageable_smile_detected():
     spike = lambda K: 0.1 + 0.5 * np.exp(-((np.log(np.asarray(K) / 1.1)) / 0.01) ** 2)
     rep = check_smile(spike, 1.1, 0.25)
     assert not rep.density_ok
+
+
+def test_ten_delta_market_quotes_for_low_volatility_smile():
+    # Regression: the butterfly bracket must keep sigma_ATM + BF positive when ATM volatility is low.
+    # Synthetic values; the code before the fix does not terminate on them.
+    truth = SabrSmile(1.30, 1 / 12, 0.04, 0.10, 2.0)
+    atm, rr, bf = quotes_from_smile(truth, 1 / 12, PA, 0.10, 0.999, "market")
+    assert 0 < atm < 0.1 and bf > 0

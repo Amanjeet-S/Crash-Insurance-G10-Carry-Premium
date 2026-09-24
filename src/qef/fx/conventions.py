@@ -1,9 +1,11 @@
 """Quotation and delta conventions for the G10 currency set.
 
-Market conventions follow Clark (2011) and Reiswich and Wystup (2010). They
-are provisional until the Stage 1 data audit confirms each instrument's
-underlying pair, forward-point scaling and delta convention against provider
-metadata (data plan, audit checks 4 to 6).
+Market conventions follow Reiswich and Wystup (2012), which reports the
+conventions table of Clark (2011). NZDUSD, USDNOK and USDSEK are not in that
+table; they follow its general rule (premium-adjusted delta when the premium is
+paid in the base currency). The audit confirmed each instrument's underlying
+pair and forward-point scaling; provider documentation does not state the delta
+convention (research log, 24 September 2026).
 """
 
 from __future__ import annotations

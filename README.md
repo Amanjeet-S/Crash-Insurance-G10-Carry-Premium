@@ -26,4 +26,4 @@ python -m venv .venv
 .venv/bin/python -m pytest -q
 ```
 
-LSEG Workspace data are acquired in a separate environment (`requirements-lseg.lock`) with a user's own licence. Licensed data and values derived from them are kept in `data/private/` until the licence terms for publication are confirmed.
+LSEG Workspace data are acquired in a separate environment (`requirements-lseg.lock`) with a user's own licence. LSEG data are licensed for individual study and research and may not be redistributed. The repository therefore holds code, methods and aggregate results (means, standard errors, test statistics and intervals). It holds no LSEG data and no month-level series or calibrated parameters from which quotes could be reconstructed; these stay in `data/private/`, which Git ignores.

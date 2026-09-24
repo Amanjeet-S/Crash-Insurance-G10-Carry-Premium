@@ -8,11 +8,11 @@ Does the ex-ante price of crash insurance in G10 FX option smiles explain the co
 
 ## 2. Motivation and identification
 
-Carry investors earn the interest differential. They lose when high-yielding currencies fall sharply in bad states (Brunnermeier, Nagel and Pedersen, 2009). Let M and M* be discount factors that price one-period bonds and FX consistently in the US and abroad. The expected log excess return on foreign currency is then
+Carry investors earn the interest differential. They lose when high-yielding currencies fall sharply in bad states (Brunnermeier, Nagel and Pedersen, 2008). Let M and M* be discount factors that price one-period bonds and FX consistently in the US and abroad. The expected log excess return on foreign currency is then
 
 E_t[s_{t+1} − f_t] = L_t(M) − L_t(M*) − x_t,
 
-where L_t(M) = log E_t M − E_t log M is conditional entropy and x_t is the covered-interest-parity basis (theory result R7). Entropy is a sum of cumulants of log marginal utility, so crash risk enters through cumulants of order three and above.
+where L_t(M) = log E_t M − E_t log M is conditional entropy and x_t is the covered-interest-parity basis (theory result R7). x_t is minus the basis of Du, Tepper and Verdelhan (2018), who quote exchange rates in foreign currency per USD. Entropy is a sum of cumulants of log marginal utility, so crash risk enters through cumulants of order three and above.
 
 Options on S identify the risk-neutral law of Δs = m* − m. They do not identify how the entropy difference divides across cumulant orders. The project therefore measures the price of the carry position's left-tail exposure. It does not measure the crash share of discount-factor entropy.
 
@@ -20,13 +20,13 @@ A residual premium after hedging can reflect diffusive risk, systemic risk that 
 
 **Closest work:**
 
-- Jurek (2014, *JFE*): crash-neutral carry, 1990–2012. Crash premia account for at most one third of carry returns.
+- Jurek (2014, *JFE*): crash-neutral carry; unhedged returns 1990–2012, option-hedged returns 1999–2012. Crash premia account for at most one third of carry returns.
 - Burnside et al. (2011, *RFS*).
 - Chernov, Graveline and Zviadadze (2018, *JFQA*).
 - Della Corte, Ramadorai and Sarno (2016, *JFE*).
 - Fan, Londono and Xiao (2022, *JFE*).
 - Choi and Suh (2022, *JIFMIM*).
-- Working papers: Farhi, Fraiberger, Gabaix, Rancière and Verdelhan (NBER WP 15062); Kutuk and van Wijnbergen (CEPR DP 20745, USD/TRY only).
+- Working papers: Farhi, Fraiberger, Gabaix, Rancière and Verdelhan (NBER WP 15062, 2009; SSRN version of 12 March 2015); Kutuk and van Wijnbergen (CEPR DP 20745, USD/TRY only).
 
 **Intended contribution:**
 
@@ -54,7 +54,7 @@ A residual premium after hedging can reflect diffusive risk, systemic risk that 
 - USD discounting: one-month Fed Funds OIS, with SOFR OIS as a check from its start.
 - Other currencies: one-month deposit rates, or OIS where available.
 
-**Quote conventions** (Clark, 2011; Reiswich and Wystup, 2010), confirmed per instrument in the audit:
+**Quote conventions** (Reiswich and Wystup, 2012, reporting Clark, 2011), confirmed per instrument in the audit:
 
 - Spot delta up to one year.
 - Premium-adjusted delta for USD-base pairs.
@@ -128,7 +128,7 @@ Report φ_t, its means in the zero-rate regime (primary start to December 2021) 
 
 Here σ̂^P is the annualised realised volatility of daily log spot changes over the previous 21 business days. R6 gives the diffusive null θ₀ ≈ Φ(−d₁).
 
-Report θ_UB = 1 − μ_H/μ_U. It is an upper bound in the sense of Jurek (2014), it can take any real value, and it is compared with θ₀.
+Report θ_UB = 1 − μ_H/μ_U. It can take any real value. It bounds the crash share from above in the sense of Jurek (2014), but an unlevered hedge also gives up part of the diffusive premium, so it is compared with θ₀ (Farhi et al., 2015, state the leading-order form of θ₀).
 
 **E4.** Recompute E1 and E3(3) under the other butterfly reading.
 
@@ -143,7 +143,7 @@ Report θ_UB after adjusting for these exposures.
 
 ## 7. Inference
 
-- Newey–West errors with lag ⌊4(T/100)^{2/9}⌋.
+- Newey and West (1987) standard errors with a Bartlett kernel. The bandwidth follows the automatic procedure of Newey and West (1994): pilot truncation n = ⌊4(T/100)^{2/9}⌋, then bandwidth m = ⌊γ̂ T^{1/3}⌋.
 - Stationary bootstrap (Politis and Romano, 1994), with block length by Politis and White (2004) as corrected by Patton, Politis and White (2009), and 9,999 draws.
 - θ_UB by test inversion: CS = {θ₀ : |μ̂_H − (1 − θ₀)μ̂_U| ≤ 1.96 ŝe_HAC}. Unbounded sets are reported as unbounded (Dufour, 1997). Delta-method intervals are secondary.
 - Stambaugh bias in E2 is assessed by residual bootstrap under the null.

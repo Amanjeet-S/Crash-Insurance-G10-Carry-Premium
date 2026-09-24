@@ -21,9 +21,10 @@ Each month-end smile is converted into strikes and prices under market quoting c
 | [theory/](theory/README.md) | Results R1–R9 and proofs |
 | [data_plan.md](data_plan.md) | Instruments, storage and audit checks |
 | [research_log.md](research_log.md) | Dated decisions and deviations |
+| [references.md](references.md) | Every source, what it is used for and the version consulted |
 | [reports/](reports/) | Audit record and results |
 
-**Status:** Stage 1. The LSEG panel is acquired and audited (checks 1 to 5, 8 and 9; see [reports/data_audit.md](reports/data_audit.md)). Checks 6 and 7 and a revision check remain. The pricing and smile engine is implemented and cross-checked against QuantLib. No empirical results yet.
+**Status:** Stages 1 to 4 complete. Stage 5: proofs complete; robustness grid complete except the three-month tenor and vanna–volga smiles. Results: [E1 and E4](reports/e1.md); [portfolio returns, E2, E3 and E5](reports/stage4.md); [robustness](reports/robustness.md). Remaining: the two robustness variants, R4 moment intervals, the C++ kernel, and the Stage 1 quote-revision check.
 
 ## Reproduction
 
@@ -40,4 +41,4 @@ python -m venv .venv-lseg && .venv-lseg/bin/pip install -r requirements-lseg.loc
 .venv/bin/python scripts/audit_fx_panel.py
 ```
 
-The App Key is read from `~/.lseg/app_key`. LSEG data and every value derived from them stay in `data/private/`, which Git ignores, until the licence terms for publication are confirmed.
+The App Key is read from `~/.lseg/app_key`. LSEG data are licensed for individual study and research and may not be redistributed. The repository therefore holds code, methods and aggregate results (means, standard errors, test statistics and intervals). It holds no LSEG data and no month-level series or calibrated parameters from which quotes could be reconstructed; these stay in `data/private/`, which Git ignores.

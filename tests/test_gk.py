@@ -95,3 +95,13 @@ def test_diffusive_null_bound_r6():
         mu_u = F0 * np.expm1(lam * tau)
         theta0 = -(p(F0 * np.exp(lam * tau)) - p(F0)) / mu_u
         assert abs(theta0 - norm.cdf(-d1)) <= norm.pdf(0) * abs(lam) * np.sqrt(tau) / sig
+
+
+@pytest.mark.parametrize("sigma", [0.0, -0.05, np.nan])
+def test_non_positive_volatility_is_rejected(sigma):
+    # Regression: a negative volatility once sent the premium-adjusted maximiser into an endless loop.
+    conv = DeltaConvention(spot=True, premium_adjusted=True)
+    with pytest.raises(ValueError):
+        strike_from_delta(0.25, F, sigma, TAU, CALL, conv, DB)
+    with pytest.raises(ValueError):
+        pa_call_delta_maximiser(F, sigma, TAU)

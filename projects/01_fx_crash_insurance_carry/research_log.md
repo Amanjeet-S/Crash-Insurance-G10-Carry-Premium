@@ -21,9 +21,84 @@
 - **Conventions confirmed.** Every volatility instrument, including NOK and SEK, is quoted against USD, so no triangulation is needed. Provider scaling factors confirm the configured pip factors. Risk reversals are call minus put on the quoted pair, and the 10Δ quotes follow the same convention.
 - **Clarification: extended sample.** The rule requires the calibration set only (ATM, 25Δ risk reversal, 25Δ butterfly) plus forward points. 10Δ quotes are used for the fit test where available. This was recorded before any estimate was computed.
 - **Extended-sample quality.** Fenics quotes before 2010 update infrequently, and butterflies in particular are often unchanged for weeks. Extended-sample results are therefore secondary evidence. The stale-butterfly robustness run applies to them, and the long ATM sample is used alongside them for 2008.
-- **USD deposit rate added.** `USD1MD=` was added to the catalogue so that the forward-point check compares deposit rates with deposit rates. OIS RICs do not exist for EUR and SEK; deposit rates are primary for all currencies, as designed.
-- **Remaining for Stage 1:**
-  - check 6 (delta and premium conventions from provider documentation);
-  - check 7 (the butterfly convention);
-  - a second retrieval to check for quote revisions;
-  - the snapshot time of daily history.
+- **USD deposit rate added.** `USD1MD=` was added to the catalogue so that the forward-point check compares deposit rates with deposit rates. OIS RICs do not exist for EUR and SEK. (Corrected on 24 September: USD discounting uses Fed Funds OIS as designed; the other currencies use deposit rates. See the entry of that date.)
+- **Remaining for Stage 1** at that point: checks 6 and 7, a second retrieval to check for quote revisions, and the snapshot time of daily history.
+
+## 2026-09-24
+
+- **Snapshot time.** Daily history was matched against intraday bars over windows in January, March and August to September 2026. The composite daily value corresponds to about 21:18 UTC in both summer and winter, that is, a fixed UTC time rather than a New York local close. The Fenics daily value corresponds to about 17:16 London time. Option payoffs and month-end alignment use these times; the sensitivity check in the design (same-day and previous-day close) is unchanged.
+- **Check 6 (conventions).** The instrument metadata name only the quote type and the delta. LSEG's surface-construction documentation gives defaults for its own surfaces (spot delta, premium-adjusted) but does not define the contributed quotes. Delta and premium conventions therefore follow market convention (Clark, 2011; Reiswich and Wystup, 2010), as configured.
+- **Check 7 (butterfly reading).** Provider documentation is silent. Under the pre-registered order of evidence, the market-strangle reading is primary. The supporting diagnostic points the other way: across the primary sample, smiles calibrated under the smile-strangle reading predict the held-out 10Δ butterflies better in most month-ends and every currency, with small absolute differences. This is recorded as evidence against the primary reading. E4, which recomputes E1 and the skew term of E3 under the smile-strangle reading, is therefore reported alongside the primary results, not as a footnote.
+- **Stage 2 (panel calibration).** Every month-end smile in the primary sample was calibrated under both readings: all converged, with residuals below 1e-13 and all smiles free of static arbitrage within ±4 and ±10 ATM standard deviations. Counts and diagnostics are in the private results. Stage 2's completion criterion is met.
+- **Bug fixed during calibration.** The market-strangle butterfly bracket in `quotes_from_smile` could test a negative strangle volatility for low-volatility pairs, which sent the premium-adjusted delta maximiser into an unbounded loop. Volatility is now validated, bracket expansions are bounded and the butterfly bracket keeps σ_ATM + BF positive. Regression tests were added. The delta-to-strike search now brackets locally before scanning and evaluates the smile on the whole grid at once.
+- **Remaining for Stage 1:** a second retrieval to check for quote revisions.
+- **Citations verified.** Every cited source was checked for its bibliographic details (Crossref, OpenAlex, JSTOR, Project Euclid, publisher pages). Each specific claim attributed to a source was checked against the text, and [references.md](references.md) records what each source is used for and which version was read. Corrections made:
+  - The entropy bound is attributed jointly to Bansal and Lehmann (1997) and Alvarez and Jermann (2005), as stated in Backus, Chernov and Zin (2014).
+  - The remark on strict-local-martingale exchange rates now states that the foreign measure exists but is not equivalent (Carr, Fisher and Ruf, 2014).
+  - Brandt, Cochrane and Santa-Clara (2006) are cited for a risk-sharing index, not a correlation.
+  - Delta conventions are cited to Reiswich and Wystup (2012), whose working-paper version was read, and Clark (2011) only as reported there.
+  - Brunnermeier, Nagel and Pedersen is dated 2008 (NBER Macroeconomics Annual 2008).
+  - The bootstrap conditions are cited to the technical-report version of Politis and Romano.
+- **Deviation (before any inference was run): HAC bandwidth.** The design stated a Newey–West lag of ⌊4(T/100)^{2/9}⌋ and attributed it to Newey and West (1994). In that paper this quantity is the pilot truncation of an automatic procedure whose bandwidth is ⌊γ̂ T^{1/3}⌋; using the pilot value directly as the lag is a software convention. The design now uses the full automatic procedure. No standard error had been computed under the earlier rule.
+
+## 2026-09-24 (Stage 3)
+
+- **Stage 3 run.** E1, E4, the 25Δ comparison, the extended sample and the splice test were estimated as specified (`scripts/estimate_e1.py`; method record in [reports/e1.md](reports/e1.md)). The results are held in `data/private/results/` until the licence terms for publishing LSEG-derived findings are confirmed. The ATM comparison named in the design is identically zero by construction, so it is not reported.
+- **Independent review before the results were recorded.** A separate review of the estimand and inference code found no error affecting the primary estimates. An independent QuantLib rebuild of every leg agreed to machine precision, and the standard errors matched the R package sandwich exactly. It found five departures, all corrected before the final run; each had a negligible effect on the primary estimates:
+  - The extended sample now requires the calibration set only, as logged on 23 September.
+  - Option dates are built on the New York calendar, and volatility time is trade to expiry.
+  - Provider days-to-maturity is used where reported, and computed spot-to-delivery days otherwise, instead of a 30-day fallback.
+  - Currencies, not whole months, are excluded when inputs are missing; non-converged smiles are used and counted.
+  - The splice test compares skew costs leg by leg, including the pre-2013 overlap, instead of rows that held by construction.
+- **Deviation: discount rates.** The design allows OIS "where available" for non-USD currencies. The implementation uses one-month deposit rates for every non-USD currency, for consistency across currencies. Rates enter E1 only through the base-currency discount factor in spot delta. The review bounded the effect on that factor at about 0.1 per cent, which is negligible for the strikes.
+- **Supplementary analyses (post hoc).** Added after the first E1 results, because the series is highly persistent and its zero-rate distribution has a heavy right tail from months with very small forward discounts. With so few effective observations, the automatic Newey–West bandwidth is capped well below what the persistence would require, so the pre-registered intervals are likely too narrow. The additions, listed in [reports/e1.md](reports/e1.md), are reported alongside the pre-registered estimand and do not replace it.
+- **Next:** Stage 4 (portfolio returns, E2, E3 and E5).
+
+## 2026-09-24 (Stage 4, part A)
+
+- **Licence.** The licence holder advised that LSEG data are for individual study and research, may not be redistributed, and may not be placed in a public repository. Publishing the extraction code is acceptable. The repository therefore publishes code, methods and aggregate results, and keeps LSEG data, month-level series and calibrated parameters in `data/private/`.
+- **Sources read before the Stage 4 results.** Clark and West (working-paper version, Section 2) for the MSPE-adjusted statistic. Stambaugh (1999, published version, eq. 18) for the bias approximation. Lustig, Roussanov and Verdelhan (2011, published version) for the portfolio construction. Background sources on which no computation depends are deferred to the report; [references.md](references.md) marks them.
+- **Correction before recording: the E2 bootstrap.** The first implementation resampled blocks of (return, predictor-innovation) pairs. Adjacent pairs inside a block reintroduced the sample's predictive relation into the null distribution, which inflated the estimated bias about tenfold relative to Stambaugh's approximation. The bootstrap now draws pairs of unrestricted-regression residuals and AR(1) residuals independently, and its bias agrees with the approximation.
+- **Correction before recording: the E3 reference θ₀.** It is now the average of the hedges' forward deltas over legs. Leg weights had summed to two.
+- **Clarification.** The design names the Clark–West test without specifying the standard error. Clark and West recommend the least-squares standard error for one-step forecasts, so that is primary and Newey–West is reported alongside.
+- **Results.** Aggregate results are in [reports/e1.md](reports/e1.md) and [reports/stage4.md](reports/stage4.md). Under the pre-registered rules:
+  - The E1 regime difference is not significant.
+  - The bias-corrected E2 slope on φ is positive (one-sided p = 0.021).
+  - The out-of-sample Clark–West statistic is 1.640, against a 5% critical value of 1.645.
+  - The regime-shift claim therefore has partial support only.
+  - In E3, the realised hedge cost is almost entirely the skew term, and θ_UB is weakly identified.
+- **Remaining for Stage 4:** E5, which needs individual VIX futures contracts, not the continuation series acquired so far.
+
+## 2026-09-24 (Stage 4, part B: E5)
+
+- **VIX data.** Individual VIX futures contracts were taken from Cboe's historical settlement files, one per contract from January 2007 to December 2026, stored privately (`scripts/acquire_cboe_vx.py`). Before 26 March 2007 the archive quotes contracts at ten times the index level. The change of scale is detected in the files themselves and removed, including for contracts that expired before that date. After this, Cboe second-month settlements equal the LSEG second-month continuation at every month-end.
+- **VIX roll-down.** Caballero and Doyle (2012) short the VIX future whose expiry matches the one-month forward's maturity and hold it to expiry. The design's factor is a month-end analogue: the second-month contract, held over the carry return window from the month-end to the FX option expiry.
+- **Correction before recording: Stage 4 return windows.** The data check exposed an error. The last E1 month-end's return window ends after the last spot observation, and the spot look-up had substituted an earlier quote. Windows that end after the data are now excluded, and substitution is limited to five New York business days as designed. The primary return sample is 159 months. The E2 and E3 estimates changed only in the third significant figure, and [reports/stage4.md](reports/stage4.md) reports the corrected values.
+- **E5 result.** Unhedged carry loads strongly on the VIX roll-down. The 10Δ hedge lowers the loading by about a fifth. After adjusting for the VIX and FX-volatility factors, neither portfolio earns a significant α, and the exposure-adjusted hedge-cost ratio is unidentified.
+- **Stage 4 complete.** Next: Stage 5.
+
+## 2026-09-24 (Stage 5: proofs)
+
+- **Proofs completed.** The remaining results are now proved in `theory/notes.tex`:
+  - R3 (spanning, with the integrability condition for taking expectations term by term);
+  - R4 (bounds on the unobserved tails from observed wing prices and a tail exponent);
+  - R5(c) (monotonicity of the smile delta, and hence injectivity of delta-to-strike inversion);
+  - R8 (smoothness of the Hagan volatility for β = 1 and local well-posedness of the smile calibration by the implicit function theorem);
+  - the Garman–Kohlhagen PDE (verification, and uniqueness among solutions of polynomial growth).
+- **Supporting checks on the panel.** The R5(c) condition holds over ±4 ATM standard deviations at every calibrated month-end, with a maximum of 0.76 against the bound of 1. Premium-adjusted deltas are monotone on the conventional branch everywhere. The Jacobian condition numbers confirm the non-singularity hypothesis of R8 at every calibration.
+
+## 2026-09-24 (Stage 5: sources and robustness)
+
+- **Sources read.** Brunnermeier, Nagel and Pedersen (2008), Burnside et al. (2011), Chernov, Graveline and Zviadadze (2018), Fan, Londono and Xiao (2022), Lustig, Roussanov and Verdelhan (2014) and Bakshi, Kapadia and Madan (2003) in full; Jurek (2014), Farhi et al., Della Corte, Ramadorai and Sarno (2016) and Du, Tepper and Verdelhan (2018) in working-paper or manuscript versions; Choi and Suh (2022) in abstract and introduction only. [references.md](references.md) records the version and sections of each.
+- **Corrections from the reading.**
+  - R6: Farhi et al. (version of 12 March 2015, Section 5.1) state the leading-order form of the diffusive null, and Jurek (2014) notes that an unlevered hedge gives up part of the diffusive premium. The notes had described R6 as the author's without qualification. They now credit both, and claim only the exact mean-value form and the error bound.
+  - Design, section 6: θ_UB is an upper bound in Jurek's sense only after allowing for the diffusive premium, so it is read against θ₀. The wording is corrected; the procedure is unchanged.
+  - Jurek's option-hedged sample is 1999–2012, not 1990–2012; 1990–2012 is his unhedged sample.
+  - Du, Tepper and Verdelhan quote foreign currency per USD, so x_t in R7 is minus their basis. The design and notes now say so.
+  - R3: the moment contracts of Bakshi, Kapadia and Madan expand around the spot price; the notes state that the R3 contracts are centred at the forward.
+- **Robustness grid.** `scripts/robustness.py` estimates every variant of design section 8 except the three-month tenor and vanna–volga smiles. The rules the design leaves open (stale-quote rule, exclusion windows, dollar-carry signal, the USD leg, log hedged returns, the out-of-sample training start) were fixed in the script before any variant was estimated. The base variant reproduces E1 and Stage 4. Results are in [reports/robustness.md](reports/robustness.md):
+  - φ is lower in the hiking regime in every variant; the difference is significant at 5% only in the ten-currency ranking, and the skew price per month does not change across regimes.
+  - The in-sample E2 slope survives every HML variant; the out-of-sample test does not reject in any variant when training starts in 2013.
+  - Quoted spreads remove most of the unhedged mean, and previous-day spot lowers the hedged mean by 3.1 bp.
+- **Implementation.** `option_dates` now builds the New York holiday table once; dates are unchanged and the tests pass. This reduced the grid's run time from ten minutes to under half a minute.
+- **Remaining for Stage 5:** the three-month tenor (needs three-month forwards and rates), vanna–volga smiles, and the R4 moment intervals.
