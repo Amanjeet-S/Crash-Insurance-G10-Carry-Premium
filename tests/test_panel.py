@@ -25,6 +25,9 @@ def test_parse_ric_classifies_each_block():
     assert (parse_ric("EUR1M=").block, parse_ric("EUR1M=").quote) == ("forward", "points")
     assert parse_ric("EUR1MD=").quote == "deposit"
     assert parse_ric("EUR1MOIS=").quote == "ois"
+    assert (parse_ric("EUR3M=").block, parse_ric("EUR3M=").tenor) == ("forward", "3M")
+    assert (parse_ric("USD3MOIS=").quote, parse_ric("JPY3MD=").tenor) == ("ois", "3M")
+    assert parse_ric("USDSROIS3M=").quote == "sofr_ois"
     assert parse_ric("JPY=").quote == "spot"
     assert parse_ric("VXc2").block == "vix"
     with pytest.raises(ValueError):
@@ -35,7 +38,8 @@ def test_catalogue_is_unique_and_complete():
     rics = [i.ric for i in instrument_catalogue()]
     assert len(rics) == len(set(rics))
     # 9 spot + 9 forward + 9 x 2 tenors x 5 quotes x 2 contributors + 3 TIFO + 3 USD + 18 rates + 2 VIX
-    assert len(rics) == 9 + 9 + 180 + 3 + 3 + 18 + 2
+    # + three-month: 9 forwards + 3 USD rates + 9 deposits
+    assert len(rics) == 9 + 9 + 180 + 3 + 3 + 18 + 2 + 9 + 3 + 9
 
 
 def test_ny_month_ends_holidays_and_weekends():

@@ -1,6 +1,6 @@
 # Data plan
 
-This plan specifies what is acquired, from where, how it is stored and how it is audited. Sample rules are in the [research design](research_design.md). Coverage dates and counts that result from the audit are LSEG-derived. They are kept in `data/private/` until the licence terms for publication are confirmed.
+This plan specifies what is acquired, from where, how it is stored and how it is audited. Sample rules are in the [research design](research_design.md). Quote values, month-level series and calibrated parameters are LSEG-derived and stay in `data/private/`. Coverage facts from the audit (sample windows, first available dates, counts and shares of stale, substituted or missing quotes) describe the dataset without revealing any value, and are published in the reports.
 
 ## Sources
 
@@ -19,6 +19,7 @@ Access is through the LSEG Data Library for Python (desktop session), using the 
 | 10Δ butterfly | `<CCY><T>B10=` | Composite, Fenics | Bid, ask, mid |
 | USD one-month rates | `USD1MOIS=` (Fed Funds OIS), `USDSROIS1M=` (SOFR OIS), `USD1MD=` (deposit) | Composite | Bid, ask |
 | Other one-month rates | `<CCY>1MD=` (deposit), `<CCY>1MOIS=` where available (no such RIC exists for EUR or SEK) | Composite | Bid, ask |
+| Three-month forward points and rates (robustness variant 2; retrieved 24 September 2026) | `<CCY>3M=`; `USD3MOIS=`, `USDSROIS3M=`, `USD3MD=`; `<CCY>3MD=` | Composite | Bid, ask |
 | VIX futures | `VXc1`, `VXc2` | Exchange | Settlement or close |
 
 **Also available:**

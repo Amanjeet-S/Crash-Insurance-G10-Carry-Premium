@@ -1,6 +1,6 @@
 # Smile calibration and butterfly diagnostic
 
-Stage 2 panel calibration and Stage 1 check 7, run on the primary sample. This record gives the method and the outcomes that set a method. Counts, parameters and errors are LSEG-derived and are kept in `data/private/results/` until the licence terms for publication are confirmed.
+Stage 2 panel calibration and Stage 1 check 7, run on the primary sample. This record gives the method and the outcomes that set a method. Calibrated parameters, currency-month errors and all quote values are LSEG-derived and stay in `data/private/results/`. Only pooled counts and summary statistics are published here.
 
 ## Reproduction
 

@@ -31,9 +31,13 @@ Definitions fixed here, before any variant was estimated:
   day before expiry; forward returns keep the expiry-date spot.
 - Clark–West: expanding window from the primary start, first forecast for
   January 2017, the same rule for every variant including the base.
+- Vanna–volga smiles: the vanna–volga price smile of qef.fx.vannavolga under
+  the market reading (scripts/calibrate_vv.py), with each protective option
+  at the 10Δ strike stored with that smile; legs whose smile fails the
+  static-arbitrage check are counted.
 
-The three-month tenor and vanna–volga smiles need new inputs and are run
-separately. Outputs are written to data/private/results/.
+The three-month tenor is estimated in scripts/estimate_3m.py. Outputs are
+written to data/private/results/.
 """
 
 from __future__ import annotations
@@ -54,8 +58,9 @@ from qef.data.panel import on_business_days, read_raw, sample_month_ends, stale_
 from qef.data.smile_inputs import option_dates  # noqa: E402
 from qef.fx.conventions import G10  # noqa: E402
 from qef.fx.crash import forward_discount, forward_return, leg_skew_cost, option_payoff, protective_option  # noqa: E402
-from qef.fx.gk import atm_dns_strike, forward_premium, vega  # noqa: E402
+from qef.fx.gk import PUT, atm_dns_strike, forward_premium, vega  # noqa: E402
 from qef.fx.sabr import sabr_vol  # noqa: E402
+from qef.fx.vannavolga import VannaVolgaSmile  # noqa: E402
 from qef.stats.bootstrap import bootstrap_distribution  # noqa: E402
 from qef.stats.hac import mean_and_se, ols_hac  # noqa: E402
 
@@ -77,6 +82,7 @@ class Variant:
     cost_k: float | None = None
     log_returns: bool = False
     payoff_lag: int = 0  # New York business days before expiry for the payoff spot
+    smile: str = "sabr"  # "sabr" or "vv" (vanna–volga price smile)
 
 
 def stale_flags(raw: Path, month_ends) -> set:
@@ -129,9 +135,13 @@ def implementable_return(c, is_long, sd, spot_row):
     return spot_row.BID / sd["F_ask"] - 1 if is_long else 1 - spot_row.ASK / sd["F_bid"]
 
 
-def run_variant(v: Variant, inputs, panel, spots, sides, daily, stale):
+def run_variant(v: Variant, inputs, panel, spots, sides, daily, stale, vv_panel=None):
     inp = inputs.set_index(["currency", "date"])
-    fits = panel[(panel.reading == v.reading) & panel.status.isin(["ok", "not_converged"])].set_index(["currency", "date"])
+    if v.smile == "vv":
+        sel = (vv_panel.reading == v.reading) & (vv_panel.method == "price") & (vv_panel.status == "ok")
+        fits = vv_panel[sel].set_index(["currency", "date"])
+    else:
+        fits = panel[(panel.reading == v.reading) & panel.status.isin(["ok", "not_converged"])].set_index(["currency", "date"])
     delta = {"10d": 0.10, "25d": 0.25}.get(v.hedge)
     rows = []
     for t in sorted(pd.Timestamp(x) for x in inputs.date.unique()):
@@ -148,14 +158,25 @@ def run_variant(v: Variant, inputs, panel, spots, sides, daily, stale):
             rows.append({"date": t, "status": "too_few_currencies"})
             continue
         fd = {c: forward_discount(r.S, r.F, G10[c].usd_base) for c, (r, _) in avail.items()}
-        acc = {"C": 0.0, "FD": 0.0, "U": 0.0, "H": 0.0, "c3": 0.0}
+        acc = {"C": 0.0, "FD": 0.0, "U": 0.0, "H": 0.0, "c3": 0.0, "arb_fail_legs": 0}
         status = "ok"
         for c, is_long, w in select_legs(fd, v.portfolio):
             if c == "USD":
                 continue
             r, f = avail[c]
             vol = lambda K, r=r, f=f: sabr_vol(K, r.F, r.tau, f.alpha, f.rho, f.nu, 1.0)
-            if delta is None:
+            if v.smile == "vv":
+                smile = VannaVolgaSmile(r.F, r.tau, (f.K1, f.K2, f.K3), (f.sigma1, f.sigma2, f.sigma3))
+                vol = smile.vol
+                phi = protective_option(c, is_long)
+                K = f.K_put10 if phi == PUT else f.K_call10
+                if not (np.isfinite(K) and np.isfinite(float(vol(K)))):
+                    status = f"inversion_failed:{c}"
+                    break
+                vs = float(forward_premium(r.F, K, float(vol(K)), r.tau, phi)) / r.F
+                vf = float(forward_premium(r.F, K, r.atm, r.tau, phi)) / r.F
+                acc["arb_fail_legs"] += int(not bool(f.arb_ok_inner))
+            elif delta is None:
                 K = atm_dns_strike(r.F, r.atm, r.tau, G10[c].delta)
                 vs = vf = float(forward_premium(r.F, K, r.atm, r.tau, protective_option(c, is_long))) / r.F
             else:
@@ -200,7 +221,7 @@ def run_variant(v: Variant, inputs, panel, spots, sides, daily, stale):
 def summarise(df: pd.DataFrame, B: int) -> dict:
     ok = df[df.status == "ok"]
     ret = ok.dropna(subset=["U"])
-    out = {"n_phi": int(ok.phi.notna().sum()), "n_returns": len(ret)}
+    out = {"n_phi": int(ok.phi.notna().sum()), "n_returns": len(ret), "arb_fail_legs": int(ok.arb_fail_legs.sum())}
     s = ok.dropna(subset=["phi"])
     if len(s):
         D = (s.date >= REGIME_BREAK).astype(float).to_numpy()
@@ -231,6 +252,7 @@ def main():
     load = lambda name: pd.read_csv(d / name, parse_dates=["date"])
     data = {"": (load("smile_inputs.csv"), load("smile_panel.csv")),
             "fn": (load("smile_inputs_fn.csv"), load("smile_panel_fn.csv"))}
+    vv_panel = load("smile_panel_vv.csv")
     month_ends = sorted(pd.Timestamp(x) for x in data[""][0].date.unique() if pd.Timestamp(x) >= PRIMARY_START)
     spots = {c: daily_spot_mid(raw, c) for c in G10}
     sides, daily = quote_sides(raw, month_ends)
@@ -252,6 +274,7 @@ def main():
         Variant("ten currencies", portfolio="ten"),
         Variant("log returns", log_returns=True),
         Variant("previous-day spot for payoffs", payoff_lag=1),
+        Variant("vanna-volga smiles", smile="vv"),
     ]
     e1 = pd.read_csv(d / "e1_summary.csv")
     e1 = e1[(e1["sample"] == "primary") & (e1.reading == "market") & (e1.delta == 0.10) & (e1.variable == "phi")].iloc[0]
@@ -259,7 +282,7 @@ def main():
     s4 = s4[(s4["sample"] == "primary") & (s4.status == "ok")]
     results, series = {}, []
     for v in variants:
-        df = run_variant(v, *data[v.contributor], spots, sides, daily, stale)
+        df = run_variant(v, *data[v.contributor], spots, sides, daily, stale, vv_panel)
         df["variant"] = v.name
         series.append(df)
         results[v.name] = summarise(df, args.bootstrap)

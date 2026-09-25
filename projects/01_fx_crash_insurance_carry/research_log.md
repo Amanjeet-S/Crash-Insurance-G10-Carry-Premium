@@ -91,7 +91,7 @@
 
 - **Sources read.** Brunnermeier, Nagel and Pedersen (2008), Burnside et al. (2011), Chernov, Graveline and Zviadadze (2018), Fan, Londono and Xiao (2022), Lustig, Roussanov and Verdelhan (2014) and Bakshi, Kapadia and Madan (2003) in full; Jurek (2014), Farhi et al., Della Corte, Ramadorai and Sarno (2016) and Du, Tepper and Verdelhan (2018) in working-paper or manuscript versions; Choi and Suh (2022) in abstract and introduction only. [references.md](references.md) records the version and sections of each.
 - **Corrections from the reading.**
-  - R6: Farhi et al. (version of 12 March 2015, Section 5.1) state the leading-order form of the diffusive null, and Jurek (2014) notes that an unlevered hedge gives up part of the diffusive premium. The notes had described R6 as the author's without qualification. They now credit both, and claim only the exact mean-value form and the error bound.
+  - R6: Farhi et al. (version of 12 March 2015, Section 5.1) state the leading-order form of the diffusive null, and Jurek (2014) notes that an unlevered hedge gives up part of the diffusive premium. The notes had described R6 as my own without qualification. They now credit both, and claim only the exact mean-value form and the error bound.
   - Design, section 6: θ_UB is an upper bound in Jurek's sense only after allowing for the diffusive premium, so it is read against θ₀. The wording is corrected; the procedure is unchanged.
   - Jurek's option-hedged sample is 1999–2012, not 1990–2012; 1990–2012 is his unhedged sample.
   - Du, Tepper and Verdelhan quote foreign currency per USD, so x_t in R7 is minus their basis. The design and notes now say so.
@@ -102,3 +102,81 @@
   - Quoted spreads remove most of the unhedged mean, and previous-day spot lowers the hedged mean by 3.1 bp.
 - **Implementation.** `option_dates` now builds the New York holiday table once; dates are unchanged and the tests pass. This reduced the grid's run time from ten minutes to under half a minute.
 - **Remaining for Stage 5:** the three-month tenor (needs three-month forwards and rates), vanna–volga smiles, and the R4 moment intervals.
+
+## 2026-09-24 (Stage 5: choices fixed before the remaining variants)
+
+Recorded before any of the estimates below were computed.
+
+- **Three-month data.** Three-month forward points and rates (USD3MOIS=, USD3MD=, USDSROIS3M=, and <CCY>3MD= for the nine currencies) were retrieved on 24 September 2026 into a separate private retrieval folder. Volatility quotes come from the 23 September retrieval.
+- **Three-month variant.**
+  - Rebalancing and returns: quarterly and non-overlapping, at calendar-quarter month-ends from June 2013.
+  - Discount rates: OIS for USD and deposits otherwise, as at one month.
+  - Legs and options: 3L/3S on the three-month forward discount, with protective options at the 10Δ strike of the three-month market-reading SABR smile.
+  - Estimands: E1, in-sample E2 and E3 as at one month.
+  - Supplementary: the two other quarterly phases are reported alongside.
+- **Vanna–volga variant.**
+  - Pillars: the ATM delta-neutral-straddle strike, and the 25Δ put and call strikes at the pillar volatilities in the pair's delta convention.
+  - Butterfly: under the market reading, the smile strangle is solved so that the vanna–volga smile prices the market strangle. Under the smile reading, the quote is used directly.
+  - Method: the primary vanna–volga method is chosen from the source reading before estimation. Months where a method is undefined at the 10Δ strikes are counted, not dropped silently.
+- **Option-implied moments (R4, secondary E2 predictors).**
+  - Measure: moments of log(X/F_X) under the USD forward measure; for USD-base pairs, prices are converted with the change of numeraire of R1.
+  - Integration: the calibrated smile between the 10Δ strikes, with R4 tail bounds beyond them.
+  - Tail exponents, two settings: (i) the local elasticities of the calibrated smile's density at the 10Δ strikes, which assumes the tails beyond the quotes are no heavier than at the quotes; (ii) γ = η = 2.
+  - Predictors: portfolio variance and oriented skewness, averaged over the E1 legs.
+  - Regressions: at the lower endpoint, midpoint and upper endpoint of each interval under setting (i). A conclusion is reported only if it holds at all three.
+
+## 2026-09-25 (Stage 5: vanna–volga, three-month tenor, moment intervals)
+
+- **Sources read for vanna–volga.** Castagna and Mercurio (2007; authors' post-review preprint), their working paper (September 2006 revision, compared with the January 2006 version), Bossens et al. (2010; arXiv v3) and Reiswich (2010, doctoral dissertation). Reiswich and Wystup (2012) was checked and does not treat vanna–volga. [references.md](references.md) records versions and locations.
+- **Choice fixed from the reading, before estimation.** The primary vanna–volga smile is the implied volatility of the vanna–volga price, not either approximation. The properties Castagna and Mercurio prove belong to the price. The first-order approximation overvalues the wings. The second-order approximation can be undefined. The approximations are computed as checks.
+- **Rule added in implementation.** A 10Δ strike on a vanna–volga smile must be connected to the ATM pillar through strikes where the smile is defined. Across an undefined region the delta map is not continuous. The rule is not from a source, and it does not bind for the price smile's strikes used in the variant.
+- **Independent review.** Each of the three pieces was reviewed separately after implementation, and confirmed defects were fixed before any result was recorded. None of the fixes changed an estimate.
+  - Vanna–volga:
+    - missing diagnostic flags had been counted as passes;
+    - the held-out comparison had included non-converged smiles;
+    - a citation range was wrong;
+    - the strike-set invariance test was missing.
+  - Three-month tenor:
+    - the holiday-table guard did not bound the delivery date;
+    - a reproduction command was missing.
+  - Moment intervals:
+    - a closed-form check had been applied outside its stated domain;
+    - a test case did not exercise the edge extremum it claimed to;
+    - one docstring statement was wrong.
+- **Results.** Vanna–volga and three-month results are in [reports/robustness.md](reports/robustness.md); the moment predictors are in [reports/stage4.md](reports/stage4.md).
+  - Vanna–volga: smiles leave E1, E2 and E3 unchanged, and fit the held-out 10Δ quotes better than SABR.
+  - Three-month tenor: it repeats the one-month pattern. φ falls in the hiking regime because the carry spread widens while the skew price is stable. The difference is significant under the bootstrap but not under Newey–West.
+  - Moment intervals:
+    - Under γ = η = 2 no skewness interval excludes zero, so truncated quotes do not identify skewness.
+    - Under the boundary-elasticity setting, oriented skewness predicts carry returns with the crash-compensation sign under the bootstrap at every endpoint.
+    - That setting is contradicted by the smile's own wings in about three quarters of currency-months, so the result is conditional supporting evidence only.
+- **Open.** USD3MOIS= is used as USD OIS at three months; the 24 September retrieval has no provider metadata confirming its description.
+- **Remaining:** the C++ kernel, the Stage 1 quote-revision check, and Stage 6.
+
+## 2026-09-25 (licence compliance audit)
+
+- **Trigger.** A review of LSEG's published guidance on derived data. LSEG's data-redistribution page treats an output as derived data if it is unrecognisable, non-reversible and cannot be traced back to the original content without exceptional effort. The London Stock Exchange market data policy (Schedule B, 2026) defines derived data as data that cannot be reverse engineered back to the data or used as a substitute for them. Both documents govern commercial and exchange licences, not the academic Workspace licence; the binding terms remain the licence holder's guidance (entry of 24 September). The principle agrees with the adopted policy: publish statistical summaries only.
+- **Audit.** Every tracked file and every commit in the history was examined for LSEG-derived content beyond statistical summaries. No data file and no path under `data/private/` has ever been tracked. Findings and actions:
+  - A regression-test fixture in `tests/test_smile.py` used rounded SABR parameters, a forward and a discount factor that match one calibrated currency-month. It is replaced by synthetic values, which reproduce the original failure on the code before the fix.
+  - A verbatim instrument-metadata label in this log is paraphrased.
+  - A single month-level value in the robustness report is replaced by a pooled statement.
+  - **History rewritten.** The public history was rewritten on 25 September 2026 so that no commit contains the fixture values, the metadata label or the month-level value. Each affected commit now carries the replacement wording, the current files are unchanged, and the commits from the Stage 2 calibration onwards have new identifiers.
+  - The data plan and the calibration record said coverage facts were kept private, while the reports publish them. The policy is now stated consistently: coverage facts (sample windows, first available dates, counts) are published; quote values, month-level series and calibrated parameters are not.
+- **Safeguards.** `.gitignore` now excludes spreadsheet and binary data formats, and `tests/test_repository_hygiene.py` (run in CI) fails if a data extract, anything under `data/private/` or a notebook with stored outputs is tracked.
+- **Open.** Confirmation from the licence holder that pooled statistical summaries and coverage facts may be published.
+
+## 2026-09-25 (Stage 6: paper draft)
+
+- **Paper.** I drafted [paper/paper.tex](paper/paper.tex) (23 pages, main text 18) and [paper/summary.md](paper/summary.md). Three independent reviews followed: one for numbers and licence, one for citations and originality, and one referee review of the economics, inference and interpretation rules. Each finding was checked against the record before it was applied; 49 were applied and 9 rejected with reasons.
+- **Corrections to the reports found by the reviews.**
+  - The primary sample starts at the 31 May 2013 month-end, not June 2013. The 159 return month-ends run from May 2013 to July 2026, and the extended sample starts in January 2007. I corrected e1.md and stage4.md.
+  - The split of φ into C_skew and FD is a post hoc supplementary analysis. The E1 table and the reports now label it so.
+  - The skew term of E3 is an ex-ante premium, so its standard error measures time variation, not the precision of realised crash compensation. The reports no longer call it precisely estimated.
+  - e1.md listed supplementary analyses without their results; it now reports all of them.
+- **Added, post hoc.** Realised carry returns by regime. The unhedged mean is 7.4 bp per month before 2022 and 37.0 after, a difference of 29.6 bp (s.e. 23.8) that is not significant; the hedged difference is also not significant. Stage 4 report.
+- **Interpretation rule.** I require both the Newey–West and the bootstrap interval to exclude zero before an E1 difference counts as significant. This is my reading of the design's rule, stated as such in the paper.
+- **Open.**
+  - Attribute the test-inversion set for θ_UB to Fieller's method once the source is read.
+  - Clean-environment reproduction.
+  - The licence holder's confirmation on publishing pooled summaries.
+  - The validation checks not yet run: the published-portfolio comparison and the Merton and Heston checks of the moment code.

@@ -8,6 +8,13 @@ predicts the 10-delta risk reversal and butterfly, which were not used in the
 fit. The reading that predicts the held-out quotes better is supporting
 evidence only. Each smile is also checked for static arbitrage (R2).
 
+``--tenor 3M`` calibrates the three-month smiles of robustness variant 2
+(design, section 8) and writes files with the suffix ``_3m``. The three-month
+forwards and rates are held in a later retrieval, which is searched after the
+main one (``--extra-raw-root``; see ``build_month_end_inputs``):
+
+    .venv/bin/python scripts/calibrate_smiles.py --tenor 3M --extra-raw-root data/private/lseg/2026-09-24/raw
+
 Outputs are LSEG-derived and are written to data/private/results/.
 """
 
@@ -23,7 +30,7 @@ import numpy as np
 import pandas as pd
 
 from qef.data.panel import ny_month_ends
-from qef.data.smile_inputs import build_month_end_inputs
+from qef.data.smile_inputs import TENOR_MONTHS, build_month_end_inputs
 from qef.fx.arbitrage import check_smile
 from qef.fx.conventions import G10
 from qef.fx.smile import SmileQuotes, calibrate_sabr, quotes_from_smile
@@ -79,8 +86,9 @@ def _table(frame) -> str:
     return "```\n" + frame.to_string() + "\n```"
 
 
-def summarise(panel: pd.DataFrame) -> str:
-    lines = ["# Smile calibration and butterfly-convention diagnostic (restricted)", ""]
+def summarise(panel: pd.DataFrame, tenor: str = "1M") -> str:
+    title = "# Smile calibration and butterfly-convention diagnostic (restricted)"
+    lines = [title if tenor == "1M" else f"{title}, {tenor} tenor", ""]
     n = panel.groupby("reading")["status"].value_counts().unstack(fill_value=0)
     lines += ["## Calibration status", "", _table(n), ""]
     ok = panel[panel.status == "ok"]
@@ -113,20 +121,25 @@ def main():
     p.add_argument("--end", default="2026-08-31")
     p.add_argument("--workers", type=int, default=9)
     p.add_argument("--contributor", default="", help="volatility contributor suffix, e.g. FN for Fenics; empty for composite")
+    p.add_argument("--tenor", default="1M", choices=sorted(TENOR_MONTHS))
+    p.add_argument("--extra-raw-root", action="append", default=[],
+                   help="raw directory searched, in the order given, for series absent from the retrieval's own")
     args = p.parse_args()
     raw = ROOT / "data" / "private" / "lseg" / args.retrieval_date / "raw"
+    extra = [Path(r) if Path(r).is_absolute() else ROOT / r for r in args.extra_raw_root]
     out_dir = ROOT / "data" / "private" / "results" / args.retrieval_date
     out_dir.mkdir(parents=True, exist_ok=True)
     month_ends = ny_month_ends(args.start, args.end)
-    inputs = build_month_end_inputs(raw, month_ends, contributor=args.contributor)
+    inputs = build_month_end_inputs(raw, month_ends, contributor=args.contributor, tenor=args.tenor, extra_roots=extra)
     tag = f"_{args.contributor.lower()}" if args.contributor else ""
+    tag += "" if args.tenor == "1M" else f"_{args.tenor.lower()}"
     inputs.to_csv(out_dir / f"smile_inputs{tag}.csv", index=False)
     groups = [g for _, g in inputs.groupby("currency")]
     with ProcessPoolExecutor(max_workers=args.workers) as ex:
         records = [r for part in ex.map(_calibrate_currency, groups) for r in part]
     panel = pd.DataFrame(records)
     panel.to_csv(out_dir / f"smile_panel{tag}.csv", index=False)
-    (out_dir / f"smile_diagnostic{tag}.md").write_text(summarise(panel))
+    (out_dir / f"smile_diagnostic{tag}.md").write_text(summarise(panel, args.tenor))
     print(f"{len(panel)} calibrations written to {out_dir}")
 
 

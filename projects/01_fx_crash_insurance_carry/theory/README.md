@@ -4,8 +4,8 @@ Results used in the [research design](../research_design.md). Every result marke
 
 **Labels:**
 
-- **P:** proved here.
-- **P\*:** a standard result, proved here for completeness.
+- **P:** proved in notes.tex; the proof is mine.
+- **P\*:** a standard result, which I prove for completeness.
 - **C:** cited, with hypotheses stated.
 
 ## R1 (P\*). Domestic and foreign risk-neutral measures
@@ -59,14 +59,17 @@ Results used in the [research design](../research_design.md). Every result marke
 ## R4 (P). Partial identification from truncated quotes
 
 **Tail bound.**
-- If Q(S_T ≤ K)/K^α is nondecreasing on (0, K_min], then P(K) ≤ P(K_min)(K/K_min)^{α+1} there.
-- Hence ∫₀^{K_min} P K⁻² dK ≤ P(K_min)/(α K_min).
+- If Q(S_T ≤ K)/K^γ is nondecreasing on (0, K_min], then P(K) ≤ P(K_min)(K/K_min)^{γ+1} there.
+- If K^η Q(S_T > K) is nonincreasing on [K_max, ∞) with η > 1, then C(K) ≤ C(K_max)(K/K_max)^{1−η} there.
+- Hence, for example, ∫₀^{K_min} P K⁻² dK ≤ P(K_min)/(γ K_min).
 
-**Further bounds.** Analogous bounds for the Bakshi–Kapadia–Madan weights, and for the upper tail.
+**Further bounds.** The same inequalities bound the tails of any weight, including the moment contracts adapted from Bakshi, Kapadia and Madan (2003); sign-changing weights are split into positive and negative parts.
 
-**Output.** Variance and skewness are reported as intervals over a stated range of α, truncating at the 10Δ strikes.
+**Output.** Variance and skewness are reported as intervals over stated tail exponents, truncating at the 10Δ strikes.
 
 **Quadrature.** F is a node, because the integrand has a kink there. Trapezium error is O(h²) and Simpson error O(h⁴) on each side.
+
+**Implementation.** `src/qef/fx/moments.py` (with R1 for USD-base pairs); results in `reports/stage4.md`.
 
 ## R5. Delta-to-strike inversion
 
@@ -80,7 +83,7 @@ Results used in the [research design](../research_design.md). Every result marke
 
 **(c) (P)** For pips delta Δ_φ(K) = φ D Φ(φ d₊(K, σ(K))): if |∂σ/∂k| √τ |d₋| < 1 on an interval (k = ln(K/F)), Δ_φ is strictly decreasing there, so the smile delta-to-strike map is injective. The condition holds over ±4 ATM standard deviations at every calibrated month-end; premium-adjusted deltas are checked numerically.
 
-**Sources.** Reiswich and Wystup (2012) give the delta definitions, the non-monotonicity of the premium-adjusted call delta and the right-branch convention; the proof of (b) is written here.
+**Sources.** Reiswich and Wystup (2012) give the delta definitions, the non-monotonicity of the premium-adjusted call delta and the right-branch convention; the proof of (b) is mine.
 
 **Implementation.** `src/qef/fx/gk.py`.
 

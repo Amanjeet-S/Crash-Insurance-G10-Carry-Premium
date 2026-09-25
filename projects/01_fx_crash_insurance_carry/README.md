@@ -24,7 +24,7 @@ Each month-end smile is converted into strikes and prices under market quoting c
 | [references.md](references.md) | Every source, what it is used for and the version consulted |
 | [reports/](reports/) | Audit record and results |
 
-**Status:** Stages 1 to 4 complete. Stage 5: proofs complete; robustness grid complete except the three-month tenor and vanna–volga smiles. Results: [E1 and E4](reports/e1.md); [portfolio returns, E2, E3 and E5](reports/stage4.md); [robustness](reports/robustness.md). Remaining: the two robustness variants, R4 moment intervals, the C++ kernel, and the Stage 1 quote-revision check.
+**Status:** Stages 1 to 4 complete. Stage 5: proofs, the full robustness grid (including the three-month tenor and vanna–volga smiles) and the R4 moment intervals complete. Results: [E1 and E4](reports/e1.md); [portfolio returns, E2 (with the secondary moment predictors), E3 and E5](reports/stage4.md); [robustness](reports/robustness.md). Stage 6: [paper draft](paper/paper.pdf) and [summary](paper/summary.md) written and reviewed. Remaining: the C++ kernel, the Stage 1 quote-revision check, clean-environment reproduction, and the licence holder's confirmation that pooled summaries may be published.
 
 ## Reproduction
 
@@ -33,7 +33,7 @@ python -m venv .venv && .venv/bin/pip install -r requirements.lock && .venv/bin/
 .venv/bin/python -m pytest -q
 ```
 
-LSEG acquisition needs a Workspace licence and uses a separate environment:
+Rerunning the LSEG acquisition requires the reader's own LSEG Workspace licence, not mine, and uses a separate environment:
 
 ```bash
 python -m venv .venv-lseg && .venv-lseg/bin/pip install -r requirements-lseg.lock
@@ -41,4 +41,4 @@ python -m venv .venv-lseg && .venv-lseg/bin/pip install -r requirements-lseg.loc
 .venv/bin/python scripts/audit_fx_panel.py
 ```
 
-The App Key is read from `~/.lseg/app_key`. LSEG data are licensed for individual study and research and may not be redistributed. The repository therefore holds code, methods and aggregate results (means, standard errors, test statistics and intervals). It holds no LSEG data and no month-level series or calibrated parameters from which quotes could be reconstructed; these stay in `data/private/`, which Git ignores.
+The script reads the App Key of whoever runs it from `~/.lseg/app_key`. I obtained my data under an LSEG Workspace student licence provided by my university, which covers only me, permits individual study and research and does not permit redistribution. The repository therefore holds code, methods and aggregate results (means, standard errors, test statistics and intervals). It holds no LSEG data and no month-level series or calibrated parameters from which quotes could be reconstructed; these stay in `data/private/`, which Git ignores.

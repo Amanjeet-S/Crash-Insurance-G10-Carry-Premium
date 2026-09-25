@@ -17,7 +17,7 @@
 \begin{document}
 \maketitle
 
-\noindent These notes prove the results listed in \texttt{theory/README.md}. Results that are standard are marked as such and attributed; the proofs written here are the author's own unless a source is named. Throughout, $\Phi$ and $\varphi$ are the standard normal distribution and density functions, $s=\sigma\sqrt{\tau}$, and for forward $F$ and strike $K$
+\noindent These notes prove the results listed in \texttt{theory/README.md}. Results that are standard are marked as such and attributed; the proofs written here are my own unless a source is named. Throughout, $\Phi$ and $\varphi$ are the standard normal distribution and density functions, $s=\sigma\sqrt{\tau}$, and for forward $F$ and strike $K$
 \[
 d_\pm(K)=\frac{\ln(F/K)\pm s^2/2}{s}.
 \]
@@ -47,7 +47,7 @@ Jensen's inequality gives $\E^{\Q^d}(1/S_T)>1/\E^{\Q^d}S_T=1/F$. There is no con
 
 \section*{R2. Arbitrage-free call prices}
 
-The link between the second strike derivative of call prices and state prices is due to Breeden and Litzenberger (1978). The characterisation below, with its measure-theoretic proof, is stated and proved here.
+The link between the second strike derivative of call prices and state prices is due to Breeden and Litzenberger (1978). I state and prove the characterisation below, with a measure-theoretic proof.
 
 \begin{proposition}
 Let $c:[0,\infty)\to\mathbb{R}$ and $F>0$. There is a random variable $X\ge 0$ with $\E X=F$ and $c(K)=\E(X-K)^+$ for all $K\ge0$ if and only if (i) $c$ is convex, (ii) $c(0)=F$, (iii) $c'_+(0)\ge -1$ and (iv) $c(K)\to0$ as $K\to\infty$. The law of $X$ is then unique, with distribution function $G=1+c'_+$ on $[0,\infty)$ and $\P(X=0)=1+c'_+(0)$.
@@ -71,7 +71,7 @@ Extending $c$ by $c(K)=F-K$ for $K<0$, the second distributional derivative of $
 
 \section*{R3. Spanning}
 
-The representation of a payoff by bonds, forwards and out-of-the-money options is the spanning formula of Carr and Madan (2001; first published 1998). The version below states explicit sufficient hypotheses, including the integrability condition under which expectations can be taken term by term; the proof is written here. In R3 and R4, $X$ is the terminal exchange rate and $\E$ and $\Q$ refer to the same pricing measure.
+The representation of a payoff by bonds, forwards and out-of-the-money options is the spanning formula of Carr and Madan (2001; first published 1998). The version below states explicit sufficient hypotheses, including the integrability condition under which expectations can be taken term by term; the proof is mine. In R3 and R4, $X$ is the terminal exchange rate and $\E$ and $\Q$ refer to the same pricing measure.
 
 \begin{proposition}
 Let $f:(0,\infty)\to\mathbb{R}$ have a locally absolutely continuous derivative $f'$, so that $f''$ exists almost everywhere and is locally integrable. Let $X>0$ almost surely with $\E X=F<\infty$, and write $P(K)=\E(K-X)^+$ and $C(K)=\E(X-K)^+$. If
@@ -141,7 +141,7 @@ The bounds use only observed wing prices and an assumed tail exponent. A tail te
 
 \section*{R5(b). Premium-adjusted call delta}
 
-The premium-adjusted delta, its non-monotonicity in the strike and the market practice of taking the strike to the right of the delta maximum are described by Reiswich and Wystup (2012). The proposition below makes the shape precise and is proved here.
+The premium-adjusted delta, its non-monotonicity in the strike and the market practice of taking the strike to the right of the delta maximum are described by Reiswich and Wystup (2012). The proposition below makes the shape precise; the proof is mine.
 
 Let $D\in(0,1]$ and $h(K)=D\,(K/F)\,\Phi\bigl(d_-(K)\bigr)$ for $K>0$. With spot delta, $D$ is the base-currency discount factor; with forward delta, $D=1$.
 
@@ -195,7 +195,7 @@ In log-moneyness $k=\ln(K/F)$, $K\sigma'(K)=\partial\sigma/\partial k$, so the c
 
 \section*{R6. Diffusive null of the hedge cost}
 
-The comparison of hedged and unhedged carry returns follows Jurek (2014), who reads the resulting ratio as an upper bound on the crash share and notes that an unlevered option hedge also gives up part of the diffusive premium (working-paper version of August 2013, Section 2.2). Farhi et al. (2015, Section 5.1, eqs. (8)--(9)) state the leading-order version of the result below: a put of delta $\Delta_P$ leaves a fraction $1+\Delta_P$ of the Gaussian risk premium. The exact mean-value form and the error bound below are the author's.
+The comparison of hedged and unhedged carry returns follows Jurek (2014), who reads the resulting ratio as an upper bound on the crash share and notes that an unlevered option hedge also gives up part of the diffusive premium (working-paper version of August 2013, Section 2.2). Farhi et al. (2015, Section 5.1, eqs. (8)--(9)) state the leading-order version of the result below: a put of delta $\Delta_P$ leaves a fraction $1+\Delta_P$ of the Gaussian risk premium. The exact mean-value form and the error bound below are mine.
 
 Let the undiscounted put value with lognormal forward $G$ and volatility $\sigma$ be
 \[

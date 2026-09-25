@@ -47,9 +47,10 @@ class Instrument:
 
 _VOL = re.compile(r"^([A-Z]{3})(1M|3M)(O|RR|BF|R10|B10)=(FN|TIFO)?$")
 _SPOT = re.compile(r"^([A-Z]{3})=$")
-_FWD = re.compile(r"^([A-Z]{3})1M=$")
-_DEP = re.compile(r"^([A-Z]{3})1MD=$")
-_OIS = re.compile(r"^([A-Z]{3})1MOIS=$")
+_FWD = re.compile(r"^([A-Z]{3})(1M|3M)=$")
+_DEP = re.compile(r"^([A-Z]{3})(1M|3M)D=$")
+_OIS = re.compile(r"^([A-Z]{3})(1M|3M)OIS=$")
+_SOFR = re.compile(r"^USDSROIS(1M|3M)=$")
 _VIX = re.compile(r"^VXc(\d)$")
 
 
@@ -62,13 +63,13 @@ def parse_ric(ric: str) -> Instrument:
     if m := _SPOT.match(ric):
         return Instrument(ric, "spot", m[1], None, "spot")
     if m := _FWD.match(ric):
-        return Instrument(ric, "forward", m[1], "1M", "points")
+        return Instrument(ric, "forward", m[1], m[2], "points")
     if m := _DEP.match(ric):
-        return Instrument(ric, "rates", m[1], "1M", "deposit")
+        return Instrument(ric, "rates", m[1], m[2], "deposit")
     if m := _OIS.match(ric):
-        return Instrument(ric, "rates", m[1], "1M", "ois")
-    if ric == "USDSROIS1M=":
-        return Instrument(ric, "rates", "USD", "1M", "sofr_ois")
+        return Instrument(ric, "rates", m[1], m[2], "ois")
+    if m := _SOFR.match(ric):
+        return Instrument(ric, "rates", "USD", m[1], "sofr_ois")
     if m := _VIX.match(ric):
         return Instrument(ric, "vix", None, f"c{m[1]}", "future", "exchange")
     raise ValueError(f"unrecognised RIC {ric!r}")
@@ -78,7 +79,8 @@ def instrument_catalogue() -> list[Instrument]:
     """All RICs requested for project 01 (data plan, LSEG Workspace table).
 
     USD1MD= is included so that the forward-point sign check compares deposit
-    rates with deposit rates.
+    rates with deposit rates. The three-month forwards and rates serve the
+    three-month robustness variant (research design, section 8).
     """
     rics = [f"{c}=" for c in CURRENCIES]
     rics += [f"{c}1M=" for c in CURRENCIES]
@@ -87,6 +89,8 @@ def instrument_catalogue() -> list[Instrument]:
     rics += ["EUR1MO=TIFO", "EUR1MRR=TIFO", "EUR1MBF=TIFO"]
     rics += ["USD1MOIS=", "USDSROIS1M=", "USD1MD="]
     rics += [f"{c}1M{k}=" for c in CURRENCIES for k in ("D", "OIS")]
+    rics += [f"{c}3M=" for c in CURRENCIES]
+    rics += ["USD3MOIS=", "USDSROIS3M=", "USD3MD="] + [f"{c}3MD=" for c in CURRENCIES]
     rics += ["VXc1", "VXc2"]
     return [parse_ric(r) for r in rics]
 

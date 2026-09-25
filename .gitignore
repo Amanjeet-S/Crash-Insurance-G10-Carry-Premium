@@ -29,3 +29,10 @@ tmp/
 *.fdb_latexmk
 *.fls
 *.synctex.gz
+# Data extracts (never tracked; LSEG and other licensed data live in data/private/)
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.h5
+*.pkl
