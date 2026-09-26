@@ -1,12 +1,12 @@
 # Data plan
 
-This plan specifies what is acquired, from where, how it is stored and how it is audited. Sample rules are in the [research design](research_design.md). Quote values, month-level series and calibrated parameters are LSEG-derived and stay in `data/private/`. Coverage facts from the audit (sample windows, first available dates, counts and shares of stale, substituted or missing quotes) describe the dataset without revealing any value, and are published in the reports.
+This plan specifies what is acquired, from where, how it is stored and how it is audited; the sample rules are in the [research design](research_design.md). Quote values, month-level series and calibrated parameters are LSEG-derived and stay in `data/private/`. Coverage facts from the audit (sample windows, first available dates, and counts and shares of stale, substituted or missing quotes) describe the dataset without revealing any value, and the reports publish those they need.
 
 ## Sources
 
 ### LSEG Workspace
 
-Access is through the LSEG Data Library for Python (desktop session), using the separate environment pinned in `requirements-lseg.lock`. The licence is an academic Workspace licence. Its entitlements were probed on 23 September 2026; the probe records are held privately.
+Access is through the LSEG Data Library for Python in a desktop session, using the separate environment pinned in `requirements-lseg.lock`. The licence is an academic Workspace licence, and its entitlements were probed on 23 September 2026; the probe records are held privately.
 
 | Block | Instrument pattern (RIC) | Contributors | Fields |
 | --- | --- | --- | --- |
@@ -22,10 +22,9 @@ Access is through the LSEG Data Library for Python (desktop session), using the 
 | Three-month forward points and rates (robustness variant 2; retrieved 24 September 2026) | `<CCY>3M=`; `USD3MOIS=`, `USDSROIS3M=`, `USD3MD=`; `<CCY>3MD=` | Composite | Bid, ask |
 | VIX futures | `VXc1`, `VXc2` | Exchange | Settlement or close |
 
-**Also available:**
+Named-broker contributors (`=TIFO`, `=BGCP`, `=TPI`) also exist but are short, sparse or mid-only, so only TIFO is used, as a check over its available period. WM/Reuters fixings, the S&P 500 index and the Cboe VIX index are not licensed.
 
-- **Additional contributors.** Named-broker contributors (`=TIFO`, `=BGCP`, `=TPI`) exist but are short, sparse or mid-only. Only TIFO is used, as a check over its available period.
-- **Not licensed.** WM/Reuters fixings, the S&P 500 index and the Cboe VIX index.
+The provider does not document the time of day of daily history. Matching daily values against intraday bars in summer and winter 2026 places the composite daily value at about 21:18 UTC throughout the year and the Fenics value at about 17:16 London time; the research log records the method, and month-end alignment uses these times.
 
 ### Free public sources
 
@@ -36,8 +35,6 @@ Access is through the LSEG Data Library for Python (desktop session), using the 
 | Federal Reserve H.10 and H.15 releases, if needed | Rate and spot cross-checks | Public domain (US government) |
 
 Each public snapshot is stored under `data/public/<source>/<date>/` with its original bytes, URL, retrieval time, SHA-256 hash and licence note.
-
-**Snapshot time.** The provider does not document the time of day of daily history. Matching daily values against intraday bars (summer and winter 2026) places the composite daily value at about 21:18 UTC throughout the year and the Fenics value at about 17:16 London time. The research log records the method; month-end alignment uses these times.
 
 ## Storage and provenance
 
@@ -51,36 +48,20 @@ data/private/audit/<retrieval-date>/
     audit_report.md                  full audit with counts and dates (restricted)
 ```
 
-**Rules.**
-
-- **Raw tables are never edited.** Cleaning is done by code into `data/private/clean/`. Every transformation is recorded: unit conversion, inversion of USD-base quotes, pip factors and month-end selection.
-- **Missing values stay missing.** A missing value is never converted to zero. Substitutions follow the rules in the research design and are counted.
-- **Recording times.** The retrieval time and the observation date are recorded separately. A current retrieval does not reconstruct what was knowable historically. That matters only for quote revisions, which the audit checks by comparing repeated pulls.
+Raw tables are never edited. Cleaning is done by code into `data/private/clean/`, and every transformation is recorded: unit conversion, inversion of USD-base quotes, pip factors and month-end selection. A missing value is never converted to zero; substitutions follow the rules of the research design and are counted. The retrieval time and the observation date are recorded separately, because a current retrieval does not reconstruct what was knowable historically. That distinction matters only for quote revisions, which the audit checks by comparing repeated retrievals.
 
 ## Audit checks (Stage 1)
 
-1. **Coverage.** First and last dates with a two-sided quote, for every instrument and contributor.
-2. **Two-sidedness.** The share of month-ends with both bid and ask, and the substitutions required.
-3. **Staleness.** Runs of unchanged quotes, per instrument. Butterfly runs of five or more business days are flagged.
-4. **Underlying pair.** The document title and underlying of every volatility RIC, confirmed through LSEG search metadata. Of particular concern is whether the NOK and SEK instruments are against USD or EUR.
-5. **Quote semantics.**
-   - Units: volatility points, or forward points and their pip factor.
-   - The sign convention of risk reversals.
-   - Whether 10Δ instruments share the 25Δ conventions.
-6. **Delta and premium conventions.** Documented per pair, with the source of each convention (provider documentation where available, otherwise Reiswich and Wystup, 2012, which reports the conventions table of Clark, 2011).
-7. **Butterfly convention.**
-   - Provider documentation first.
-   - The supporting diagnostic calibrates the 25Δ smile under each reading and compares the absolute errors in predicting the 10Δ risk reversal and butterfly. It uses the primary sample's month-ends.
-   - The comparison is recorded as supporting evidence only.
-8. **Splice.** Fenics against composite on their overlap: mean and dispersion of differences per instrument.
-9. **Plausibility.**
-   - No crossed quotes.
-   - Non-negative volatilities.
-   - Forward points consistent in sign with the rate differential.
-   - Where a check fails, the observation is flagged, not removed.
+1. Coverage: the first and last dates with a two-sided quote, for every instrument and contributor.
+2. Two-sidedness: the share of month-ends with both bid and ask, and the substitutions required.
+3. Staleness: runs of unchanged quotes per instrument, with butterfly runs of five or more business days flagged.
+4. Underlying pair: the document title and underlying of every volatility RIC, confirmed through LSEG search metadata, in particular whether the NOK and SEK instruments are against USD or against EUR.
+5. Quote semantics: the units (volatility points, or forward points and their pip factor), the sign convention of risk reversals, and whether 10Δ instruments share the 25Δ conventions.
+6. Delta and premium conventions, documented per pair with the source of each convention: provider documentation where available, otherwise Reiswich and Wystup (2012), who report the conventions table of Clark (2011).
+7. Butterfly convention: provider documentation first; as supporting evidence only, a diagnostic that calibrates the 25Δ smile under each reading on the primary sample's month-ends and compares the absolute errors in predicting the 10Δ risk reversal and butterfly.
+8. Splice: Fenics against composite on their overlap, with the mean and dispersion of the differences per instrument.
+9. Plausibility: no crossed quotes, non-negative volatilities, and forward points consistent in sign with the rate differential; an observation that fails a check is flagged, not removed.
 
-## Publication handling
+## Publication
 
-- **Public summary.** The public audit summary states the checks performed and the rules applied. It does not report LSEG-derived values, counts or dates until they are cleared.
-- **Figures and statistics.** Figures and estimates that depend on LSEG inputs are generated into `data/private/` or `results/private/` until they are reviewed.
-- **Reproduction.** The acquisition script lets a reader with their own entitlement reproduce the private layer.
+The public audit record states the checks performed and the rules applied, and the reports publish pooled estimates and the coverage facts described above. Estimates and figures that depend on LSEG inputs are generated into `data/private/` and reviewed before any pooled summary is published. The acquisition script lets a reader with their own entitlement reproduce the private layer.

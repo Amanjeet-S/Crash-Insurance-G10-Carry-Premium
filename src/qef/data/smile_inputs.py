@@ -21,8 +21,9 @@ Rates. The quote-currency rate has the option's tenor: the USD OIS rate
 (<CCY>1MD=, <CCY>3MD=) otherwise, as recorded in the research log of
 24 September 2026 (the deviation on discount rates, and the choices fixed for
 the three-month variant). The provider metadata of the 23 September
-retrieval describe USD1MOIS= as the Fed Funds OIS; the 24 September
-retrieval, which holds USD3MOIS=, carries no metadata.
+retrieval describe USD1MOIS= as the Fed Funds OIS. The 24 September
+retrieval, which holds USD3MOIS=, carries no metadata; the retrieval of
+26 September 2026 describes USD3MOIS= as the three-month Fed Funds OIS.
 
 Completeness. ``complete_calib`` requires spot, forward, rate, ATM, 25Δ risk
 reversal and 25Δ butterfly (the calibration set; used for calibration and for

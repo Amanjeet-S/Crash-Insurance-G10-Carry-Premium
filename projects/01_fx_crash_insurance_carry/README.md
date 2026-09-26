@@ -2,18 +2,7 @@
 
 Does the ex-ante price of crash insurance in G10 FX option smiles explain the collapse of the currency carry premium after 2008 and its revival in 2022–2026?
 
-The data are daily dealer-contributed FX option quotes from LSEG Workspace, for nine G10 currencies against the US dollar:
-
-- at-the-money volatility;
-- 25Δ and 10Δ risk reversals;
-- 25Δ and 10Δ butterflies;
-- forward points and money-market rates.
-
-Each month-end smile is converted into strikes and prices under market quoting conventions. The project then:
-
-1. measures the skew price of crash protection per unit of carry;
-2. tests whether it explains carry returns in and out of sample;
-3. decomposes the realised cost of hedging into delta, volatility-level and skew components.
+The data are daily dealer-contributed FX option quotes from LSEG Workspace for nine G10 currencies against the US dollar: at-the-money volatility, 25Δ and 10Δ risk reversals and butterflies, forward points and money-market rates. Each month-end smile is converted into strikes and prices under market quoting conventions. The project then measures the skew price of crash protection per unit of carry, tests whether it explains carry returns in and out of sample, and decomposes the realised cost of hedging into payoff, volatility-level and skew components. The [paper](paper/paper.pdf) and its [extended abstract](paper/summary.md) report the results.
 
 | Document | Content |
 | --- | --- |
@@ -24,7 +13,9 @@ Each month-end smile is converted into strikes and prices under market quoting c
 | [references.md](references.md) | Every source, what it is used for and the version consulted |
 | [reports/](reports/) | Audit record and results |
 
-**Status:** Stages 1 to 4 complete. Stage 5: proofs, the full robustness grid (including the three-month tenor and vanna–volga smiles) and the R4 moment intervals complete. Results: [E1 and E4](reports/e1.md); [portfolio returns, E2 (with the secondary moment predictors), E3 and E5](reports/stage4.md); [robustness](reports/robustness.md). Stage 6: [paper draft](paper/paper.pdf) and [summary](paper/summary.md) written and reviewed. Remaining: the C++ kernel, the Stage 1 quote-revision check, clean-environment reproduction, and the licence holder's confirmation that pooled summaries may be published.
+## Status
+
+Stages 1 to 4 are complete. In Stage 5 the proofs, the full robustness grid (including the three-month tenor and vanna–volga smiles) and the R4 moment intervals are complete. Results: [E1 and E4](reports/e1.md); [portfolio returns, E2 (with the secondary moment predictors), E3 and E5](reports/stage4.md); [robustness](reports/robustness.md). For Stage 6 the [paper draft](paper/paper.pdf) and [summary](paper/summary.md) are written and reviewed. A clean-environment run of the whole pipeline reproduces every reported number (research log, 26 September 2026). A second retrieval found no quote revisions ([data audit](reports/data_audit.md)). What remains is the C++ kernel, the Merton and Heston validation of the moment code, and the licence holder's confirmation that pooled summaries may be published.
 
 ## Reproduction
 
@@ -41,4 +32,4 @@ python -m venv .venv-lseg && .venv-lseg/bin/pip install -r requirements-lseg.loc
 .venv/bin/python scripts/audit_fx_panel.py
 ```
 
-The script reads the App Key of whoever runs it from `~/.lseg/app_key`. I obtained my data under an LSEG Workspace student licence provided by my university, which covers only me, permits individual study and research and does not permit redistribution. The repository therefore holds code, methods and aggregate results (means, standard errors, test statistics and intervals). It holds no LSEG data and no month-level series or calibrated parameters from which quotes could be reconstructed; these stay in `data/private/`, which Git ignores.
+The script reads the App Key of whoever runs it from `~/.lseg/app_key`. Given the private data, `scripts/reproduce.sh` builds a new environment from `requirements.lock`, runs the tests and then every estimation step in order; its header states the data layout it expects and the outcome of my own run. I obtained my data under an LSEG Workspace student licence provided by my university, which covers only me, permits individual study and research and does not permit redistribution. The repository therefore holds code, methods and aggregate results (means, standard errors, test statistics and intervals). It holds no LSEG data and no month-level series or calibrated parameters from which quotes could be reconstructed; these stay in `data/private/`, which Git ignores.

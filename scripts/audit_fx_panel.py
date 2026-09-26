@@ -666,7 +666,7 @@ def report(ctx) -> str:
           "## Not covered here", "",
           "- Butterfly convention (check 7): provider documentation and the 10Δ diagnostic under both readings.",
           "- Delta and premium conventions (check 6): provider documentation; the configuration is provisional.",
-          "- Quote revisions: need a second retrieval to compare with this one.", ""]
+          "- Quote revisions: scripts/check_quote_revisions.py compares a later retrieval with this one.", ""]
     return "\n".join(L)
 
 
