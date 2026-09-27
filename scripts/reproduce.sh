@@ -20,7 +20,18 @@
 #   9. the robustness grid (robustness.md);
 #  10. the three-month calibration, with the 24 September 2026 retrieval as a
 #      supplementary raw root (robustness.md);
-#  11. the three-month estimation (robustness.md).
+#  11. the three-month estimation (robustness.md);
+#  12. to 14., added on 27 September 2026 and not part of the run described
+#      below: the post hoc regime attribution (e1.md), the model validation of
+#      the moment code (model_validation.md, from synthetic models only) and the
+#      sharp identification of option-implied moments (stage4.md), which takes
+#      about 45 minutes on eight cores;
+#  15. added on 27 September 2026: the out-of-sample test of the tail
+#      hypotheses with the 5-delta quotes (stage4.md), about 15 minutes;
+#  16. added on 27 September 2026: the sign and magnitude check of HML_FX
+#      against Verdelhan's public portfolios (paper, Section 4.6);
+#  17. added on 27 September 2026: the E1 bootstrap intervals recomputed with
+#      the arch package as an independent implementation (paper, Section 4.6).
 #
 # It stops at the first command that fails. It never runs an acquisition
 # script and needs no network access after the packages are installed.
@@ -43,15 +54,29 @@
 #              SEK3MD= USD3MD= USD3MOIS= USDSROIS3M=
 #
 # The second retrieval holds the three-month forwards and rates of robustness
-# variant 2 (data plan) and, like mine, makes no metadata search. The Cboe VX
+# variant 2 (data plan) and, like mine, makes no metadata search. A third
+# retrieval, of 27 September 2026, holds the one-month 5-delta Fenics quotes of
+# the out-of-sample test (step 15):
+#
+#   .venv-lseg/bin/python scripts/acquire_lseg_fx.py --retrieval-date 2026-09-27 \
+#       --skip-search \
+#       --only EUR1MR5=FN EUR1MB5=FN GBP1MR5=FN GBP1MB5=FN AUD1MR5=FN AUD1MB5=FN \
+#              NZD1MR5=FN NZD1MB5=FN JPY1MR5=FN JPY1MB5=FN CHF1MR5=FN CHF1MB5=FN \
+#              CAD1MR5=FN CAD1MB5=FN NOK1MR5=FN NOK1MB5=FN SEK1MR5=FN SEK1MB5=FN The Cboe VX
 # files come from Cboe's public historical data:
 #
 #   .venv/bin/python scripts/acquire_cboe_vx.py --retrieval-date 2026-09-24
+#
+# Verdelhan's public currency portfolios (step 16) are downloaded with
+#
+#   .venv/bin/python scripts/acquire_verdelhan.py --retrieval-date 2026-09-27
 #
 # The script expects this layout, which Git ignores:
 #
 #   data/private/lseg/2026-09-23/   raw/, manifest.json, metadata.csv, requests.jsonl
 #   data/private/lseg/2026-09-24/   raw/ with the three-month forwards and rates
+#   data/private/lseg/2026-09-27/   raw/ with the one-month 5-delta quotes (step 15)
+#   data/private/verdelhan/2026-09-27/   CurrencyPortfolios.xls and its manifest (step 16)
 #   data/private/cboe/2026-09-24/   raw/ with one settlement file per VX contract
 #
 # The option --retrieval-date only names the folder. The requested range is
@@ -66,8 +91,8 @@
 #
 #   PYTHON=python3.13 scripts/reproduce.sh [PRIVATE_DIR]
 #
-# PRIVATE_DIR, if given, is a directory holding lseg/ and cboe/ in the layout
-# above; the script links data/private/lseg and data/private/cboe to it and
+# PRIVATE_DIR, if given, is a directory holding lseg/, cboe/ and verdelhan/ in
+# the layout above; the script links those folders of data/private/ to it and
 # only reads from it. Without PRIVATE_DIR the inputs must already be in
 # data/private/. The environment variable PYTHON selects the interpreter that
 # builds the environment (default python3); the project needs Python 3.11 or
@@ -154,13 +179,13 @@ inputs="$PRIVATE"
 if [[ $# -eq 1 ]]; then
   [[ -d "$1" ]] || fail "$1 is not a directory"
   inputs="$(cd "$1" && pwd)"
-  for d in lseg cboe; do
+  for d in lseg cboe verdelhan; do
     if [[ -e "$PRIVATE/$d" || -L "$PRIVATE/$d" ]]; then
       fail "$PRIVATE/$d already exists; remove it or omit PRIVATE_DIR"
     fi
   done
 fi
-for d in lseg/2026-09-23/raw lseg/2026-09-24/raw cboe/2026-09-24/raw; do
+for d in lseg/2026-09-23/raw lseg/2026-09-24/raw lseg/2026-09-27/raw cboe/2026-09-24/raw verdelhan/2026-09-27; do
   [[ -d "$inputs/$d" ]] || fail "missing input $inputs/$d (see the header of this script)"
 done
 for f in lseg/2026-09-23/manifest.json lseg/2026-09-23/metadata.csv lseg/2026-09-23/requests.jsonl; do
@@ -178,6 +203,7 @@ if [[ $# -eq 1 ]]; then
   mkdir -p "$PRIVATE"
   ln -s "$inputs/lseg" "$PRIVATE/lseg"
   ln -s "$inputs/cboe" "$PRIVATE/cboe"
+  ln -s "$inputs/verdelhan" "$PRIVATE/verdelhan"
 fi
 
 mkdir -p "$LOGS"
@@ -213,6 +239,13 @@ run "robustness grid" "$LOGS/robustness.log" "$PY" scripts/robustness.py
 run "calibration, 3M" "$RESULTS/calibrate_3m.log" \
   "$PY" scripts/calibrate_smiles.py --tenor 3M --extra-raw-root data/private/lseg/2026-09-24/raw
 run "three-month estimation" "$LOGS/estimate_3m.log" "$PY" scripts/estimate_3m.py
+# Post hoc analyses added on 27 September 2026, after the verified run described in the header.
+run "regime attribution (post hoc)" "$LOGS/regime_attribution.log" "$PY" scripts/estimate_regime_attribution.py
+run "model validation (post hoc)" "$LOGS/model_validation.log" "$PY" scripts/validate_moments_models.py
+run "sharp identification (post hoc)" "$LOGS/identification.log" "$PY" scripts/estimate_identification.py
+run "5-delta out-of-sample test (post hoc)" "$LOGS/wing_test.log" "$PY" scripts/estimate_wing_test.py
+run "comparison with published portfolios" "$LOGS/verdelhan.log" "$PY" scripts/compare_verdelhan.py
+run "bootstrap check against arch" "$LOGS/bootstrap_arch.log" "$PY" scripts/check_bootstrap_arch.py
 
 STEP="finished"
 echo "All steps completed. Outputs are in $PRIVATE/audit/ and $PRIVATE/results/."

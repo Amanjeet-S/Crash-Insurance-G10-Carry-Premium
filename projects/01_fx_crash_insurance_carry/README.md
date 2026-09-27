@@ -7,7 +7,7 @@ The data are daily dealer-contributed FX option quotes from LSEG Workspace for n
 | Document | Content |
 | --- | --- |
 | [research_design.md](research_design.md) | Question, estimands, samples, inference, stages (pre-registered) |
-| [theory/](theory/README.md) | Results R1–R9 and proofs |
+| [theory/](theory/README.md) | Results R1–R10 and proofs |
 | [data_plan.md](data_plan.md) | Instruments, storage and audit checks |
 | [research_log.md](research_log.md) | Dated decisions and deviations |
 | [references.md](references.md) | Every source, what it is used for and the version consulted |
@@ -15,7 +15,7 @@ The data are daily dealer-contributed FX option quotes from LSEG Workspace for n
 
 ## Status
 
-Stages 1 to 4 are complete. In Stage 5 the proofs, the full robustness grid (including the three-month tenor and vanna–volga smiles) and the R4 moment intervals are complete. Results: [E1 and E4](reports/e1.md); [portfolio returns, E2 (with the secondary moment predictors), E3 and E5](reports/stage4.md); [robustness](reports/robustness.md). For Stage 6 the [paper draft](paper/paper.pdf) and [summary](paper/summary.md) are written and reviewed. A clean-environment run of the whole pipeline reproduces every reported number (research log, 26 September 2026). A second retrieval found no quote revisions ([data audit](reports/data_audit.md)). What remains is the C++ kernel, the Merton and Heston validation of the moment code, and the licence holder's confirmation that pooled summaries may be published.
+Stages 1 to 4 are complete. In Stage 5 the proofs, the full robustness grid (including the three-month tenor and vanna–volga smiles) and the R4 moment intervals are complete. Results: [E1 and E4](reports/e1.md); [portfolio returns, E2 (with the secondary moment predictors), E3 and E5](reports/stage4.md); [robustness](reports/robustness.md). For Stage 6 the [paper draft](paper/paper.pdf) and [summary](paper/summary.md) are written and reviewed. A clean-environment run of the whole pipeline reproduces every reported number (research log, 26 September 2026). A second retrieval found no quote revisions ([data audit](reports/data_audit.md)). After the pre-registered results, I added three post hoc analyses: the admissible tail exponents and sharp identified sets of option-implied moments (theory result R10), which show how strong a tail assumption the sign of one-month skewness needs; a validation of the moment code against Merton and Heston models ([model validation](reports/model_validation.md)); and a direct comparison of the regime changes in the skew price and the carry spread ([E1 record](reports/e1.md)). An out-of-sample test with one-month 5Δ quotes, planned in the research log before their retrieval, checks the tail hypotheses behind the identification results ([Stage 4 record](reports/stage4.md)). What remains is the C++ kernel and the licence holder's confirmation that pooled summaries may be published.
 
 ## Reproduction
 

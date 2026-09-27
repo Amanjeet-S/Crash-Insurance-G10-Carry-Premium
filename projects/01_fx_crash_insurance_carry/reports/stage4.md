@@ -49,6 +49,52 @@ The predictive regressions use setting (i), with HML^U_{t+1} regressed on the pr
 
 Variance does not predict carry returns at any endpoint. More negative oriented skewness, meaning more left-tail risk in the carry position, predicts higher returns, which is the crash-compensation sign and the same economic direction as the E2 test on φ. The one-sided bootstrap test rejects at 5% at all three endpoints, but the Newey–West t does not at the upper endpoint. Because the result holds across the interval only under the bootstrap, and only under a setting that the smile's own wings contradict, I report it as conditional supporting evidence rather than as a finding.
 
+## Post hoc: how strong a tail assumption the sign of skewness needs
+
+This section was added on 27 September 2026, after the results above were recorded, and is post hoc. It applies theory result R10 (`theory/notes.tex`), which gives, under the hypotheses of R4, the exponents compatible with the smile's boundary price and slope and the sharp identified set of the raw moments.
+
+```bash
+.venv/bin/python scripts/estimate_identification.py
+```
+
+For each of the 1,440 currency-months the largest compatible exponents are γ̄ = K_min G0/P0 − 1 and η̄ = 1 + K_max Ḡ0/C0, with quartiles 47.7, 59.7 and 75.4 for γ̄ and 54.5, 67.8 and 84.0 for η̄. Setting (i) requires its exponents to be at most these. It fails the requirement in the lower tail in 54.4% of currency-months, in the upper tail in 49.3% and in one or both in 75.3%; the ratio γ_i/γ̄ has quartiles 0.97, 1.01 and 1.05, so setting (i) sits at the strongest assumption the boundary prices admit. Every currency-month in which the check refutes setting (i) also fails the diagnostic above, which extrapolates the smile two ATM standard deviations beyond the boundary, while the diagnostic fails in a further 309 lower and 357 upper tails that pass the check; the check uses only the boundary price, slope and curvature, and it is necessary, not sufficient.
+
+The identified sets are computed exactly for a grid of step points (1,000 per tail); refining the grid fourfold in 40 currency-months moved no bound on the third central moment by more than 1.2×10⁻³ of its interval width and left every breakdown value unchanged. The table gives the share of currency-months in which the sign of the skewness is identified, with θ the fraction of the maximal exponents (γ = θγ̄, η = 1 + θ(η̄ − 1)).
+
+| Tail exponents | Admissible | Sign identified (sharp set) | Of which negative | Sign identified (R4 box) |
+| --- | --- | --- | --- | --- |
+| Setting (ii), γ = η = 2 | 100% | 0.0% | 0.0% | 0.0% |
+| Setting (i), boundary elasticities | 24.7% | 93.3% | 86.8% | 32.1% of all currency-months |
+| θ = 0.25 | 100% | 0.7% | 0.6% | |
+| θ = 0.5 | 100% | 26.7% | 21.9% | |
+| θ = 0.75 | 100% | 70.3% | 57.5% | |
+| θ = 0.9 | 100% | 87.6% | 70.3% | |
+
+The shares of negative signs are shares of all admissible currency-months. The breakdown value θ*, the smallest fraction at which the sign is identified, has quartiles 0.49, 0.63 and 0.80; it is at most 0.5 in 26.2% of currency-months and at most 0.75 in 69.9%. At θ = 1, where both tails are pure power laws and the moments are point-identified, the skewness has quartiles −0.535, −0.337 and −0.082 and is negative in 78.5% of currency-months. By currency, the median θ* is lowest for AUD (0.54) and NZD (0.58) and highest for CHF (0.76) and EUR (0.71).
+
+For comparison, in Merton and Heston models with one-month FX-typical parameters the models' own tail exponents lie between 0.58 and 0.97 of the maximal ones, and the sign of the skewness is identified at those exponents whenever the skewness is not close to zero ([model validation](model_validation.md)). Truncated one-month quotes therefore identify the sign of risk-neutral skewness only under tail assumptions close to the strongest the boundary prices admit: in the median currency-month the tail exponents beyond the 10Δ strikes must be at least 63% of the largest exponents that the boundary price and slope admit. Standard models meet that requirement in some cases and not in others, and setting (i), on which the secondary E2 regressions above rest, is excluded by the boundary prices themselves in three quarters of currency-months.
+
+## Post hoc: an out-of-sample test of the tail hypotheses with 5Δ quotes
+
+The hypotheses behind the results above concern the tails beyond the 10Δ strikes, which the quotes used so far do not reach. The Fenics contributor quotes one-month 5Δ risk reversals and butterflies for all nine currencies from June 2022, and these quotes had entered no calibration. I recorded the test in the research log and committed it before retrieving their history. The boundary is the Fenics market-reading smile at its 10Δ strikes; the 5Δ put and call volatilities are σ_ATM + BF5 ∓ RR5/2 (the smile-strangle reading), and the tests use the closed-form identified interval of a price beyond the boundary that follows from R10.
+
+```bash
+.venv-lseg/bin/python scripts/acquire_lseg_fx.py --retrieval-date 2026-09-27 --skip-search --only <the eighteen RICs <CCY>1MR5=FN and <CCY>1MB5=FN>
+.venv/bin/python scripts/estimate_wing_test.py
+```
+
+All 450 currency-months from July 2022 to August 2026 have both 5Δ quotes and a converged Fenics smile. The 5Δ risk reversal has the sign of the Fenics 10Δ risk reversal in 99.8% of them, and every 5Δ strike lies beyond the smile's 10Δ strike. The 5Δ prices lie below the smile's own extrapolation, with quote-to-smile ratios of 0.94, 0.96 and 1.00 (quartiles) for puts and 0.93, 0.96 and 0.98 for calls, so the SABR smile extrapolated from 25Δ quotes overprices 5Δ protection by about 4% in the median currency-month.
+
+| Out-of-sample result (450 currency-months) | Lower tail | Upper tail |
+| --- | --- | --- |
+| 5Δ price consistent with the weakest hypothesis of the class | 99.1% | 99.6% |
+| θ_5, largest consistent fraction of the maximal exponent (quartiles) | 0.82, 0.88, 0.95 | 0.81, 0.86, 0.93 |
+| θ_5 = 1 (tail exactly the power law matching the 10Δ boundary) | 0.0% | 0.0% |
+
+The class is consistent with the 5Δ prices in both tails in 99.1% of currency-months; the four exceptions are all USDJPY months. With both 5Δ prices as constraints and the exponents at the largest values they allow, the sign of the skewness is identified in 90.6% of the 446 consistent currency-months, negative in 71.5% of them. Along the common path θ, with the 5Δ constraints, the sign is identified in 394 currency-months, and the breakdown point there has quartiles 0.36, 0.45 and 0.57. As a supplementary comparison not in the plan, the breakdown point without the 5Δ prices on the same smiles and months has quartiles 0.54, 0.64 and 0.79, close to the composite smiles' 0.54, 0.65 and 0.78 over the same months; the 5Δ prices lower it in every currency-month where the sign is identified with them, by a median of 0.16. The boundary check refutes setting (i) on these smiles in 57.3% of currency-months.
+
+By the rule fixed in the plan, in 90.6% of currency-months the 5Δ quotes do not rule identification out: the sign of the skewness is identified under the strongest hypothesis of the class they allow. In the remaining 9.4% it is identified under no hypothesis of the class consistent with them. Consistency with one extra price is necessary for a hypothesis, not sufficient, so the favourable share is an upper limit. The tail strength the sign needs, θ* of about 0.64 in the median currency-month without the 5Δ prices and 0.45 with them, lies below the strength the 5Δ prices allow, θ_5 of about 0.87. By currency, USDJPY has the heaviest tails relative to the power-law benchmark (median θ_5 of 0.62 in the lower and 0.72 in the upper tail) and all four inconsistent months. The sample is short, lies entirely in the hiking regime, and the 5Δ quotes are dealer indications from one contributor.
+
 ## E3: decomposition of the hedge cost
 
 The terms below are in basis points of notional per month, for the primary sample of 159 months and the 10Δ hedge, with Newey–West standard errors. Term (i) is the realised payoff minus the Garman–Kohlhagen value at the forecast realised volatility σ̂P, the realised volatility over the previous 21 business days. Term (ii), the volatility-level term, is minus the flat-ATM premium less that value, and term (iii), the skew term, is minus the smile premium less the flat-ATM premium. The three terms add up to HML^H − HML^U.

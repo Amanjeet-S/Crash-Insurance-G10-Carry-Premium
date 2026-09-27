@@ -33,6 +33,9 @@ TENORS = ("1M", "3M")
 # RIC code -> quote type. R10 and B10 are the 10-delta risk reversal and butterfly.
 VOL_QUOTES = {"O": "atm", "RR": "rr25", "BF": "bf25", "R10": "rr10", "B10": "bf10"}
 CONTRIBUTORS = {"": "composite", "FN": "fenics", "TIFO": "tifo"}
+# One-month 5-delta quotes, available from the Fenics contributor only, added on
+# 27 September 2026 for the out-of-sample test of the tail hypotheses (research log).
+WING_QUOTES = {"R5": "rr5", "B5": "bf5"}
 
 
 @dataclass(frozen=True)
@@ -41,11 +44,12 @@ class Instrument:
     block: str  # storage block under raw/
     currency: str | None = None
     tenor: str | None = None
-    quote: str | None = None  # spot, points, atm, rr25, bf25, rr10, bf10, deposit, ois, sofr_ois, future
+    quote: str | None = None  # spot, points, atm, rr25, bf25, rr10, bf10, rr5, bf5, deposit, ois, sofr_ois, future
     contributor: str = "composite"
 
 
 _VOL = re.compile(r"^([A-Z]{3})(1M|3M)(O|RR|BF|R10|B10)=(FN|TIFO)?$")
+_WING = re.compile(r"^([A-Z]{3})1M(R5|B5)=FN$")
 _SPOT = re.compile(r"^([A-Z]{3})=$")
 _FWD = re.compile(r"^([A-Z]{3})(1M|3M)=$")
 _DEP = re.compile(r"^([A-Z]{3})(1M|3M)D=$")
@@ -60,6 +64,9 @@ def parse_ric(ric: str) -> Instrument:
         ccy, tenor, code, contrib = m.groups()
         quote = VOL_QUOTES[code]
         return Instrument(ric, f"vol_{quote}", ccy, tenor, quote, CONTRIBUTORS[contrib or ""])
+    if m := _WING.match(ric):
+        quote = WING_QUOTES[m[2]]
+        return Instrument(ric, f"vol_{quote}", m[1], "1M", quote, "fenics")
     if m := _SPOT.match(ric):
         return Instrument(ric, "spot", m[1], None, "spot")
     if m := _FWD.match(ric):
@@ -92,6 +99,7 @@ def instrument_catalogue() -> list[Instrument]:
     rics += [f"{c}3M=" for c in CURRENCIES]
     rics += ["USD3MOIS=", "USDSROIS3M=", "USD3MD="] + [f"{c}3MD=" for c in CURRENCIES]
     rics += ["VXc1", "VXc2"]
+    rics += [f"{c}1M{q}=FN" for c in CURRENCIES for q in WING_QUOTES]
     return [parse_ric(r) for r in rics]
 
 

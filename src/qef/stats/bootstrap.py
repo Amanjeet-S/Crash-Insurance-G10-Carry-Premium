@@ -11,7 +11,13 @@ function optimal_block_length), which takes them from Andrew Patton's MATLAB
 implementation; that package served as the reference implementation. Its
 choice of m̂ sits one lag above the definition used here, and it normalises
 autocorrelations by lag-specific sums of squares rather than by γ̂0, so block
-lengths can differ slightly from arch.
+lengths can differ from arch. A third difference concerns a degenerate case:
+when the kernel estimate ĝ0 of the long-run variance is not positive, the
+formula is not valid and this module returns b = 1 (the i.i.d. bootstrap),
+whereas arch applies the formula and caps b. With the first two choices
+switched to arch's (``_block_length(x, arch_conventions=True)``), the block
+lengths equal those of arch 8.0.0 to rounding whenever ĝ0 > 0
+(tests/test_bootstrap_arch.py).
 """
 
 from __future__ import annotations
@@ -21,6 +27,18 @@ import numpy as np
 
 def optimal_block_length(x) -> float:
     """Expected block length for the stationary bootstrap."""
+    return _block_length(x, arch_conventions=False)
+
+
+def _block_length(x, arch_conventions: bool) -> float:
+    """Block length with this module's conventions, or with those of arch.
+
+    ``arch_conventions=True`` switches only the two choices named in the module
+    docstring: autocorrelations normalised by lag-specific sums of squares, as in
+    arch's ``_single_optimal_block``, and m̂ taken as the first lag of the run of
+    K insignificant autocorrelations rather than the lag before it. It exists so
+    that a test can check every other step against arch exactly.
+    """
     x = np.asarray(x, dtype=float)
     x = x[np.isfinite(x)]
     T = x.shape[0]
@@ -30,10 +48,16 @@ def optimal_block_length(x) -> float:
     m_max = int(np.ceil(np.sqrt(T))) + K
     band = 2.0 * np.sqrt(np.log10(T) / T)
     acv = np.array([float(e[k:] @ e[: T - k]) / T for k in range(m_max + 1)])
-    rho = np.abs(acv / acv[0]) if acv[0] > 0 else np.zeros_like(acv)
+    if arch_conventions:
+        ss = lambda v: float(v @ v)
+        rho = np.array([abs(T * acv[k]) / np.sqrt(ss(e[k + 1:]) * ss(e[: T - k - 1])) for k in range(m_max + 1)])
+        window = lambda i: rho[i - K : i]
+    else:
+        rho = np.abs(acv / acv[0]) if acv[0] > 0 else np.zeros_like(acv)
+        window = lambda i: rho[i - K + 1 : i + 1]
     m_hat = None
     for i in range(K, m_max + 1):
-        if np.all(rho[i - K + 1 : i + 1] < band):
+        if np.all(window(i) < band):
             m_hat = i - K
             break
     M = min(2 * max(m_hat, 1), m_max) if m_hat is not None else m_max

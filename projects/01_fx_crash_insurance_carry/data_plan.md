@@ -21,8 +21,9 @@ Access is through the LSEG Data Library for Python in a desktop session, using t
 | Other one-month rates | `<CCY>1MD=` (deposit), `<CCY>1MOIS=` where available (no such RIC exists for EUR or SEK) | Composite | Bid, ask |
 | Three-month forward points and rates (robustness variant 2; retrieved 24 September 2026) | `<CCY>3M=`; `USD3MOIS=`, `USDSROIS3M=`, `USD3MD=`; `<CCY>3MD=` | Composite | Bid, ask |
 | VIX futures | `VXc1`, `VXc2` | Exchange | Settlement or close |
+| One-month 5Δ risk reversal and butterfly (out-of-sample test of the tail hypotheses; retrieved 27 September 2026) | `<CCY>1MR5=FN`, `<CCY>1MB5=FN` | Fenics only | Bid, ask, mid |
 
-Named-broker contributors (`=TIFO`, `=BGCP`, `=TPI`) also exist but are short, sparse or mid-only, so only TIFO is used, as a check over its available period. WM/Reuters fixings, the S&P 500 index and the Cboe VIX index are not licensed.
+Named-broker contributors (`=TIFO`, `=BGCP`, `=TPI`) also exist but are short, sparse or mid-only, so only TIFO is used, as a check over its available period. One-month 5Δ quotes exist only from Fenics (two-sided, from June 2022) and from Tullett Prebon (mid-only, from September 2022); the Fenics quotes are used. WM/Reuters fixings, the S&P 500 index and the Cboe VIX index are not licensed.
 
 The provider does not document the time of day of daily history. Matching daily values against intraday bars in summer and winter 2026 places the composite daily value at about 21:18 UTC throughout the year and the Fenics value at about 17:16 London time; the research log records the method, and month-end alignment uses these times.
 
@@ -31,7 +32,7 @@ The provider does not document the time of day of daily history. Matching daily 
 | Source | Use | Licence to record |
 | --- | --- | --- |
 | Cboe VX historical data: one daily settlement file per contract (`scripts/acquire_cboe_vx.py`) | VIX roll-down factor in E5; checked against LSEG `VXc2` | Redistribution not established: stored in `data/private/cboe/` |
-| Verdelhan currency portfolios (web.mit.edu/adrienv) | Sign and magnitude check of HML_FX | Author terms |
+| Verdelhan currency portfolios (web.mit.edu/adrienv, `CurrencyPortfolios.xls`, retrieved 27 September 2026; `scripts/acquire_verdelhan.py`) | Sign and magnitude check of HML_FX | No terms stated: stored in `data/private/verdelhan/` |
 | Federal Reserve H.10 and H.15 releases, if needed | Rate and spot cross-checks | Public domain (US government) |
 
 Each public snapshot is stored under `data/public/<source>/<date>/` with its original bytes, URL, retrieval time, SHA-256 hash and licence note.

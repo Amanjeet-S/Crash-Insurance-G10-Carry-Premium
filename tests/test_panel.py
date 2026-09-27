@@ -30,6 +30,10 @@ def test_parse_ric_classifies_each_block():
     assert parse_ric("USDSROIS3M=").quote == "sofr_ois"
     assert parse_ric("JPY=").quote == "spot"
     assert parse_ric("VXc2").block == "vix"
+    w = parse_ric("SEK1MB5=FN")
+    assert (w.block, w.currency, w.tenor, w.quote, w.contributor) == ("vol_bf5", "SEK", "1M", "bf5", "fenics")
+    with pytest.raises(ValueError):
+        parse_ric("EUR1MR5=")  # 5-delta quotes exist only from Fenics
     with pytest.raises(ValueError):
         parse_ric("EUR6MO=")
 
@@ -38,8 +42,8 @@ def test_catalogue_is_unique_and_complete():
     rics = [i.ric for i in instrument_catalogue()]
     assert len(rics) == len(set(rics))
     # 9 spot + 9 forward + 9 x 2 tenors x 5 quotes x 2 contributors + 3 TIFO + 3 USD + 18 rates + 2 VIX
-    # + three-month: 9 forwards + 3 USD rates + 9 deposits
-    assert len(rics) == 9 + 9 + 180 + 3 + 3 + 18 + 2 + 9 + 3 + 9
+    # + three-month: 9 forwards + 3 USD rates + 9 deposits; + one-month 5-delta Fenics: 9 x 2
+    assert len(rics) == 9 + 9 + 180 + 3 + 3 + 18 + 2 + 9 + 3 + 9 + 18
 
 
 def test_ny_month_ends_holidays_and_weekends():
