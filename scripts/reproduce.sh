@@ -32,6 +32,12 @@
 #      against Verdelhan's public portfolios (paper, Section 4.6);
 #  17. added on 27 September 2026: the E1 bootstrap intervals recomputed with
 #      the arch package as an independent implementation (paper, Section 4.6).
+#  18. and 19., added on 28 September 2026: the long at-the-money sample
+#      (stage4.md, about 20 seconds) and the design checks (e1.md and
+#      stage4.md; SOFR OIS, the named-broker contributor, delta-method
+#      intervals and the moment code's closed-form checks, about 2 minutes on
+#      eight cores). Before the tests, the C++ kernel is built with
+#      cpp/build.sh, which needs a C++17 compiler.
 #
 # It stops at the first command that fails. It never runs an acquisition
 # script and needs no network access after the packages are installed.
@@ -219,7 +225,8 @@ run "install the package" "$LOGS/pip_package.log" .venv/bin/pip install -e . --n
   .venv/bin/pip freeze
 } > "$LOGS/environment.txt"
 
-# Tests.
+# Tests. The C++ kernel is built first; its parity tests would otherwise build it (or skip without a compiler).
+run "C++ kernel build" "$LOGS/cpp_build.log" bash cpp/build.sh
 run "test suite" "$LOGS/pytest.log" .venv/bin/python -m pytest -q
 
 # Pipeline.
@@ -246,6 +253,10 @@ run "sharp identification (post hoc)" "$LOGS/identification.log" "$PY" scripts/e
 run "5-delta out-of-sample test (post hoc)" "$LOGS/wing_test.log" "$PY" scripts/estimate_wing_test.py
 run "comparison with published portfolios" "$LOGS/verdelhan.log" "$PY" scripts/compare_verdelhan.py
 run "bootstrap check against arch" "$LOGS/bootstrap_arch.log" "$PY" scripts/check_bootstrap_arch.py
+# Items of the design computed after the main results (research log, 27 and 28 September 2026).
+run "long at-the-money sample" "$LOGS/long_atm.log" "$PY" scripts/estimate_long_atm.py
+run "design checks" "$LOGS/design_checks.log" "$PY" scripts/estimate_design_checks.py
+# scripts/benchmark_kernel.py is not run here: it rewrites the timing block of the tracked cpp/README.md.
 
 STEP="finished"
 echo "All steps completed. Outputs are in $PRIVATE/audit/ and $PRIVATE/results/."
