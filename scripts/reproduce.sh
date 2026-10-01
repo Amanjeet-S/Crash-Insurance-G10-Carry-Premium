@@ -68,8 +68,17 @@
 #       --skip-search \
 #       --only EUR1MR5=FN EUR1MB5=FN GBP1MR5=FN GBP1MB5=FN AUD1MR5=FN AUD1MB5=FN \
 #              NZD1MR5=FN NZD1MB5=FN JPY1MR5=FN JPY1MB5=FN CHF1MR5=FN CHF1MB5=FN \
-#              CAD1MR5=FN CAD1MB5=FN NOK1MR5=FN NOK1MB5=FN SEK1MR5=FN SEK1MB5=FN The Cboe VX
-# files come from Cboe's public historical data:
+#              CAD1MR5=FN CAD1MB5=FN NOK1MR5=FN NOK1MB5=FN SEK1MR5=FN SEK1MB5=FN
+#
+# An optional fourth retrieval, of 1 October 2026, checks the coverage of the
+# long at-the-money sample's series before 1995 (step 18 reads its manifest if
+# present, and its results do not depend on it):
+#
+#   .venv-lseg/bin/python scripts/acquire_lseg_fx.py --retrieval-date 2026-10-01 \
+#       --start 1970-01-01 --end 1995-01-31 --skip-search \
+#       --only <CCY>= <CCY>1M= <CCY>1MO=   (for each of the nine currencies)
+#
+# The Cboe VX files come from Cboe's public historical data:
 #
 #   .venv/bin/python scripts/acquire_cboe_vx.py --retrieval-date 2026-09-24
 #
@@ -82,11 +91,13 @@
 #   data/private/lseg/2026-09-23/   raw/, manifest.json, metadata.csv, requests.jsonl
 #   data/private/lseg/2026-09-24/   raw/ with the three-month forwards and rates
 #   data/private/lseg/2026-09-27/   raw/ with the one-month 5-delta quotes (step 15)
+#   data/private/lseg/2026-10-01/   optional: spot, forwards and ATM before 1995 (step 18)
 #   data/private/verdelhan/2026-09-27/   CurrencyPortfolios.xls and its manifest (step 16)
 #   data/private/cboe/2026-09-24/   raw/ with one settlement file per VX contract
 #
-# The option --retrieval-date only names the folder. The requested range is
-# fixed in acquire_lseg_fx.py (1 January 1995 to 22 September 2026) and in
+# The option --retrieval-date only names the folder. The requested range
+# defaults in acquire_lseg_fx.py to 1 January 1995 to 22 September 2026
+# (--start and --end change it, as for the coverage retrieval above) and is fixed in
 # acquire_cboe_vx.py (contracts from January 2007 to December 2026), so a later
 # retrieval with these commands covers the same dates and lands where this
 # script expects it. Its results can still differ from those reported if the

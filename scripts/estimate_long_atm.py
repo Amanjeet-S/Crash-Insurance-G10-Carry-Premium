@@ -84,7 +84,13 @@ onwards" and "before the primary start", and rule 8 was added.
    later months with N < 4 stay in the count as excluded. The retrieval
    requested history from 1 January 1995 (reports/data_audit.md), so the
    start of this sample is bounded by the retrieval, not necessarily by the
-   provider's history.
+   provider's history. Checked on 1 October 2026: a coverage retrieval of
+   spot, one-month forward points and one-month ATM volatility from
+   1 January 1970 to 31 January 1995 (data/private/lseg/2026-10-01/) returned
+   no composite ATM quote before 6 January 1995 for any currency, while spot
+   quotes go back to 1971 and forward points to 1982. The first month-end of the sample is
+   therefore also the first month-end of the provider's ATM series, as the
+   design requires; the summary states this from that retrieval's manifest.
 4. Discount factors. None enters, so months before the one-month rate series
    start are kept, and the rate, D_q and D_b columns of
    build_month_end_inputs are not used. D_b enters the delta convention only
@@ -166,6 +172,7 @@ import pandas as pd
 from scipy.stats import norm
 
 ROOT = Path(__file__).resolve().parents[1]
+COVERAGE_RETRIEVAL = "2026-10-01"  # rule 3: pre-1995 coverage of the long-sample series
 sys.path.insert(0, str(ROOT / "scripts"))
 from estimate_e1 import PRIMARY_START, REGIME_BREAK  # noqa: E402
 from estimate_stage4 import daily_spot_mid, spot_on, theta_confidence_set  # noqa: E402
@@ -470,6 +477,20 @@ def main():
     start_note = (f"The first month-end, {first:%Y-%m}, is the first month-end of the retrieval ({requested}), "
                   "not necessarily the start of the provider's series." if first == month_ends[0] else
                   f"The first month-end, {first:%Y-%m}, is the first with at least four currencies ({requested}).")
+    # rule 3, checked on 1 October 2026 against a coverage retrieval from 1 January 1970
+    coverage = ROOT / "data" / "private" / "lseg" / COVERAGE_RETRIEVAL / "manifest.json"
+    if coverage.exists():
+        import json
+        man = json.loads(coverage.read_text())
+        files = [(Path(f["file"]).parts, f["first_date"]) for f in man["files"] if f.get("first_date")]
+        firsts = {blk: min((d for parts, d in files if len(parts) > 2 and parts[1] == blk), default=None)
+                  for blk in ("vol_atm", "spot", "forward")}
+        if firsts["vol_atm"] is not None and pd.Timestamp(firsts["vol_atm"]) > month_ends[0] - pd.offsets.MonthBegin(1):
+            start_note = (f"The first month-end, {first:%Y-%m}, is the first month-end of the retrieval ({requested}) "
+                          f"and of the provider's composite one-month ATM series: a coverage retrieval from "
+                          f"{man['requested_start']} (retrieval of {COVERAGE_RETRIEVAL}) returned no ATM quote before "
+                          f"{firsts['vol_atm']}, while spot and forwards begin on {firsts['spot']} and "
+                          f"{firsts['forward']} at the earliest.")
     # theta_UB where mean HML^U <= 0 (amendment of 27 September 2026); the value itself is as pre-registered
     neg = table[table["U mean"].astype(float) <= 0]
     theta_notes = ["theta_UB = 1 - mean(Hatm)/mean(HML^U) = -(mean(Hatm) - mean(HML^U))/mean(HML^U), as pre-registered."]
