@@ -66,7 +66,7 @@ exactly when u g(u)/Ḡ(u) is at least η there. Setting (i) therefore assumes
 that the tails beyond the last quotes are no heavier than the smile implies at
 those quotes. Setting (ii), heavy tails: γ = η = 2. The upper bound needs η > 1
 (for USD-base pairs the upper-tail weight decays only like (ln K)^{k−1}/K). Full
-references are in projects/01_fx_crash_insurance_carry/references.md.
+references are in references.md.
 """
 
 from __future__ import annotations

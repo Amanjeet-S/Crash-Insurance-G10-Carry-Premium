@@ -83,7 +83,7 @@ def parse_ric(ric: str) -> Instrument:
 
 
 def instrument_catalogue() -> list[Instrument]:
-    """All RICs requested for project 01 (data plan, LSEG Workspace table).
+    """All RICs requested for the crash-insurance project (data plan, LSEG Workspace table).
 
     USD1MD= is included so that the forward-point sign check compares deposit
     rates with deposit rates. The three-month forwards and rates serve the

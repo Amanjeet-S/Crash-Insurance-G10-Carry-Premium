@@ -1,1 +1,1 @@
-"""Research code for the Quantitative-Economics-Finance repository."""
+"""Research code for the paper Crash insurance and the G10 carry premium."""

@@ -1,33 +1,52 @@
-# Quantitative Economics and Finance
+# Crash Insurance and the G10 Carry Premium
 
-Research projects that combine economic theory, financial market data and mathematical methods. Each project states a question, fixes its estimands before estimation, and reports results with their uncertainty and limitations.
+## 1. Research question and findings
 
-| Project | Question | Status |
-| --- | --- | --- |
-| [01 Crash insurance and the G10 carry premium](projects/01_fx_crash_insurance_carry/README.md) | Does the ex-ante price of crash insurance in FX option smiles explain the post-2008 collapse and 2022–2026 revival of the currency carry premium? | Estimation and robustness complete; paper in preparation |
+I ask whether the price of crash insurance in G10 currency option smiles accounts for the carry premium and for its change between the zero-rate regime (May 2013 to December 2021) and the hiking regime from January 2022. Month-end SABR smiles for nine currencies against the US dollar, calibrated to dealer quotes from LSEG Workspace, price one-month protective options on a three-long, three-short carry portfolio. The primary estimand is the skew price of that protection per unit of the portfolio's forward discount; the design also tests whether it predicts carry returns, decomposes the realised hedge cost into payoff, volatility-level and skew terms, and measures exposure to systemic risk.
 
-## Layout
+The rise in the carry spread between the regimes was not matched by a rise in the price of protection, so the regime-shift explanation has partial support only. The share of the carry premium paid for crash insurance is not identified at one month in a sample of this length; over 1995 to 2026 with at-the-money protection the confidence set is bounded but contains the diffusive null. The sign of one-month option-implied skewness is identified only under a strong and explicit assumption about the tails beyond the quoted strikes, which I characterise exactly and test out of sample with 5-delta quotes.
 
+The design was fixed on 23 September 2026 before any return or option-implied statistic was computed. Every later change is recorded in the [research log](research_log.md) with its date and reason, and analyses added after the main results are labelled post hoc in the paper and the reports.
+
+## 2. Reading and execution
+
+Read the [paper (PDF)](paper/Crash_Insurance_and_the_G10_Carry_Premium.pdf), with its [LaTeX source](paper/main.tex) and [extended abstract](paper/summary.md).
+
+| Document | Content |
+| --- | --- |
+| [research_design.md](research_design.md) | Question, estimands, samples, inference and stages, fixed before estimation |
+| [theory/](theory/README.md) | Results R1 to R10 and their proofs |
+| [data_plan.md](data_plan.md) | Instruments, storage and audit checks |
+| [research_log.md](research_log.md) | Dated decisions and deviations |
+| [references.md](references.md) | Every source, what it is used for and the version consulted |
+| [reports/](reports/) | Data audit, smile calibration, E1 and E4, returns and E2 to E5, robustness and model validation |
+| [replication/](replication/README.md) | Public and licensed reproduction |
+
+Python implements the data audit, smile calibration, estimation and inference; a [C++ kernel](cpp/README.md) of the pricing, delta, SABR and moment code is checked against the Python reference, and QuantLib, arch and statsmodels serve as independent cross-checks.
+
+The [reproduction instructions](docs/reproducing_paper.md) give one command that recomputes the paper's portfolio-level results from the [published series](data/public/fx_carry_portfolio_series/README.md) and compares each with the printed number; it needs no data licence. E4 and the 25-delta comparisons are the exception, because their series are withheld. Recomputing the series and the per-currency results needs the reader's own LSEG Workspace licence. The [development guide](docs/development.md) covers installation and the automated checks.
+
+## 3. Repository structure
+
+```text
+Crash-Insurance-G10-Carry-Premium/
+├── .github/workflows/   Automated tests
+├── cpp/                 C++ kernel with parity tests
+├── data/public/         Published portfolio-level series
+├── docs/                Development, reproduction and publication policies
+├── paper/               Paper, LaTeX source and extended abstract
+├── replication/         Public and licensed reproduction guides
+├── reports/             Audit, calibration and estimation records
+├── scripts/             Acquisition, estimation and verification entry points
+├── src/qef/             Reusable Python implementation
+├── tests/               Analytic, numerical and data-hygiene checks
+└── theory/              Theory notes with proofs
 ```
-projects/<project>/   design, theory, data plan, log, reports
-src/qef/              reusable code (FX conventions, pricing, smiles, data handling)
-scripts/              acquisition and audit entry points
-tests/                analytic and synthetic checks
-cpp/                  compiled kernels (planned)
-data/public/          attributed public snapshots (none yet)
-data/private/         licensed data and derived values (not tracked)
-```
 
-## Environment
+## 4. Evidence and licensing
 
-```bash
-python -m venv .venv
-.venv/bin/pip install -r requirements.lock && .venv/bin/pip install -e . --no-deps
-.venv/bin/python -m pytest -q
-```
+I distinguish observed market data, derived portfolio-level series, synthetic validation models and stated mathematical results. They answer different questions and are labelled accordingly. Established methods are cited where they are used; claims of originality are made only after a literature check.
 
-## Data licence
+The LSEG data were obtained under a university student licence that permits individual study and research and does not permit redistribution. The licence holder confirmed on 1 October 2026 that manipulated or transformed data may be published and that the raw data may not. Released results are research findings, original code and writing, and portfolio-level series that cannot be traced back to the quotes. Raw provider data, per-currency series and calibrated parameters remain private. The [publication policy](docs/publication_policy.md) specifies the release boundary.
 
-I obtained the LSEG data used in this research under an LSEG Workspace student licence provided by my university. That licence covers only me: it permits individual study and research and does not permit redistribution, so this repository contains no LSEG data. Anyone else who wants to rerun the acquisition and estimation needs their own LSEG Workspace licence; the data are acquired in a separate environment (`requirements-lseg.lock`).
-
-The repository holds code, methods and aggregate results (means, standard errors, test statistics and intervals). It holds no month-level series or calibrated parameters from which quotes could be reconstructed; these stay in `data/private/`, which Git ignores. Coverage facts (sample windows, counts) are published because they reveal no values. My university, the licence holder, has confirmed that manipulated or transformed data may be published and that the raw data may not; calibrated parameters and per-currency inputs stay private because they reproduce the quotes. `tests/test_repository_hygiene.py` fails if a data extract or anything under `data/private/` is ever tracked.
+Released original software uses the [MIT licence](LICENSE), and released original research writing and series use [CC BY 4.0](LICENSES/CC-BY-4.0.txt). The [licensing scope](LICENSING.md), [provenance record](PROVENANCE.md) and [third-party notices](THIRD_PARTY_NOTICES.md) preserve external rights and exclude restricted observations. To cite this work, use the [citation file](CITATION.cff).

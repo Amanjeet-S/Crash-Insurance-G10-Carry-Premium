@@ -1,0 +1,81 @@
+{
+  "dataset": "fx_carry_portfolio_series",
+  "author": "Amanjeet Singh",
+  "licence": "CC-BY-4.0 for my original contribution; no right to the underlying LSEG observations (LICENSING.md)",
+  "repository": "https://github.com/Amanjeet-S/Crash-Insurance-G10-Carry-Premium",
+  "generator": "scripts/export_public_series.py",
+  "source": "private results of the LSEG retrieval of 23 September 2026 (data/private/, not published)",
+  "rounding": {
+    "primary.csv": "6 significant figures",
+    "extended.csv": "4 significant figures",
+    "long_atm.csv": "6 significant figures"
+  },
+  "missing_value": "empty field",
+  "readme": "README.md (not hashed here)",
+  "files": {
+    "primary.csv": {
+      "sha256": "3852a92194d2c61da4c50158ad0107d35183de7c8fa69e6e9a57e1e48062628f",
+      "bytes": 29969,
+      "rows": 160,
+      "columns": [
+        "date",
+        "regime",
+        "status",
+        "C_skew_market_10d",
+        "phi_market_10d",
+        "FD",
+        "U",
+        "H10",
+        "H25",
+        "Hatm",
+        "c1",
+        "c2",
+        "c3",
+        "var_lo",
+        "var_hi",
+        "oskew_lo",
+        "oskew_hi",
+        "sigma_fx"
+      ],
+      "first_date": "2013-05-31",
+      "last_date": "2026-08-31"
+    },
+    "extended.csv": {
+      "sha256": "c06f12feb484f0394477688ccbd214f20b54cdf18282e7b506e2869e18593ada",
+      "bytes": 9086,
+      "rows": 76,
+      "columns": [
+        "date",
+        "regime",
+        "status",
+        "C_skew",
+        "FD",
+        "phi",
+        "U",
+        "H10",
+        "H25",
+        "Hatm",
+        "c1",
+        "c2",
+        "c3",
+        "sigma_fx"
+      ],
+      "first_date": "2007-01-31",
+      "last_date": "2013-04-30"
+    },
+    "long_atm.csv": {
+      "sha256": "285f8a24283cbf6ef2df4781ea33ca8980497b17b1c195cec415990f2454e812",
+      "bytes": 14271,
+      "rows": 379,
+      "columns": [
+        "date",
+        "status",
+        "n_legs",
+        "U",
+        "Hatm"
+      ],
+      "first_date": "1995-01-31",
+      "last_date": "2026-07-31"
+    }
+  }
+}

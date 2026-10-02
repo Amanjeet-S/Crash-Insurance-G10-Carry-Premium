@@ -33,7 +33,7 @@ from qef.fx.moments import middle_contracts
 from qef.validation.models import Heston, Market, Merton, model_smile, reference_moments, tail_exponent
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "projects" / "01_fx_crash_insurance_carry" / "reports" / "model_validation.md"
+OUT = ROOT / "reports" / "model_validation.md"
 MARKETS = {"EURUSD": ("EUR", Market(1.10, 0.040, 0.020)), "USDJPY": ("JPY", Market(150.0, 0.005, 0.045))}
 MODELS = {
     "Merton, down jumps (σ 0.08, λ 2, μ −0.04, δ 0.06)": Merton(sigma=0.08, lam=2.0, mu=-0.04, delta=0.06),

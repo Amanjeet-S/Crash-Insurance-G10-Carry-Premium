@@ -1,7 +1,7 @@
 # C++ kernel
 
 This directory holds the C++ kernel of Stage 5 of the research design for
-project 01 (crash insurance and the G10 carry premium): the inner loops of the
+the project on crash insurance and the G10 carry premium: the inner loops of the
 pricing, delta, SABR and moment code, with parity against the Python reference
 in `src/qef/fx`. The Python reference remains the code of record; the kernel
 is a faster implementation of the same arithmetic, and the parity tests show

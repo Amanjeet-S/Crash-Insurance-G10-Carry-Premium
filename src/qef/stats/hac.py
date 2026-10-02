@@ -12,7 +12,7 @@ the R package sandwich (functions bwNeweyWest and NeweyWest, version 3.1-3),
 which served as the reference implementation. Two guards depart from it: if
 s0 ≤ 0 the bandwidth is set to zero (the iid variance), and the lag is capped
 at T − 1. Neither binds on the project's series. Full references are in
-projects/01_fx_crash_insurance_carry/references.md.
+references.md.
 """
 
 from __future__ import annotations

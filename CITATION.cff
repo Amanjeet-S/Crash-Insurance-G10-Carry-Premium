@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "Cite the repository revision used, the paper and the original sources listed in references.md."
+title: "Crash Insurance and the G10 Carry Premium: code, data and paper"
+type: software
+authors:
+  - family-names: Singh
+    given-names: Amanjeet
+repository-code: "https://github.com/Amanjeet-S/Crash-Insurance-G10-Carry-Premium"
+url: "https://github.com/Amanjeet-S/Crash-Insurance-G10-Carry-Premium"
+license:
+  - MIT
+  - CC-BY-4.0
+keywords:
+  - quantitative finance
+  - international finance
+  - FX options
+  - carry trade
+  - partial identification
+  - econometrics
+preferred-citation:
+  type: unpublished
+  title: "Crash insurance and the G10 carry premium"
+  authors:
+    - family-names: Singh
+      given-names: Amanjeet
+  year: 2026
+  notes: "Draft paper in this repository"

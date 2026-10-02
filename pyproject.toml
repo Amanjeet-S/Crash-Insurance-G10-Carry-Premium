@@ -1,11 +1,14 @@
 [build-system]
-requires = ["setuptools>=75"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "qef-research"
+name = "crash-insurance-g10-carry-premium"
 version = "0.1.0"
-description = "Reproducible research in quantitative economics and finance"
+description = "Code for the paper Crash insurance and the G10 carry premium"
+authors = [{ name = "Amanjeet Singh" }]
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -21,7 +24,7 @@ dev = ["pytest==8.4.2"]
 crosscheck = ["QuantLib==1.43", "arch==8.0.0", "statsmodels==0.14.5"]
 
 [project.urls]
-Repository = "https://github.com/Amanjeet-S/Quantitative-Economics-Finance"
+Repository = "https://github.com/Amanjeet-S/Crash-Insurance-G10-Carry-Premium"
 
 [tool.setuptools.packages.find]
 where = ["src"]

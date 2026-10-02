@@ -1,6 +1,6 @@
 /*
  * C++ kernel for the pricing, delta, SABR and middle-part moment code of
- * project 01 (research design, Stage 5: "the C++ kernel with parity against
+ * crash-insurance project (research design, Stage 5: "the C++ kernel with parity against
  * the Python reference"). The C interface is declared in qef_kernel.h and
  * wrapped for Python by src/qef/kernel.py through ctypes.
  *
@@ -36,7 +36,7 @@
  * not consulted for the kernel: Garman and Kohlhagen (1983) and Reiswich and
  * Wystup (2012) for pricing and delta conventions, Hagan, Kumar, Lesniewski
  * and Woodward (2002) for the SABR expansion; full references are in
- * projects/01_fx_crash_insurance_carry/references.md. Library behaviour that
+ * references.md. Library behaviour that
  * the port reproduces was read in the installed sources: numpy 2.3.5
  * (numpy.linspace; the numpy.sum docstring on partial pairwise summation) and
  * scipy 1.16.3 (scipy.stats.norm evaluates Phi by scipy.special.ndtr, its

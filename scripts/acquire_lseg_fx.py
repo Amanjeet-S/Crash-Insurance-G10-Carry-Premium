@@ -1,4 +1,4 @@
-"""Acquire the daily LSEG FX panel for project 01 into the private raw layer.
+"""Acquire the daily LSEG FX panel for the crash-insurance project into the private raw layer.
 
 Run in the LSEG environment (requirements-lseg.lock) with LSEG Workspace open:
 

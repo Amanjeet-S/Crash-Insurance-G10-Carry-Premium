@@ -12,7 +12,7 @@ assumption enters (research design, section 3.3).
 Sources: the pricing formula is Garman and Kohlhagen (1983). The spot,
 forward and premium-adjusted delta definitions and the delta-neutral-straddle
 ATM strike follow Reiswich and Wystup (2012). Full
-references are in projects/01_fx_crash_insurance_carry/references.md.
+references are in references.md.
 """
 
 from __future__ import annotations

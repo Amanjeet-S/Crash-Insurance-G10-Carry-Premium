@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Reproduce project 01 (crash insurance and the G10 carry premium) from a fresh
+# Reproduce the project on crash insurance and the G10 carry premium from a fresh
 # clone of this repository, given the private input data.
 #
 # The script builds a clean virtual environment from requirements.lock with the
 # commands in README.md, runs the test suite, and then runs the estimation
 # pipeline in the order of the reproduction blocks in
-# projects/01_fx_crash_insurance_carry/reports/:
+# reports/:
 #
 #   1. the Stage 1 audit of the 23 September 2026 retrieval (data_audit.md);
 #   2. the one-month composite smile calibration, 30 July 2010 to 31 August 2026

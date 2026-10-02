@@ -48,7 +48,7 @@ The predictive regressions use setting (i), with HML^U_{t+1} regressed on the pr
 | Predictor | b (lower, mid, upper) | Newey–West t | One-sided bootstrap p |
 | --- | --- | --- | --- |
 | Variance | 4.98, 4.81, 4.64 | 0.87, 0.90, 0.93 | 0.185, 0.171, 0.163 (b > 0) |
-| Oriented skewness | −0.024, −0.028, −0.028 | −2.74, −2.60, −1.87 | 0.013, 0.015, 0.045 (b < 0) |
+| Oriented skewness | −0.024, −0.028, −0.028 | −2.74, −2.59, −1.87 | 0.013, 0.015, 0.045 (b < 0) |
 
 Variance does not predict carry returns at any endpoint. More negative oriented skewness, meaning more left-tail risk in the carry position, predicts higher returns, which is the crash-compensation sign and the same economic direction as the E2 test on φ. The one-sided bootstrap test rejects at 5% at all three endpoints, but the Newey–West t does not at the upper endpoint. Because the result holds across the interval only under the bootstrap, and only under a setting that the smile's own wings contradict, I report it as conditional supporting evidence rather than as a finding.
 
