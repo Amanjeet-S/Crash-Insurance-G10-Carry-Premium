@@ -1,6 +1,6 @@
 """Regime attribution of the change in the carry spread, post hoc.
 
-Research log, 26 September 2026. Added after the E1 to E5 results were
+Research log, 27 September 2026. Added after the E1 to E5 results were
 recorded, and reported as post hoc. Primary sample, market reading, 10Δ
 hedges. Regimes as in E1: zero-rate from the primary start to December 2021,
 hiking from January 2022.

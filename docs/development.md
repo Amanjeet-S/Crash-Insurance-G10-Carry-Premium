@@ -24,7 +24,7 @@ The [C++ kernel](../cpp/README.md) of the pricing, delta, SABR and moment code n
 
 ## Cross-checks
 
-The optional `crosscheck` dependencies (QuantLib, arch and statsmodels, pinned in `pyproject.toml`) provide the independent implementations against which the pricing code and the stationary bootstrap are checked; the corresponding tests skip without them.
+`requirements.lock` pins the two libraries that serve as independent implementations: QuantLib, against which `tests/test_quantlib_crosscheck.py` checks premia, deltas, strike inversion, delta-neutral strikes and Hagan volatilities, and arch, against which `tests/test_bootstrap_arch.py` and `scripts/check_bootstrap_arch.py` check the stationary bootstrap and its block length. Both tests skip, with the reason, if their library is missing; the model validation of the moment code (`tests/test_moments_models.py` and `scripts/validate_moments_models.py`) needs QuantLib. statsmodels and patsy are pinned only because arch depends on them; no project code or test imports statsmodels. The Newey-West standard errors were checked once against the R package sandwich, which the project does not install. mpmath is not in `requirements.lock`: the 50-digit check of the inverse normal in `tests/test_cpp_kernel.py` skips without it, and `scripts/benchmark_kernel.py` reports that check only when it is installed (`pip install -e .[crosscheck]`). matplotlib and its dependencies are in the lock file but no project code imports them.
 
 ## Continuous integration
 

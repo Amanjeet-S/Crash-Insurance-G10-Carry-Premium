@@ -33,9 +33,9 @@ robustness.py; and arch_difference of check_bootstrap_arch.py when the arch
 package is installed. Where a script computes a statistic inside its main(),
 which reads private files, I repeat those few lines here on the public frames;
 each such place says so. No estimation script was changed. Bootstrap draws and
-seeds are those behind the paper: 9,999 draws for E1, the E2 bias correction,
-the realised-return split, the regime attribution and the bootstrap-t, and
-1,999 for the secondary moment predictors and the robustness grid.
+seeds are those behind the paper: 9,999 draws throughout, as the research
+design fixes (the robustness grid and the secondary moment predictors were
+first run with 1,999; research log, 2 October 2026).
 
 Comparisons. (1) Each recomputed number is compared with the number printed in
 paper/main.tex, hard-coded in PAPER below with the paper's precision and section;
@@ -110,7 +110,7 @@ from qef.stats.hac import mean_and_se, ols_hac  # noqa: E402
 PUBLIC = ROOT / "data" / "public" / "fx_carry_portfolio_series"
 PRIVATE = ROOT / "data" / "private" / "results" / "2026-09-23"
 B_MAIN = 9999  # E1, E2, realised-return split, regime attribution, bootstrap-t (paper, Sections 4.4 and 5)
-B_GRID = 1999  # secondary moment predictors and robustness grid (moments_summary.md; paper, Table 6)
+B_GRID = 9999  # secondary moment predictors and robustness grid (moments_summary.md; paper, Table 9)
 COMBOS = (("market", 0.10),)  # the only E1 combination published; the 25-delta and smile-reading series are withheld
 HEDGES = ("H10", "H25", "Hatm")
 LA_WINDOWS = (*long_atm.WINDOWS, "n = 2 months", "n = 3 months")
@@ -208,7 +208,7 @@ def task_e1_supplementary(primary, extended, B):
 def task_realised_split(s4, B):
     pm = primary_ok(s4)
     out = {}
-    for col in ("U", "H10"):
+    for col in ("U", "H10", "c1", "c2", "c3"):
         out.update(prefixed(f"split.{col}", regime_summary(pm, col, B)))
     return out
 
@@ -519,10 +519,10 @@ def _e1_rows():
              ("market", "10", "FD", 1e4): ("18.61", "1.77", "27.05", "1.41", "8.44", "2.30", "3.48", "13.65")}
     for (reading, d, col, scale), vals in table.items():
         for f, v in zip(fields, vals):
-            rows.append(Expect(f"e1.{reading}.{d}.{col}.{f}", v, "Table 1 (Section 5.1)",
+            rows.append(Expect(f"e1.{reading}.{d}.{col}.{f}", v, "Table 2 (Section 5.1)",
                                f"{col}, {reading} reading, {d}-delta: {f}", scale))
-    rows += [Expect("e1.market.10.phi.n_zero_rate", 104, "Table 1 (Section 5.1)", "zero-rate month-ends", kind="exact"),
-             Expect("e1.market.10.phi.n_hiking", 56, "Table 1 (Section 5.1)", "hiking month-ends", kind="exact")]
+    rows += [Expect("e1.market.10.phi.n_zero_rate", 104, "Table 2 (Section 5.1)", "zero-rate month-ends", kind="exact"),
+             Expect("e1.market.10.phi.n_hiking", 56, "Table 2 (Section 5.1)", "hiking month-ends", kind="exact")]
     return rows
 
 
@@ -543,8 +543,8 @@ def _supp_rows():
 
 
 def _paper():
-    S32, S51, S52, S53, S54, S46, S6 = ("Section 3.2", "Section 5.1", "Section 5.2", "Section 5.3", "Table 5 (Section 5.4)",
-                                        "Section 4.6", "Table 6 (Section 6)")
+    S32, S51, S52, S53, S54, S46, S6 = ("Section 3.2", "Section 5.1", "Section 5.2", "Section 5.3", "Table 8 (Section 5.4)",
+                                        "Section 4.6", "Table 9 (Section 6)")
     E = Expect
     rows = [E("count.primary", 160, S32, "primary month-ends", kind="exact"),
             E("count.primary_zero_rate", 104, S32, "zero-rate month-ends", kind="exact"),
@@ -582,7 +582,12 @@ def _paper():
             E("split.H10.se_hiking", "16.0", S53, "its s.e. (bp)", 1e4),
             E("split.H10.boot_lo", "-16.8", S53, "bootstrap 95% lower bound (bp)", 1e4),
             E("split.H10.boot_hi", "80.3", S53, "bootstrap 95% upper bound (bp)", 1e4)]
-    T2 = "Table 2 (Section 5.2)"
+    for col, label, vals in (("c1", "payoff term", ("-0.4", "5.3", "2.2", "4.9", "-13.2", "18.9")),
+                             ("c2", "volatility-level term", ("1.5", "1.9", "1.3", "1.5", "-5.4", "5.1")),
+                             ("c3", "skew term", ("-11.24", "0.82", "-11.21", "0.84", "-2.2", "2.4"))):
+        for f, x in zip(("mean_zero_rate", "se_zero_rate", "mean_hiking", "se_hiking", "boot_lo", "boot_hi"), vals):
+            rows.append(E(f"split.{col}.{f}", x, S53, f"E3 by regime, {label}: {f} (bp)", 1e4))
+    T2 = "Table 3 (Section 5.2)"
     for name, vals in (("phi", ("0.0062", "5.95", "0.00055", "0.00049", "0.0057", "0.021")),):
         for f, v in zip(("b", "t_hac", "bias_bootstrap", "bias_analytic", "b_bias_corrected", "p_one_sided_b_gt_0"), vals):
             rows.append(E(f"e2.{name}.{f}", v, T2, f"{name}: {f}"))
@@ -595,16 +600,16 @@ def _paper():
              E("e2.phi.rho_predictor", "0.86", S52, "AR(1) of phi"),
              E("e2.phi.corr_u_v", "-0.39", S52, "phi: correlation of innovations with returns"),
              E("rob.base.CW_t", "0.96", S52, "Clark-West t with training from the primary start")]
-    T3 = "Table 3 (Section 5.2)"
-    for pred, b, t, p, pk in (("var", ("4.98", "4.81", "4.64"), ("0.87", "0.90", "0.93"), ("0.185", "0.171", "0.163"), "p_boot_b_gt_0"),
-                              ("oskew", ("-0.024", "-0.028", "-0.028"), ("-2.74", "-2.59", "-1.87"), ("0.013", "0.015", "0.045"),
+    T3 = "Table 4 (Section 5.2)"
+    for pred, b, t, p, pk in (("var", ("4.98", "4.81", "4.64"), ("0.87", "0.90", "0.93"), ("0.186", "0.175", "0.167"), "p_boot_b_gt_0"),
+                              ("oskew", ("-0.024", "-0.028", "-0.028"), ("-2.74", "-2.59", "-1.87"), ("0.013", "0.014", "0.037"),
                                "p_boot_b_lt_0")):
         for i, end in enumerate(("lo", "mid", "hi")):
             rows += [E(f"mom.{pred}.{end}.b", b[i], T3, f"{pred} at {end}: b"),
                      E(f"mom.{pred}.{end}.t_hac", t[i], T3, f"{pred} at {end}: Newey-West t"),
                      E(f"mom.{pred}.{end}.{pk}", p[i], T3, f"{pred} at {end}: one-sided bootstrap p")]
     rows.append(E("mom.n", 159, T3, "months", kind="exact"))
-    T4 = "Table 4 (Section 5.3)"
+    T4 = "Table 7 (Section 5.3)"
     for name, m, s in (("U", "17.7", "12.1"), ("H10", "8.3", "11.9"), ("H25", "9.1", "11.3"), ("Hatm", "9.7", "8.9"),
                        ("c1", "0.5", "3.8"), ("c2", "1.4", "1.4"), ("c3", "-11.2", "0.65")):
         rows += [E(f"e3.primary.mean_{name}_bp", m, T4, f"mean {name} (bp)"), E(f"e3.primary.se_{name}_bp", s, T4, f"s.e. {name} (bp)")]
@@ -678,11 +683,11 @@ def _paper():
              E("vd.mean_h_bp", "7.2", S46, "mean developed HML (bp)"), E("vd.se_h_bp", "26.5", S46, "its s.e."),
              E("vd.corr", "0.51", S46, "correlation"), E("vd.same_sign", "77", S46, "months with the same sign (%)", 100),
              E("vd.slope", "0.41", S46, "slope of HML^U on their HML"), E("vd.slope_se", "0.12", S46, "its s.e."),
-             E("arch.max_phi", "0.0093", S46, "arch moves no phi bound by more than 0.0093", kind="le"),
+             E("arch.max_phi", "0.0094", S46, "arch moves no phi bound by more than 0.0094", kind="le"),
              E("arch.max_bp", "0.031", S46, "arch moves no C_skew or FD bound by more than 0.031 bp", kind="le"),
              E("arch.agree", True, S46, "arch changes no conclusion", kind="exact"),
              E("rob.base.reproduction_gap", "1e-9", S46, "the robustness base reproduces E1 and Stage 4", kind="lt")]
-    for v, vals in (("base", ("-0.355", "0.204", "-0.82", "0.01", "0.0058", "0.017", "0.96", "17.7", "1.47", "8.3", "0.70", "-11.2", "0.53")),
+    for v, vals in (("base", ("-0.355", "0.204", "-0.81", "0.01", "0.0057", "0.021", "0.96", "17.7", "1.47", "8.3", "0.70", "-11.2", "0.53")),
                     ("hedge 25d", (None,) * 7 + ("17.7", "1.47", "9.1", "0.81", None, "0.49")),
                     ("hedge ATM", (None,) * 7 + ("17.7", "1.47", "9.7", "1.09", "0", "0.45"))):
         for f, x in zip(("phi_diff", "phi_diff_se", "phi_diff_boot_lo", "phi_diff_boot_hi", "E2_b_bc", "E2_p", "CW_t",
@@ -697,17 +702,17 @@ PAPER = _paper()
 RR_REASON = ("rr_or is not published: it is a plain signed average of six raw 10-delta risk-reversal quotes in quote "
              "units, the least transformed of the portfolio-level series")
 NOT_REPRODUCIBLE = [
-    ("Abstract; Section 5.2; Table ident; Section 7", "Identification of the sign of one-month risk-neutral skewness: "
+    ("Abstract; Section 5.2; Table 5; Section 7", "Identification of the sign of one-month risk-neutral skewness: "
      "admissible exponents (medians 59.7 and 67.8), setting (i) refuted in 75.3% of currency-months, sign identified in "
      "93.3%, 26.7% and 70.3%, breakdown quartiles 0.49, 0.63, 0.80, median skewness -0.34",
      "computed per currency-month from each calibrated smile (estimate_identification.py); no per-currency value is published"),
     ("Section 5.2", "Per-currency moment intervals: tail exponents of setting (i) (median 61 and 67), median skewness "
      "interval [-0.70, 0.14], 32% excluding zero, setting (ii) about fifty times wider, smile extrapolation contradicting "
      "setting (i) in about three quarters", "per currency-month (moments_1m.csv); only the portfolio averages are published"),
-    ("Section 5.2; Table wing", "Out-of-sample test of the tail hypotheses with one-month 5-delta quotes (99.1%, 99.6%, "
+    ("Section 5.2; Table 6", "Out-of-sample test of the tail hypotheses with one-month 5-delta quotes (99.1%, 99.6%, "
      "theta_5 quartiles, 90.6% of 446, breakdown quartiles with and without the 5-delta prices)",
      "needs per-currency Fenics 5-delta quotes and smiles (estimate_wing_test.py)"),
-    ("Table 2, Panels A and B; Section 5.2", "Every E2 result of the oriented 10-delta risk reversal: in sample b 0.397 "
+    ("Table 3, Panels A and B; Section 5.2", "Every E2 result of the oriented 10-delta risk reversal: in sample b 0.397 "
      "(t 4.13), biases 0.0183 and 0.0148, corrected b 0.379 (p 0.004); out of sample R2 -5.5%, Clark-West -1.11 (p 0.87), "
      "Newey-West -1.18 (p 0.88); its AR(1) coefficient 0.52, its correlation 0.56 with phi and the correlation -0.53 of "
      "its innovations with returns", RR_REASON),
@@ -731,15 +736,15 @@ NOT_REPRODUCIBLE = [
      "recalibration of per-currency smiles from quotes (estimate_design_checks.py, checks 1 and 2)"),
     ("Section 4.6", "Closed-form checks of the moment code (1.6e-15 in all 1,440 currency-months) and the C++ kernel's "
      "parity and timing", "per currency-month and synthetic inputs respectively"),
-    ("Section 4.6; Table models", "Model validation of the moment code (Merton and Heston models)",
+    ("Section 4.6; Table 1", "Model validation of the moment code (Merton and Heston models)",
      "synthetic and already public: scripts/validate_moments_models.py and tests/test_moments_models.py"),
-    ("Table 1 and Sections 5.1 and 6", "E4 (the smile-strangle reading of the butterfly) and the 25-delta rows of E1: their "
+    ("Table 2 and Sections 5.1 and 6", "E4 (the smile-strangle reading of the butterfly) and the 25-delta rows of E1: their "
      "regime means, differences, standard errors and bootstrap intervals of phi (0.613, 0.341, -0.272; 0.781, 0.437, -0.345; "
      "0.595, 0.330, -0.265), E4 moving phi by less than 4 per cent, and the phi, E2 and skew-term cells of the 25-delta and "
-     "smile-strangle rows of Table 6",
+     "smile-strangle rows of Table 9",
      "the 25-delta and smile-reading skew-price series are withheld: with them a worst-case attacker could narrow single "
      "risk-reversal quotes, without them it cannot (scripts/check_public_reversibility.py and the public README)"),
-    ("Table 6 (Section 6)", "Robustness variants other than the base, 25-delta and ATM rows (Fenics quotes, stale "
+    ("Table 9 (Section 6)", "Robustness variants other than the base, 25-delta and ATM rows (Fenics quotes, stale "
      "butterflies missing, the two exclusions, implementable returns, dollar carry, ten currencies, log returns, "
      "previous-day spot, vanna-volga), the hedged return (8.7, t 0.73) and theta_UB (0.51) of the smile-strangle row, and "
      "the counts behind them (109 stale currency-months, 43 months, 40 months)",
@@ -747,7 +752,12 @@ NOT_REPRODUCIBLE = [
      "are reproduced"),
     ("Section 6.2", "Vanna-volga smiles (99.7% arbitrage-free, held-out errors 0.10 and 0.13 against 0.13 and 0.16)",
      "per-currency smiles"),
-    ("Table 7 (Section 6.3)", "Three-month tenor", "the three-month series are not published"),
+    ("Table 10 (Section 6.3)", "Three-month tenor", "the three-month series are not published"),
+    ("Section 6.1", "Stale Fenics butterflies treated as missing in the extended sample (311 currency-months in 67 "
+     "month-ends, 28 month-ends left, skew price 16.2 bp, phi 0.55, Clark-West 1.35)",
+     "needs the per-currency Fenics quote histories (estimate_outstanding_items.py)"),
+    ("Section 5.4", "Descriptive account of smiles, phi and returns around 5 August 2024",
+     "needs daily per-currency quotes and smiles (describe_august_2024.py)"),
     ("Section 3.2", "Substitution and exclusion counts and the coverage of the long sample's series before 1995",
      "quote-level audit records"),
 ]

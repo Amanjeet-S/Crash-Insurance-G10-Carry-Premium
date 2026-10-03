@@ -2,8 +2,8 @@
 
 LSEG data are licensed for individual study and research and may not be
 redistributed (README). These checks fail if anything under data/private/, a
-data extract outside the attributed public snapshots in data/public/, or a
-notebook with stored outputs is tracked by git.
+data extract outside the project's published portfolio-level series in
+data/public/, or a notebook with stored outputs is tracked by git.
 """
 
 from __future__ import annotations

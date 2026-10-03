@@ -9,9 +9,11 @@ This record covers section 8 of the [research design](../research_design.md). It
 .venv/bin/python scripts/robustness.py
 .venv/bin/python scripts/calibrate_smiles.py --tenor 3M --extra-raw-root data/private/lseg/2026-09-24/raw
 .venv/bin/python scripts/estimate_3m.py
+# Completed on 2 October 2026: stale Fenics butterflies in the extended sample and the 1,999 against 9,999 draws comparison
+.venv/bin/python scripts/estimate_outstanding_items.py
 ```
 
-The base variant reproduces the E1 regime difference and the Stage 4 means of HML^U, HML^H and the skew term to machine precision, and the script stops if it does not. Bootstrap intervals and the E2 bootstrap use 1,999 draws, so they differ from the 9,999-draw base figures in [e1.md](e1.md) and [stage4.md](stage4.md) in the second decimal.
+The base variant reproduces the E1 regime difference and the Stage 4 means of HML^U, HML^H and the skew term to machine precision, and the script stops if it does not. Bootstrap intervals and the E2 bootstrap use 9,999 draws, as the design specifies, so the base row coincides with [e1.md](e1.md) and [stage4.md](stage4.md). The grid was first run with 1,999 draws; rerun with 9,999 under the same seeds (`scripts/estimate_outstanding_items.py`), no interval changes its exclusion of zero and no one-sided test changes at 5% (research log, 2 October 2026).
 
 ## Definitions
 
@@ -23,7 +25,7 @@ Implementable returns trade forwards at the quoted bid or ask and close them at 
 
 The vanna–volga variant uses the vanna–volga price smile of Castagna and Mercurio (2007, eqs. (6)–(7)), with Greeks at the ATM volatility, pillars at the ATM delta-neutral-straddle strike and at the 25Δ strikes at the pillar volatilities in the pair's convention, and the smile strangle solved so that the smile prices the market strangle (Reiswich, 2010, Section 3.3.3; Bossens et al., 2010, Section 3.3). The first- and second-order approximations serve only as checks, because they are expansions of the price and the first-order form overvalues the wings (Castagna and Mercurio, 2007, p. 10). Protective options are struck at the 10Δ strikes of the vanna–volga smile.
 
-Every variant, the base included, is tested out of sample with an expanding window that starts at the primary start and a first forecast for January 2017 (116 forecasts). Stage 4 trains on the extended sample from 2007, so its base statistic (1.639) is not comparable with the column below. The three-month tenor is reported in its own section.
+Every variant, the base included, is tested out of sample with an expanding window that starts at the primary start and a first forecast for January 2017 (116 forecasts; 112 with stale butterflies missing and 114 excluding March 2020). Stage 4 trains on the extended sample from 2007, so its base statistic (1.639) is not comparable with the column below. The three-month tenor is reported in its own section.
 
 ## Results
 
@@ -31,32 +33,34 @@ The table covers the primary sample. φ is the E1 ratio (market reading, 10Δ un
 
 | Variant | Months (φ, returns) | Δφ (s.e.) | Bootstrap 95% | b (p) | CW | HML^U | HML^H | Skew term | θ_UB |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Base | 160, 159 | −0.355 (0.204) | [−0.82, 0.01] | 0.0058 (0.017) | 0.96 | 17.7 (1.47) | 8.3 (0.70) | −11.2 | 0.53 |
-| 25Δ hedge | 160, 159 | −0.272 (0.166) | [−0.65, 0.02] | 0.0074 (0.013) | 0.75 | 17.7 (1.47) | 9.1 (0.81) | −8.4 | 0.49 |
+| Base | 160, 159 | −0.355 (0.204) | [−0.81, 0.01] | 0.0057 (0.021) | 0.96 | 17.7 (1.47) | 8.3 (0.70) | −11.2 | 0.53 |
+| 25Δ hedge | 160, 159 | −0.272 (0.166) | [−0.64, 0.03] | 0.0073 (0.015) | 0.75 | 17.7 (1.47) | 9.1 (0.81) | −8.4 | 0.49 |
 | ATM hedge | 159 | not defined | | | | 17.7 (1.47) | 9.7 (1.09) | 0 | 0.45 |
-| Smile-strangle reading | 160, 159 | −0.345 (0.196) | [−0.80, 0.01] | 0.0059 (0.018) | 0.99 | 17.7 (1.47) | 8.7 (0.73) | −10.8 | 0.51 |
-| Fenics quotes | 160, 159 | −0.347 (0.203) | [−0.81, 0.02] | 0.0058 (0.019) | 0.98 | 17.7 (1.47) | 8.5 (0.71) | −11.2 | 0.52 |
-| Stale butterflies missing | 156, 155 | −0.440 (0.265) | [−1.04, 0.02] | 0.0037 (0.023) | 0.19 | 17.7 (1.53) | 8.8 (0.76) | −11.2 | 0.50 |
-| Excluding March 2020 | 158, 157 | −0.329 (0.193) | [−0.76, 0.02] | 0.0053 (0.035) | 1.31 | 19.9 (1.73) | 8.8 (0.77) | −11.0 | 0.56 |
-| Excluding CHF, Dec 2014 to Mar 2015 | 160, 159 | −0.353 (0.204) | [−0.82, 0.01] | 0.0056 (0.016) | 0.84 | 20.4 (1.87) | 10.4 (0.89) | −11.2 | 0.49 |
-| Implementable, k = 1 | 160, 159 | as base | as base | 0.0059 (0.016) | 0.92 | 5.4 (0.45) | −6.7 (−0.55) | −11.2 | not meaningful |
-| Implementable, k = 1.5 | 160, 159 | as base | as base | 0.0059 (0.016) | 0.92 | 5.4 (0.45) | −8.0 (−0.66) | −11.2 | not meaningful |
-| Implementable, k = 2 | 160, 159 | as base | as base | 0.0059 (0.016) | 0.92 | 5.4 (0.45) | −9.4 (−0.78) | −11.2 | not meaningful |
-| Dollar carry | 160, 159 | −1.060 (0.559) | [−2.12, −0.37] | 0.0002 (0.373) | −1.51 | 0.3 (0.02) | −2.6 (−0.17) | −2.8 | not meaningful |
-| Ten currencies | 160, 159 | −0.300 (0.149) | [−0.63, −0.02] | 0.0053 (0.052) | 1.17 | 15.3 (1.37) | 8.2 (0.74) | −9.7 | 0.47 |
-| Log returns | 160, 159 | as base | as base | 0.0056 (0.020) | 0.86 | 16.7 (1.38) | 7.4 (0.62) | −11.2 | 0.56 |
+| Smile-strangle reading | 160, 159 | −0.345 (0.196) | [−0.79, 0.01] | 0.0058 (0.022) | 0.99 | 17.7 (1.47) | 8.7 (0.73) | −10.8 | 0.51 |
+| Fenics quotes | 160, 159 | −0.347 (0.203) | [−0.80, 0.02] | 0.0057 (0.023) | 0.98 | 17.7 (1.47) | 8.5 (0.71) | −11.2 | 0.52 |
+| Stale butterflies missing | 156, 155 | −0.440 (0.265) | [−1.06, 0.04] | 0.0037 (0.025) | 0.19 | 17.7 (1.53) | 8.8 (0.76) | −11.2 | 0.50 |
+| Excluding March 2020 | 158, 157 | −0.329 (0.193) | [−0.76, 0.02] | 0.0053 (0.036) | 1.31 | 19.9 (1.73) | 8.8 (0.77) | −11.0 | 0.56 |
+| Excluding CHF, Dec 2014 to Mar 2015 | 160, 159 | −0.353 (0.204) | [−0.81, 0.02] | 0.0055 (0.019) | 0.84 | 20.4 (1.86) | 10.4 (0.89) | −11.2 | 0.49 |
+| Implementable, k = 1 | 160, 159 | as base | as base | 0.0058 (0.020) | 0.92 | 5.4 (0.45) | −6.7 (−0.55) | −11.2 | not meaningful |
+| Implementable, k = 1.5 | 160, 159 | as base | as base | 0.0058 (0.020) | 0.92 | 5.4 (0.45) | −8.0 (−0.66) | −11.2 | not meaningful |
+| Implementable, k = 2 | 160, 159 | as base | as base | 0.0058 (0.020) | 0.92 | 5.4 (0.45) | −9.4 (−0.78) | −11.2 | not meaningful |
+| Dollar carry | 160, 159 | −1.060 (0.559) | [−2.19, −0.37] | 0.0001 (0.397) | −1.51 | 0.3 (0.02) | −2.6 (−0.17) | −2.8 | not meaningful |
+| Ten currencies | 160, 159 | −0.300 (0.149) | [−0.64, −0.02] | 0.0051 (0.058) | 1.17 | 15.3 (1.37) | 8.2 (0.74) | −9.7 | 0.47 |
+| Log returns | 160, 159 | as base | as base | 0.0055 (0.023) | 0.86 | 16.7 (1.38) | 7.4 (0.62) | −11.2 | 0.56 |
 | Previous-day spot for payoffs | 160, 159 | as base | as base | as base | as base | 17.7 (1.47) | 5.2 (0.43) | −11.2 | 0.70 |
-| Vanna–volga smiles | 160, 159 | −0.337 (0.190) | [−0.77, 0.00] | 0.0060 (0.021) | 1.08 | 17.7 (1.47) | 8.7 (0.73) | −10.8 | 0.51 |
+| Vanna–volga smiles | 160, 159 | −0.337 (0.190) | [−0.77, 0.01] | 0.0059 (0.024) | 1.08 | 17.7 (1.47) | 8.7 (0.73) | −10.8 | 0.51 |
 
 θ_UB is marked not meaningful where the mean unhedged return is within half a standard error of zero.
 
 ## Interpretation under the pre-registered rules
 
-φ is lower in the hiking regime in every variant, but the difference is significant at 5% under both inferences only in the ten-currency ranking (t = −2.01, interval [−0.63, −0.02]). The dollar-carry interval also excludes zero, but that φ divides by the absolute average forward discount, which is below 5 bp in 40 zero-rate months, so its difference comes mainly from the denominator. In the base and ten-currency portfolios the skew price per month is nearly the same in both regimes (11.2 and 11.2 bp; 10.0 and 9.3 bp), and the fall in φ comes from the rise in the forward-discount spread, as in the post hoc split of [e1.md](e1.md). The pre-registered E1 conclusion of no significant regime difference therefore depends on the portfolio definition, and the evidence points to a shift in carry rather than in the price of crash insurance.
+φ is lower in the hiking regime in every variant, but the difference is significant at 5% under both inferences only in the ten-currency ranking (t = −2.01, interval [−0.64, −0.02]). The dollar-carry interval also excludes zero, but that φ divides by the absolute average forward discount, which is below 5 bp in 40 zero-rate months, so its difference comes mainly from the denominator. In the base and ten-currency portfolios the skew price per month is nearly the same in both regimes (11.2 and 11.2 bp; 10.0 and 9.3 bp), and the fall in φ comes from the rise in the forward-discount spread, as in the post hoc split of [e1.md](e1.md). The pre-registered E1 conclusion of no significant regime difference therefore depends on the portfolio definition, and the evidence points to a shift in carry rather than in the price of crash insurance.
 
-For E2, the bias-corrected slope is positive with one-sided p ≤ 0.035 in every HML variant and p = 0.052 for ten currencies, and it is zero for dollar carry, where φ is dominated by the denominator. No variant rejects out of sample at 5% when training starts in 2013. The Stage 4 statistic of 1.639 used the longer 2007 training window, so the out-of-sample evidence is sensitive to the training start.
+For E2, the bias-corrected slope is positive with one-sided p ≤ 0.036 in every HML variant and p = 0.058 for ten currencies, and it is essentially zero for dollar carry (0.0001, p = 0.40), where φ is dominated by the denominator. No variant rejects out of sample at 5% when training starts in 2013. The design fixes initial training on the extended sample for E2; for the variants the primary start was fixed before any variant was estimated, because several variants cannot be built on the extended sample. That is a departure from the design's E2 rule, which the research log first described as a rule the design leaves open (research log, 3 October 2026). The Stage 4 statistic of 1.639 used the longer 2007 training window, so the out-of-sample evidence is sensitive to the training start.
 
-The skew term of E3 is −8.4 to −11.2 bp per month across the HML variants. It is the ex-ante premium, so its small standard error reflects its stability over time rather than the precision of realised crash compensation. θ_UB lies between 0.45 and 0.70 at mid prices, and the hedged mean is insignificant everywhere. Execution costs make matters worse for carry: the unhedged mean is not significant even at mid prices (t = 1.47), quoted composite spreads on forwards and spot reduce it from 17.7 to 5.4 bp, and option spreads make the hedged mean negative for every k.
+The skew term of E3 is −8.4 to −11.2 bp per month across the HML variants. It is the ex-ante premium, so its small standard error reflects its stability over time rather than the precision of realised crash compensation. θ_UB lies between 0.45 and 0.70 at mid prices; its test-inversion set, computed for every variant on 3 October 2026, is unbounded in each, because no unhedged mean is significant; and the hedged mean is insignificant everywhere. Execution costs make matters worse for carry: the unhedged mean is not significant even at mid prices (t = 1.47), quoted composite spreads on forwards and spot reduce it from 17.7 to 5.4 bp, and option spreads make the hedged mean negative for every k.
+
+The research log of 23 September applies the stale-butterfly rule to the extended sample as well, which the grid does not cover (`scripts/estimate_outstanding_items.py`). Under the audit rule the Fenics 25Δ butterflies are stale in 311 currency-months, in 67 of the 76 extended month-ends (63 of the 72 used), so treating them as missing leaves 28 month-ends with at least four currencies. Over those, the mean skew price is 16.2 bp and the mean φ 0.55, against 22.3 bp and 0.64 over all 72; the unhedged and hedged means are 47.2 bp (s.e. 27.0) and 53.9 bp (43.7), against 8.4 and 5.7 bp; and the Clark–West statistic of E2, whose training starts in the extended sample, is 1.35 instead of 1.639. Out-of-sample predictability is not established either way, and no conclusion changes.
 
 Payoff timing matters at the margin. With the previous day's spot the hedged mean falls by 3.1 bp; the change comes from 43 months with an option in the money on one of the two days, and no single month contributes more than 0.5 bp to the mean. The 10:00 New York cut lies between the two closes in time, and neither close is the cut, so the payoff term is reported under both.
 
@@ -66,12 +70,12 @@ The choice of smile makes little difference. Vanna–volga smiles give φ within
 
 The three-month variant holds quarterly, non-overlapping positions, three long and three short on the three-month forward discount, protected at the 10Δ strike of the three-month market-reading SABR smile and valued at the spot on the three-month expiry. The primary rebalancing dates are the calendar-quarter month-ends from June 2013, and the two other quarterly phases are supplementary.
 
-The three-month forward points and rates were retrieved on 24 September 2026 (research log); rates are USD OIS for USD and deposits otherwise, as at one month. The three-month quotes are complete for all nine currencies from May 2013, with 11 of 11,520 quote fields substituted and 2 missing, and 1,436 of 1,440 smiles converge under each reading, every converged smile passing both static-arbitrage checks. An expiry can fall up to four days after the next rebalancing date, because delivery follows the spot convention, as it also does at one month. Returns, C_skew, FD and the skew term are in basis points per quarter, and the E3 split reports the skew term only. Inference is as at one month, with Newey–West t-statistics, the stationary-bootstrap interval and the Stambaugh bootstrap, each with 1,999 draws.
+The three-month forward points and rates were retrieved on 24 September 2026 (research log); rates are USD OIS for USD and deposits otherwise, as at one month. The three-month quotes are complete for all nine currencies from May 2013, with 11 of 11,520 quote fields substituted and 2 missing, and 1,436 of 1,440 smiles converge under each reading, every converged smile passing both static-arbitrage checks. An expiry can fall up to four days after the next rebalancing date, because delivery follows the spot convention, as it also does at one month. Returns, C_skew, FD and the skew term are in basis points per quarter, and the E3 split reports all three terms with θ₀ (the payoff and volatility-level terms and θ₀ were added on 3 October 2026, because the research log of 24 September commits the variant to E3 as at one month). Inference is as at one month, with Newey–West t-statistics, the stationary-bootstrap interval and the Stambaugh bootstrap, each with 9,999 draws (first run with 1,999, which changed no conclusion).
 
 | Phase (quarter-end months) | Quarters (φ; zero-rate, hiking) | Δφ (s.e.) | Bootstrap 95% | b (p) | HML^U | HML^H | Skew term | θ_UB |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Mar/Jun/Sep/Dec (primary) | 53; 35, 18 | −0.301 (0.166) | [−0.63, −0.04] | 0.0228 (0.045) | 47.5 (1.29) | 36.6 (1.12) | −24.9 | 0.23 |
-| Jan/Apr/Jul/Oct | 53; 34, 19 | −0.275 (0.167) | [−0.63, −0.03] | 0.0142 (0.126) | 57.8 (1.64) | 42.8 (1.25) | −23.6 | 0.26 |
-| Feb/May/Aug/Nov | 54; 35, 19 | −0.246 (0.130) | [−0.52, −0.04] | 0.0119 (0.169) | 43.0 (1.18) | 9.7 (0.26) | −22.7 | 0.77 |
+| Mar/Jun/Sep/Dec (primary) | 53; 35, 18 | −0.301 (0.166) | [−0.63, −0.05] | 0.0222 (0.045) | 47.5 (1.29) | 36.6 (1.12) | −24.9 | 0.23 |
+| Jan/Apr/Jul/Oct | 53; 34, 19 | −0.275 (0.167) | [−0.62, −0.02] | 0.0139 (0.127) | 57.8 (1.64) | 42.8 (1.25) | −23.6 | 0.26 |
+| Feb/May/Aug/Nov | 54; 35, 19 | −0.246 (0.130) | [−0.51, −0.04] | 0.0119 (0.174) | 42.9 (1.18) | 9.7 (0.26) | −22.7 | 0.77 |
 
-φ falls from about 0.6 to 0.3 in every phase. The bootstrap interval excludes zero in all three phases, but the Newey–West t-statistic lies between −1.65 and −1.89, so the difference is not significant under both inferences, as at one month. In the post hoc split the skew price per quarter changes little (25.5 to 23.6 bp in the primary phase), while the forward-discount spread rises from 55 to 82 bp. The bias-corrected E2 slope is positive in every phase and significant at 5% only in the primary phase (p = 0.045). The skew term is −23 to −25 bp per quarter (t between −14 and −24), and as at one month its standard error reflects the stability of an ex-ante premium. θ_UB ranges from 0.23 to 0.77 across phases and its test-inversion set is unbounded in each, so the three-month hedge-cost ratio is not identified. The three-month evidence therefore repeats the one-month pattern: a stable skew price, a wider carry spread in the hiking regime, and a regime difference in φ that one inference supports and the other does not.
+φ falls from about 0.6 to 0.3 in every phase. The bootstrap interval excludes zero in all three phases, but the Newey–West t-statistic lies between −1.65 and −1.89, so the difference is not significant under both inferences, as at one month. In the post hoc split the skew price per quarter changes little (25.4 to 23.6 bp in the primary phase), while the forward-discount spread rises from 55 to 82 bp. The bias-corrected E2 slope is positive in every phase and significant at 5% only in the primary phase (p = 0.045). The skew term is −23 to −25 bp per quarter (t between −14 and −24), and as at one month its standard error reflects the stability of an ex-ante premium. As at one month, the payoff and volatility-level terms are indistinguishable from zero: in the primary phase 10.0 bp (s.e. 16.1) and 4.1 bp (4.3) per quarter, in the January phase 4.9 (7.4) and 3.7 (5.7), and in the February phase −8.8 (8.6) and −1.7 (2.8); θ₀ is 0.10 in each. θ_UB ranges from 0.23 to 0.77 across phases and its test-inversion set is unbounded in each, so the three-month hedge-cost ratio is not identified. The three-month evidence therefore repeats the one-month pattern: a stable skew price, a wider carry spread in the hiking regime, and a regime difference in φ that one inference supports and the other does not.

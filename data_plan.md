@@ -1,6 +1,6 @@
 # Data plan
 
-This plan specifies what is acquired, from where, how it is stored and how it is audited; the sample rules are in the [research design](research_design.md). Quote values, month-level series and calibrated parameters are LSEG-derived and stay in `data/private/`. Coverage facts from the audit (sample windows, first available dates, and counts and shares of stale, substituted or missing quotes) describe the dataset without revealing any value, and the reports publish those they need.
+This plan specifies what is acquired, from where, how it is stored and how it is audited; the sample rules are in the [research design](research_design.md). Quote values, per-currency month-level series and calibrated parameters are LSEG-derived and stay in `data/private/`; only portfolio-level month series that pass the review of the [publication policy](docs/publication_policy.md) are published, in `data/public/fx_carry_portfolio_series/`. Coverage facts from the audit (sample windows, first available dates, and counts and shares of stale, substituted or missing quotes) describe the dataset without revealing any value, and the reports publish those they need.
 
 ## Sources
 
@@ -35,7 +35,7 @@ The provider does not document the time of day of daily history. Matching daily 
 | Verdelhan currency portfolios (web.mit.edu/adrienv, `CurrencyPortfolios.xls`, retrieved 27 September 2026; `scripts/acquire_verdelhan.py`) | Sign and magnitude check of HML_FX | No terms stated: stored in `data/private/verdelhan/` |
 | Federal Reserve H.10 and H.15 releases, if needed | Rate and spot cross-checks | Public domain (US government) |
 
-Each public snapshot is stored under `data/public/<source>/<date>/` with its original bytes, URL, retrieval time, SHA-256 hash and licence note.
+Each download keeps its original bytes and is stored privately under `data/private/cboe/<retrieval-date>/` or `data/private/verdelhan/<retrieval-date>/`, with a `manifest.json` that records the URL, retrieval time and SHA-256 hash of each file (for the Verdelhan file also its size, its HTTP Last-Modified header and the absence of stated terms). `data/public/` holds only this project's own portfolio-level series, in `data/public/fx_carry_portfolio_series/` with a `manifest.json` of SHA-256 hashes and no date subfolder.
 
 ## Storage and provenance
 
@@ -43,13 +43,16 @@ Each public snapshot is stored under `data/public/<source>/<date>/` with its ori
 data/private/lseg/<retrieval-date>/
     raw/<block>/<RIC>.csv            returned tables, unmodified (full precision)
     requests.jsonl                   one line per request: RIC, fields, interval, start, end, time, library version
+    metadata.csv                     search metadata per RIC: title, currencies, underlying, scaling
     manifest.json                    file list with SHA-256 hashes, row counts, first and last dates
 data/private/audit/<retrieval-date>/
-    coverage.csv, two_sidedness.csv, staleness.csv, conventions.csv
+    coverage.csv, two_sidedness.csv, staleness.csv, conventions.csv, splice.csv, plausibility.csv, samples.csv
     audit_report.md                  full audit with counts and dates (restricted)
+data/private/results/<retrieval-date>/
+    month-end smile inputs, calibrated smiles, estimates, summaries and logs
 ```
 
-Raw tables are never edited. Cleaning is done by code into `data/private/clean/`, and every transformation is recorded: unit conversion, inversion of USD-base quotes, pip factors and month-end selection. A missing value is never converted to zero; substitutions follow the rules of the research design and are counted. The retrieval time and the observation date are recorded separately, because a current retrieval does not reconstruct what was knowable historically. That distinction matters only for quote revisions, which the audit checks by comparing repeated retrievals.
+Raw tables are never edited, and no cleaned copy of them is stored. Each script reads the raw tables of an identified retrieval and applies the transformations in code (`src/qef/data/panel.py` and `src/qef/data/smile_inputs.py`), which records them: conversion of percentage quotes to decimals, pip factors and outright forwards, inversion of USD-base quotes, and New York month-end selection under the two-sided and five-business-day rules. Derived outputs, among them the month-end smile inputs written by the calibration, go to `data/private/results/<retrieval-date>/`, and the audit tables to `data/private/audit/<retrieval-date>/`. A missing value is never converted to zero; substitutions follow the rules of the research design and are counted. The retrieval time and the observation date are recorded separately, because a current retrieval does not reconstruct what was knowable historically. That distinction matters only for quote revisions, which `scripts/check_quote_revisions.py` checks by comparing repeated retrievals.
 
 ## Audit checks (Stage 1)
 

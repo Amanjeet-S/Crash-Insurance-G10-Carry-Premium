@@ -34,9 +34,15 @@ Estimands, per quarter and not annualised:
   resampling each regime separately.
 - E2 (in sample): HML^U = a + b φ + e with Newey–West errors and the residual
   bootstrap under the null (``estimate_stage4.stambaugh_bootstrap``).
-- E3: means of HML^U, HML^H and the skew term −(1/3) Σ_legs (V_smile − V_flat)
-  with Newey–West t-statistics, θ_UB = 1 − mean(HML^H)/mean(HML^U), and its
-  test-inversion set (design, section 7).
+- E3: means of HML^U, HML^H and the three terms of the one-month
+  decomposition, (i) payoff less the premium at σ̂P, (ii) −(V_flat − V at σ̂P)
+  and (iii) the skew term −(1/3) Σ_legs (V_smile − V_flat), with σ̂P the
+  annualised realised volatility over the previous 21 business days as at one
+  month, and θ₀ as the leg average of the hedges' absolute forward deltas;
+  Newey–West t-statistics, θ_UB = 1 − mean(HML^H)/mean(HML^U), and its
+  test-inversion set (design, section 7). Terms (i) and (ii) and θ₀ were added
+  on 3 October 2026, because the research log of 24 September commits the
+  variant to E3 as at one month (research log, 3 October 2026).
 
 Check: run at one month over the primary month-ends, the same loop reproduces
 φ of E1 and HML^U, HML^H and the skew term of Stage 4 within 1e-12; the script
@@ -62,13 +68,15 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from estimate_stage4 import daily_spot_mid, spot_on, stambaugh_bootstrap, theta_confidence_set  # noqa: E402
+from estimate_stage4 import daily_spot_mid, realised_vol, spot_on, stambaugh_bootstrap, theta_confidence_set  # noqa: E402
+from scipy.stats import norm  # noqa: E402
 from robustness import PRIMARY_START, REGIME_BREAK  # noqa: E402
 
 from qef.data.panel import ny_month_ends  # noqa: E402
 from qef.data.smile_inputs import QUOTE_FIELDS, build_month_end_inputs, option_dates  # noqa: E402
 from qef.fx.conventions import G10  # noqa: E402
-from qef.fx.crash import forward_discount, forward_return, leg_skew_cost, option_payoff, rank_legs  # noqa: E402
+from qef.fx.crash import forward_discount, forward_return, leg_skew_cost, option_payoff, protective_option, rank_legs  # noqa: E402
+from qef.fx.gk import d_plus_minus, forward_premium  # noqa: E402
 from qef.fx.sabr import sabr_vol  # noqa: E402
 from qef.stats.bootstrap import bootstrap_distribution  # noqa: E402
 from qef.stats.hac import mean_and_se, ols_hac  # noqa: E402
@@ -96,7 +104,7 @@ def quarter_rows(dates, inputs, panel, spots, months=MONTHS):
             continue
         fd = {c: forward_discount(r.S, r.F, G10[c].usd_base) for c, (r, _) in avail.items()}
         longs, shorts = rank_legs(fd, N_LEGS)
-        acc = {"C_skew": 0.0, "FD": 0.0, "U": 0.0, "H": 0.0, "c3": 0.0}
+        acc = {"C_skew": 0.0, "FD": 0.0, "U": 0.0, "H": 0.0, "c1": 0.0, "c2": 0.0, "c3": 0.0, "theta0": 0.0}
         status, spot_sub, n_nc, last_expiry = "ok", 0, 0, t
         for c, is_long in [(c, True) for c in longs] + [(c, False) for c in shorts]:
             r, f = avail[c]
@@ -111,6 +119,13 @@ def quarter_rows(dates, inputs, panel, spots, months=MONTHS):
             acc["C_skew"] += w * (vs - vf)
             acc["FD"] += w * (fd[c] if is_long else -fd[c])
             acc["c3"] -= w * (vs - vf)
+            phi_opt = protective_option(c, is_long)
+            sig_p = realised_vol(spots[c], t)
+            if not np.isfinite(sig_p):
+                sig_p = r.atm
+            vp = float(forward_premium(r.F, K, sig_p, r.tau, phi_opt)) / r.F
+            d1, _ = d_plus_minus(r.F, K, float(vol(K)), r.tau)
+            acc["theta0"] += float(norm.cdf(phi_opt * float(d1))) / (2 * N_LEGS)
             expiry = option_dates(t, c, months)[2]
             last_expiry = max(last_expiry, expiry)
             S_end, sub = spot_on(spots[c], expiry)
@@ -120,12 +135,15 @@ def quarter_rows(dates, inputs, panel, spots, months=MONTHS):
             spot_sub += sub
             rx = forward_return(c, is_long, S_end, r.F)
             acc["U"] += w * rx
-            acc["H"] += w * (rx + option_payoff(c, is_long, K, r.F, S_end) - vs)
+            pay = option_payoff(c, is_long, K, r.F, S_end)
+            acc["H"] += w * (rx + pay - vs)
+            acc["c1"] += w * (pay - vp)
+            acc["c2"] -= w * (vf - vp)
         if status.startswith("inversion_failed"):
             rows.append({"date": t, "status": status, "n_ccy": len(avail)})
             continue
         if status == "return_unrealised":
-            acc["U"] = acc["H"] = np.nan
+            acc["U"] = acc["H"] = acc["c1"] = acc["c2"] = np.nan
         phi = acc["C_skew"] / acc["FD"] if acc["FD"] > 0 else np.nan
         rows.append({"date": t, "status": "ok", "n_ccy": len(avail), "n_not_converged": n_nc,
                      "longs": " ".join(longs), "shorts": " ".join(shorts), **acc, "phi": phi,
@@ -175,10 +193,12 @@ def summarise(q: pd.DataFrame, B: int) -> dict:
                E2_rho_phi=e2["rho_predictor"], E2_corr_u_v=e2["corr_u_v"])
 
     # E3
-    for name in ("U", "H", "c3"):
+    for name in ("U", "H", "c1", "c2", "c3"):
         r = mean_and_se(ret[name].to_numpy())
         out[f"{name}_bp"], out[f"{name}_se_bp"], out[f"{name}_t"] = 1e4 * r["mean"], 1e4 * r["se"], r["mean"] / r["se"]
     out["theta_UB"] = 1 - ret.H.mean() / ret.U.mean()
+    out["theta0_reference"] = ret.theta0.mean()
+    out["decomposition_gap"] = float(np.max(np.abs((ret.H - ret.U) - (ret.c1 + ret.c2 + ret.c3))))
     out["theta_UB_meaningful"] = abs(out["U_t"]) >= 0.5
     kind, lo, hi = theta_confidence_set(ret.H.to_numpy(), ret.U.to_numpy())
     out.update(theta_UB_set=kind, theta_UB_set_lo=lo, theta_UB_set_hi=hi)
@@ -198,7 +218,9 @@ def one_month_check(d: Path, spots) -> str:
     if not (len(q.dropna(subset=["phi"])) == len(e1) and int(q.returns_realised.eq(True).sum()) == len(s4)):
         raise SystemExit("one-month check: sample sizes differ from E1 and Stage 4")
     gaps = {"phi": (q.loc[e1.index, "phi"] - e1.phi).abs().max(), "HML^U": (q.loc[s4.index, "U"] - s4.U).abs().max(),
-            "HML^H": (q.loc[s4.index, "H"] - s4.H10).abs().max(), "skew term": (q.loc[s4.index, "c3"] - s4.c3).abs().max()}
+            "HML^H": (q.loc[s4.index, "H"] - s4.H10).abs().max(), "skew term": (q.loc[s4.index, "c3"] - s4.c3).abs().max(),
+            "payoff term": (q.loc[s4.index, "c1"] - s4.c1).abs().max(), "volatility-level term": (q.loc[s4.index, "c2"] - s4.c2).abs().max(),
+            "theta0": (q.loc[s4.index, "theta0"] - s4.theta0).abs().max()}
     for k, v in gaps.items():
         if not v < 1e-12:
             raise SystemExit(f"one-month check: {k} differs from E1 and Stage 4 by {v}")
@@ -232,7 +254,7 @@ def main():
     p.add_argument("--extra-raw-root", action="append", default=None,
                    help="raw directory of the three-month forwards and rates (default: the 24 September retrieval)")
     p.add_argument("--out-date", default="2026-09-24")
-    p.add_argument("--bootstrap", type=int, default=1999)
+    p.add_argument("--bootstrap", type=int, default=9999)
     args = p.parse_args()
     d = ROOT / "data" / "private" / "results" / args.retrieval_date
     raw = ROOT / "data" / "private" / "lseg" / args.retrieval_date / "raw"

@@ -9,7 +9,8 @@ T_k^U = ∫_{K_max}^∞ w_k C are the tail integrals of the contract weights
 w_k = h_k'' of R3.
 
 Observed at the boundaries are P0 = P(K_min), G0 = G(K_min) = P'(K_min+),
-C0 = C(K_max) and Ḡ0 = Ḡ(K_max) = −C'(K_max+). R4 assumes
+C0 = C(K_max) and Ḡ0 = Q(X ≥ K_max) = −C'(K_max−), the slopes from inside
+the quoted range (theory/notes.tex, R10). R4 assumes
 H_L(γ): G(u)/u^γ nondecreasing on (0, K_min], and H_U(η): u^η Ḡ(u)
 nonincreasing on [K_max, ∞), η > 1.
 
@@ -327,8 +328,11 @@ def skewness_sign_breakdown(F, tau, vol_of_strike, usd_base, bd: Boundary, tol=1
     the only sign that can be identified. The identified sets shrink as θ rises
     (R10), so the set of θ at which the third-central-moment range excludes zero
     is an interval ending at 1, and bisection finds its left end to within ``tol``.
-    Returns (θ*, sign); θ* = 1 if the Pareto third central moment is zero, and
-    θ* = ``theta_min`` if the sign is already identified there.
+    Returns (θ*, sign); θ* = ``theta_min`` if the sign is already identified
+    there. If the Pareto third central moment is exactly zero, R10(e) has no
+    breakdown point and the sign is identified at no fraction; the function then
+    returns (1.0, 0) as a convention, and the sign 0 marks the case, which does
+    not occur in the sample (research log, 3 October 2026).
     """
     mid = middle_contracts(F, bd.K_min, bd.K_max, tau, vol_of_strike, usd_base)["values"]
     m = pareto_moments(F, tau, vol_of_strike, usd_base, bd, mid)

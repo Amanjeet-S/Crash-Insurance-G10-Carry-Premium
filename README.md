@@ -15,24 +15,27 @@ Read the [paper (PDF)](paper/Crash_Insurance_and_the_G10_Carry_Premium.pdf), wit
 | Document | Content |
 | --- | --- |
 | [research_design.md](research_design.md) | Question, estimands, samples, inference and stages, fixed before estimation |
-| [theory/](theory/README.md) | Results R1 to R10 and their proofs |
+| [theory/](theory/README.md) | Results R1 to R10, with proofs of all but R9, which is cited |
 | [data_plan.md](data_plan.md) | Instruments, storage and audit checks |
 | [research_log.md](research_log.md) | Dated decisions and deviations |
 | [references.md](references.md) | Every source, what it is used for and the version consulted |
 | [reports/](reports/) | Data audit, smile calibration, E1 and E4, returns and E2 to E5, robustness and model validation |
 | [replication/](replication/README.md) | Public and licensed reproduction |
 
-Python implements the data audit, smile calibration, estimation and inference; a [C++ kernel](cpp/README.md) of the pricing, delta, SABR and moment code is checked against the Python reference, and QuantLib, arch and statsmodels serve as independent cross-checks.
+Python implements the data audit, smile calibration, estimation and inference; a [C++ kernel](cpp/README.md) of the pricing, delta, SABR and moment code is checked against the Python reference. Independent implementations serve as cross-checks: QuantLib for pricing, deltas, strikes and Hagan volatilities, the R package sandwich for the Newey-West standard errors (checked once) and the arch package for the stationary bootstrap and its block length.
 
-The [reproduction instructions](docs/reproducing_paper.md) give one command that recomputes the paper's portfolio-level results from the [published series](data/public/fx_carry_portfolio_series/README.md) and compares each with the printed number; it needs no data licence. E4 and the 25-delta comparisons are the exception, because their series are withheld. Recomputing the series and the per-currency results needs the reader's own LSEG Workspace licence. The [development guide](docs/development.md) covers installation and the automated checks.
+The [reproduction instructions](docs/reproducing_paper.md) give one command that recomputes, without a data licence, the paper's results that the [published series](data/public/fx_carry_portfolio_series/README.md) support and compares each with the printed number. These are E1 under the market reading with 10-delta hedges, E2 with φ as predictor, the secondary moment predictors, E3 and its split by rate regime, E5, the hedge-cost ratio and its confidence sets, the long at-the-money sample, the post hoc regime comparison, the comparison with published currency portfolios, and part of the robustness grid. The command lists the results it cannot reproduce, each with its reason; they include E4 and the 25-delta skew prices of E1, every result of the oriented 10-delta risk reversal, the other robustness variants, the three-month tenor and the per-currency analyses. Recomputing the series and those results needs the reader's own LSEG Workspace licence. The [development guide](docs/development.md) covers installation and the automated checks.
 
 ## 3. Repository structure
 
 ```text
 Crash-Insurance-G10-Carry-Premium/
 ├── .github/workflows/   Automated tests
+├── LICENSES/            CC BY 4.0 licence text
 ├── cpp/                 C++ kernel with parity tests
-├── data/public/         Published portfolio-level series
+├── data/
+│   ├── README.md        Data organisation and the private layer
+│   └── public/          Published portfolio-level series
 ├── docs/                Development, reproduction and publication policies
 ├── paper/               Paper, LaTeX source and extended abstract
 ├── replication/         Public and licensed reproduction guides

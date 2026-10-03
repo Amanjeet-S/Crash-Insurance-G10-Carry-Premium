@@ -213,7 +213,7 @@ def summary_lines(mom, pm_all, pm, e2, B):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--retrieval-date", default="2026-09-23")
-    p.add_argument("--bootstrap", type=int, default=1999)
+    p.add_argument("--bootstrap", type=int, default=9999)
     args = p.parse_args()
     d = ROOT / "data" / "private" / "results" / args.retrieval_date
     load = lambda name: pd.read_csv(d / name, parse_dates=["date"])

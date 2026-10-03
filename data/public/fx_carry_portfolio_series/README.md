@@ -2,10 +2,11 @@
 
 Amanjeet Singh. This folder holds the month-level portfolio series behind the portfolio-level results of my paper
 "Crash insurance and the G10 carry premium" (`paper/main.tex`).
-With them, anyone can rerun the paper's portfolio-level tests without an LSEG licence, apart from E4
-and the 25-delta comparisons, whose series are withheld:
-`scripts/reproduce_from_public.py` recomputes those results from these files alone and compares each
-with the number printed in the paper.
+With them, anyone can rerun the paper's main portfolio-level tests without an LSEG licence: E1 under the
+market reading with 10-delta hedges, E2 with phi, the secondary moment predictors, E3 and its split by
+regime, E5, the hedge-cost ratio and its confidence sets, the long at-the-money sample and the regime
+comparison. `scripts/reproduce_from_public.py` recomputes those results from these files alone and
+compares each with the number printed in the paper; the results that need the quotes are listed below.
 
 Every value is a portfolio-level quantity: an average over the legs of a carry portfolio (six legs in
 the primary sample, four in the extended sample, four or six in the long at-the-money sample), an
@@ -166,13 +167,14 @@ published:
 - The VIX roll-down factor `r_vix`: it comes from Cboe VX futures settlements, whose redistribution terms
   are not established. A reader downloads them with `scripts/acquire_cboe_vx.py`, and
   `scripts/reproduce_from_public.py` recomputes the factor.
-- The series of the robustness grid and of the three-month tenor: the base, 25-delta and ATM rows of the
-  robustness grid can be recomputed from `primary.csv`; the other variants need the quotes.
+- The series of the robustness grid and of the three-month tenor: the base and ATM rows of the
+  robustness grid, and the returns and theta_UB of its 25-delta row, can be recomputed from
+  `primary.csv`; the other variants need the quotes.
 - Verdelhan's currency portfolios: they are downloaded with `scripts/acquire_verdelhan.py`.
 
 ## Reproduction
 
-From the root of a clone, after the installation in the repository's `README.md`:
+From the root of a clone, after the installation in `docs/development.md`:
 
     OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python scripts/reproduce_from_public.py \
         --out reproduction_report.md \
@@ -184,7 +186,7 @@ script checks the hashes in `manifest.json`, recomputes the paper's portfolio-le
 the project's own estimation functions, compares each number with the paper at its printed precision
 (and, where my private results exist, with my private summaries) and exits with a non-zero status if any
 number that these files determine does not match. E5 needs the Cboe files, and the comparison with
-published portfolios needs Verdelhan's file and the `xlrd` package (not in `requirements.lock`); each
+published portfolios needs Verdelhan's file and the `xlrd` package (pinned in `requirements.lock`); each
 is used only if present. `tests/test_public_series.py`
 checks the files and a few key numbers in the test suite.
 
@@ -197,8 +199,9 @@ quotes (the identification of option-implied moments, the per-currency moment in
 the out-of-sample test with 5-delta quotes, the leg-by-leg comparison of contributors, the SOFR and
 named-broker checks, the calibration diagnostics and the theta0 of the at-the-money hedge), E4 and the
 25-delta rows of E1 (their skew prices are withheld), the robustness variants other than the base,
-25-delta and ATM rows (of the 25-delta row only the returns and theta_UB), and the three-month tenor. Every result that uses the
-oriented risk reversal is also among them, because `rr_or` is not published: its rows of Table 2 in sample
+25-delta and ATM rows (of the 25-delta row only the returns and theta_UB), the three-month tenor, the
+stale-butterfly check of the extended sample and the account of 5 August 2024. Every result that uses the
+oriented risk reversal is also among them, because `rr_or` is not published: its rows of Table 3 in sample
 and out of sample, its persistence and its correlations with `phi` and with the return innovations
 (Section 5.2), and its change between the regimes (Section 5.1). So are the mean payoff and mean premium
 of the at-the-money hedge in 2008 (Section 5.3), because the long sample's payoff and premium are not
@@ -223,17 +226,19 @@ rates.
   Every value averages at least four currencies (nine for `sigma_fx`) whose identities are not published,
   and most are nonlinear functions of calibrated smiles, forwards and realised spot rates.
 - Non-reversible. In every month the published values that depend on the option quotes are fewer than
-  the quotes they depend on: 9 for 18 in the primary sample, 5 for 12 in the extended sample and 1 for 4
-  or 6 in the long sample. A continuous map from more unknowns to fewer values cannot be one-to-one, so
+  the quotes they depend on: 9 for 18 in the primary sample (5 in its last month, whose return is not
+  yet realised), 5 for 12 in the extended sample and 1 for 4 or 6 in the long sample. A continuous map from more unknowns to fewer values cannot be one-to-one, so
   infinitely many quote vectors reproduce every published value; the sensitivity matrix of the published
-  values has full rank in every month, leaving 9, 7 and 3 to 5 directions unconstrained.
+  values has full rank in every month, leaving 9 (13 in that last month), 7 and 3 to 5 directions
+  unconstrained.
 - Constructed alternatives. For three months of each sample, spread over its span, I constructed quote
   vectors that reproduce every published value of the month at the file's precision while differing
   from the true quotes materially: by at least 0.5 volatility points in every month, by 2 in two of the
   three primary months and by 4 in every extended and long month. Every alternative calibrates, passes
   the project's arbitrage checks and stays within the range of quotes seen in the data.
 - Not traceable on the quote grid. Real quotes lie on a grid (0.0005 volatility points for the composite
-  quotes, 0.00625 to 0.025 for Fenics). Within one volatility point of the true quotes, the quote vectors
+  quotes, 0.00625 to 0.025 for Fenics). Within a box of side one volatility point centred on the true
+  quotes, the quote vectors
   on that grid that reproduce every rounded value of a month number at least about 10^3 in the least
   protected month of the long sample, 10^5.9 in the extended sample and 10^12.9 in the primary sample
   (medians 10^8.8, 10^10.1 and 10^18.4). For the extended sample, whose Fenics quotes sit on the coarsest

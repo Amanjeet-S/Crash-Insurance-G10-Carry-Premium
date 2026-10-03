@@ -662,7 +662,7 @@ def report(ctx) -> str:
     if len(worst):
         L.append("- Most crossed quotes: " + "; ".join(f"`{r.ric}` {int(r.n_crossed)} ({r.first_crossed} to "
                                                       f"{r.last_crossed})" for r in worst.itertuples()) + ".")
-    L += ["", "Flagged observations are kept; the clean layer carries the flags.", "",
+    L += ["", "Flagged observations are kept, and the audit tables record the flags.", "",
           "## Not covered here", "",
           "- Butterfly convention (check 7): provider documentation and the 10Δ diagnostic under both readings.",
           "- Delta and premium conventions (check 6): provider documentation; the configuration is provisional.",
