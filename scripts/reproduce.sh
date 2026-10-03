@@ -3,9 +3,9 @@
 # clone of this repository, given the private input data.
 #
 # The script builds a clean virtual environment from requirements.lock with the
-# commands in README.md, runs the test suite, and then runs the estimation
-# pipeline in the order of the reproduction blocks in
-# reports/:
+# commands in docs/development.md, runs the test suite, and then runs the estimation
+# pipeline: the steps of the reproduction blocks in reports/, in their order,
+# followed by the checks that the paper reports in its Section 4.7:
 #
 #   1. the Stage 1 audit of the 23 September 2026 retrieval (data_audit.md);
 #   2. the one-month composite smile calibration, 30 July 2010 to 31 August 2026
@@ -21,8 +21,7 @@
 #  10. the three-month calibration, with the 24 September 2026 retrieval as a
 #      supplementary raw root (robustness.md);
 #  11. the three-month estimation (robustness.md);
-#  12. to 14., added on 27 September 2026 and not part of the run described
-#      below: the post hoc regime attribution (e1.md), the model validation of
+#  12. to 14., added on 27 September 2026: the post hoc regime attribution (e1.md), the model validation of
 #      the moment code (model_validation.md, from synthetic models only) and the
 #      sharp identification of option-implied moments (stage4.md), which takes
 #      about 45 minutes on eight cores;
@@ -36,8 +35,21 @@
 #      (stage4.md, about 20 seconds) and the design checks (e1.md and
 #      stage4.md; SOFR OIS, the named-broker contributor, delta-method
 #      intervals and the moment code's closed-form checks, about 2 minutes on
-#      eight cores). Before the tests, the C++ kernel is built with
-#      cpp/build.sh, which needs a C++17 compiler.
+#      eight cores);
+#  20. and 21., added on 2 October 2026: the design items completed then
+#      (E3 by regime, stale Fenics butterflies in the extended sample and the
+#      9,999-draw comparison; stage4.md and robustness.md), about 1 minute,
+#      and the descriptive account of 5 August 2024 (stage4.md), about
+#      30 seconds;
+#  22. added on 3 October 2026: the checks behind statements of the paper
+#      and the theory notes that no earlier step produced (the hypotheses of
+#      R5(c) and R8 on the calibrated smiles, a denser grid of means in the
+#      identified sets, and the 5-delta breakdown comparison on the same
+#      currency-months; stage4.md), about 1 minute.
+#
+# Before the tests, the C++ kernel is built with cpp/build.sh, which needs a
+# C++17 compiler. scripts/benchmark_kernel.py is not run, because it rewrites
+# the timing block of the tracked cpp/README.md.
 #
 # It stops at the first command that fails. It never runs an acquisition
 # script and needs no network access after the packages are installed.
@@ -49,7 +61,7 @@
 # provided by my university, which covers only me, permits individual study
 # and research and does not permit redistribution, so I cannot supply them. A
 # reader with an entitlement acquires them in the separate LSEG environment
-# (requirements-lseg.lock; see the project README), with LSEG Workspace open
+# (requirements-lseg.lock; see docs/development.md), with LSEG Workspace open
 # and the reader's own App Key in ~/.lseg/app_key:
 #
 #   .venv-lseg/bin/python scripts/acquire_lseg_fx.py --retrieval-date 2026-09-23
@@ -97,7 +109,7 @@
 #
 # The option --retrieval-date only names the folder. The requested range
 # defaults in acquire_lseg_fx.py to 1 January 1995 to 22 September 2026
-# (--start and --end change it, as for the coverage retrieval above) and is fixed in
+# (--start and --end change it, as for the coverage retrieval above) and defaults in
 # acquire_cboe_vx.py (contracts from January 2007 to December 2026), so a later
 # retrieval with these commands covers the same dates and lands where this
 # script expects it. Its results can still differ from those reported if the
@@ -122,21 +134,21 @@
 # Accelerate library instead, so outputs can differ from mine in the last
 # digits.
 #
-# On 26 September 2026 I ran this script from a fresh clone of commit 448b5a1,
-# with Python 3.13.9 and my private data. All 308 tests passed and every step
-# completed. The six summaries behind the reports (e1_summary.md,
-# stage4_summary.md, e5_summary.md, moments_summary.md, robustness_summary.md
-# and tenor3m_summary.md) were byte-identical to mine, as were the smile
-# inputs, the E1, Stage 4, moment and three-month series and five of the eight
-# audit tables. In the other numerical outputs every number agreed with mine to
-# within 1e-9 relative plus 1e-12 absolute, apart from 212 values of a
-# vanna-volga density diagnostic that differed by at most 3e-9 relative and
-# changed no flag; the calibration logs differed only in the order and timing
-# of lines. Three audit files differed for reasons unrelated to the estimates:
-# the coverage table and the audit report now list the 21 three-month
-# instruments that I added to the catalogue on 24 September, which the
-# 23 September retrieval does not contain, and the conventions table carries
-# the corrected citation of the delta conventions.
+# On 3 October 2026 I ran this script, with every step listed above, from a
+# fresh clone of the repository in a new environment, with Python 3.13.9 and
+# my private data. All tests passed (442, with the 50-digit check of the
+# kernel skipped because mpmath is not in requirements.lock) and every step
+# completed. Of the 50 result files, 23 were byte-identical to mine, and in
+# the others every number agreed with mine to within 1e-9 relative plus 1e-12
+# absolute, apart from run times, 216 values of a vanna-volga density
+# diagnostic that differed by at most 4.2e-10 and changed no flag, and one
+# bootstrap block length that differed in its sixteenth significant digit.
+# Five of the eight audit tables were byte-identical. The other three differed
+# for reasons unrelated to the estimates: the coverage table and the audit
+# report list instruments added to the catalogue after the 23 September
+# retrieval, which that retrieval does not contain, and the conventions table
+# carries the corrected citation of the delta conventions. An earlier run on
+# 26 September, of steps 1 to 11, agreed in the same way.
 #
 # Outputs go to data/private/audit/2026-09-23/, data/private/results/2026-09-23/
 # and data/private/results/2026-09-24/. The calibration logs are written next
@@ -145,8 +157,9 @@
 # data/private/reproduce/. Every output is LSEG-derived and stays under
 # data/private/. The script stops rather than overwrite an existing .venv,
 # existing outputs or existing links. On an eight-core Apple M2 the whole run
-# took 14 minutes, of which the vanna-volga calibration took between five and
-# six and the other calibrations about four and a half.
+# took between 47 and 88 minutes, depending on the other load on the machine,
+# most of it in the sharp identification (27 to 65 minutes); the calibrations
+# took about six minutes together.
 
 set -Eeuo pipefail
 
@@ -225,7 +238,7 @@ fi
 
 mkdir -p "$LOGS"
 
-# Environment (README.md).
+# Environment (docs/development.md).
 run "virtual environment" "$LOGS/venv.log" "$PYTHON" -m venv .venv
 run "install requirements.lock" "$LOGS/pip_requirements.log" .venv/bin/pip install -r requirements.lock
 run "install the package" "$LOGS/pip_package.log" .venv/bin/pip install -e . --no-deps
@@ -257,7 +270,7 @@ run "robustness grid" "$LOGS/robustness.log" "$PY" scripts/robustness.py
 run "calibration, 3M" "$RESULTS/calibrate_3m.log" \
   "$PY" scripts/calibrate_smiles.py --tenor 3M --extra-raw-root data/private/lseg/2026-09-24/raw
 run "three-month estimation" "$LOGS/estimate_3m.log" "$PY" scripts/estimate_3m.py
-# Post hoc analyses added on 27 September 2026, after the verified run described in the header.
+# Post hoc analyses added on 27 September 2026.
 run "regime attribution (post hoc)" "$LOGS/regime_attribution.log" "$PY" scripts/estimate_regime_attribution.py
 run "model validation (post hoc)" "$LOGS/model_validation.log" "$PY" scripts/validate_moments_models.py
 run "sharp identification (post hoc)" "$LOGS/identification.log" "$PY" scripts/estimate_identification.py
@@ -267,6 +280,11 @@ run "bootstrap check against arch" "$LOGS/bootstrap_arch.log" "$PY" scripts/chec
 # Items of the design computed after the main results (research log, 27 and 28 September 2026).
 run "long at-the-money sample" "$LOGS/long_atm.log" "$PY" scripts/estimate_long_atm.py
 run "design checks" "$LOGS/design_checks.log" "$PY" scripts/estimate_design_checks.py
+# Items of the design completed on 2 October 2026 (research log, 2 October 2026).
+run "outstanding design items" "$LOGS/outstanding_items.log" "$PY" scripts/estimate_outstanding_items.py
+run "5 August 2024 account" "$LOGS/august_2024.log" "$PY" scripts/describe_august_2024.py
+# Checks behind reported statements (research log, 3 October 2026).
+run "checks behind reported statements" "$LOGS/reported_conditions.log" "$PY" scripts/check_reported_conditions.py
 # scripts/benchmark_kernel.py is not run here: it rewrites the timing block of the tracked cpp/README.md.
 
 STEP="finished"

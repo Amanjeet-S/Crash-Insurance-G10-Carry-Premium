@@ -1,6 +1,6 @@
 # Research design
 
-Version 1.0, 23 September 2026, fixed before any return, hedge cost or option-implied statistic was computed. Changes are logged in [research_log.md](research_log.md) with their date and reason, and results under the original rule remain reported. On 26 September 2026 the text was re-edited for presentation only, with no change to any rule, estimand or threshold; earlier versions are in the Git history.
+Version 1.0, 23 September 2026, fixed before any return, hedge cost or option-implied statistic was computed. Changes are logged in [research_log.md](research_log.md) with their date and reason, and results under the original rule remain reported. On 26 September 2026 the text was re-edited for presentation only, with no change to any rule, estimand or threshold; the research log records the edit.
 
 ## 1. Question
 

@@ -52,7 +52,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from estimate_stage4 import BDAY, clark_west, daily_spot_mid, spot_on, stambaugh_bootstrap  # noqa: E402
+from estimate_stage4 import BDAY, clark_west, daily_spot_mid, spot_on, stambaugh_bootstrap, theta_confidence_set  # noqa: E402
 
 from qef.data.panel import on_business_days, read_raw, sample_month_ends, stale_mask, two_sided  # noqa: E402
 from qef.data.smile_inputs import option_dates  # noqa: E402
@@ -239,13 +239,16 @@ def summarise(df: pd.DataFrame, B: int) -> dict:
     out.update(C_skew_bp=1e4 * ok.C.mean(), U_bp=1e4 * u["mean"], U_t=u["mean"] / u["se"], H_bp=1e4 * h["mean"],
                H_t=h["mean"] / h["se"], skew_term_bp=1e4 * c3["mean"], skew_term_se_bp=1e4 * c3["se"],
                theta_UB=1 - h["mean"] / u["mean"])
+    # Test-inversion set of theta_UB (design, section 7); added on 3 October 2026 (research log).
+    kind, lo, hi = theta_confidence_set(ret.H.to_numpy(), ret.U.to_numpy())
+    out.update(theta_UB_set=kind, theta_UB_set_lo=lo, theta_UB_set_hi=hi)
     return out
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--retrieval-date", default="2026-09-23")
-    p.add_argument("--bootstrap", type=int, default=1999)
+    p.add_argument("--bootstrap", type=int, default=9999)
     args = p.parse_args()
     d = ROOT / "data" / "private" / "results" / args.retrieval_date
     raw = ROOT / "data" / "private" / "lseg" / args.retrieval_date / "raw"

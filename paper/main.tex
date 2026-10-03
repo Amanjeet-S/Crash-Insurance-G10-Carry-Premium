@@ -1,0 +1,796 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[british]{babel}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage[hyphens]{url}
+\newtheoremstyle{result}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{ }{\thmnote{#3}}
+\theoremstyle{result}
+\newtheorem*{result}{Result}
+\setlength{\textfloatsep}{12pt plus 2pt minus 4pt}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Q}{\mathbb{Q}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\HML}{\mathit{HML}}
+\newcommand{\FD}{\mathit{FD}}
+\newcommand{\fd}{\mathit{fd}}
+\newcommand{\rx}{\mathit{rx}}
+\newcommand{\Cskew}{C^{\mathrm{skew}}}
+\newcommand{\Vsmile}{V^{\mathrm{smile}}}
+\newcommand{\Vflat}{V^{\mathrm{flat}}}
+\newcommand{\VGK}{V^{\mathrm{GK}}}
+\newcommand{\thUB}{\theta_{\mathrm{UB}}}
+\newcommand{\sigP}{\hat\sigma^{P}}
+\newcommand{\D}{\Delta}
+
+\title{Crash insurance and the G10 carry premium}
+\author{Amanjeet Singh}
+\pdfinfo{
+  /Author (Amanjeet Singh)
+  /Title (Crash insurance and the G10 carry premium)
+  /Subject (Whether the price of crash insurance in G10 currency option smiles accounts for the carry premium)
+  /Keywords (carry trade, crash risk, FX options, option-implied moments, partial identification)
+  /Creator (LaTeX)
+}
+\date{Draft of 3 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent This paper asks whether the price of crash insurance in G10 currency option smiles accounts for the carry premium and its change between the zero-rate regime and the hiking regime from 2022. Month-end SABR smiles for nine currencies against the dollar, calibrated to dealer quotes from May 2013 to August 2026, price $10\D$ protective options on a three-long, three-short carry portfolio. The point estimate of the skew price of protection per unit of forward discount falls from 0.809 to 0.454, but the pre-registered intervals for the difference include zero, and a supplementary split traces the fall to a wider forward-discount spread (post hoc, the share of the spread's rise matched by the skew price has a 95\% set of $[-0.26,0.49]$). The ratio predicts carry returns in sample (bias-corrected one-sided $p=0.021$) but not out of sample (Clark--West statistic 1.639 against 1.645), so only one of three pre-registered conditions holds and the regime-shift explanation has partial support only. The unhedged carry premium is insignificant ($t=1.47$), so the confidence set of the hedge-cost ratio is unbounded; over 1995--2026 with at-the-money protection the premium is significant ($t=2.83$) and the set, $[0.27,0.94]$, contains the at-the-money diffusive null of one half. In post hoc analyses I also characterise the tail exponents that truncated quotes admit and the sharp identified sets of option-implied moments: the sign of one-month risk-neutral skewness is identified only if the tail exponents reach at least 63\% of the largest the boundary prices admit (median over currency-months, along a common path for both tails), and those prices exclude the pre-registered boundary-elasticity setting in 75\% of currency-months. In a test planned before their retrieval, held-out $5\D$ quotes from 2022 are consistent with the tail hypotheses in 99\% of currency-months and do not rule identification out: under the strongest hypothesis they allow, the sign of skewness is identified in 91\% of the consistent currency-months.
+\end{abstract}
+
+\section{Introduction}
+
+A currency carry trade funds positions in high-yield currencies by borrowing in low-yield ones. Its losses are concentrated in bad states. Brunnermeier, Nagel and Pedersen (2008) show that high interest-rate differentials predict negatively skewed currency returns, that carry losses coincide with rises in the VIX and with the unwinding of speculators' positions, and that risk reversals rise after carry losses. If the carry premium compensates for crash risk, the price of insurance against crashes, which foreign-exchange option smiles quote directly, should account for part of it. Burnside, Eichenbaum, Kleshchelski and Rebelo (2011) hedge carry positions with at-the-money options and characterise the peso state as one in which the stochastic discount factor is high. Jurek (2014) forms crash-neutral carry portfolios with out-of-the-money options and finds that crash premia account for at most one third of carry returns. Farhi, Fraiberger, Gabaix, Ranci\`ere and Verdelhan (2015) estimate the share of the carry premium that compensates for disaster risk. The relation has also been unstable: Bussi\`ere, Chinn, Ferrara and Heipertz (2022) find positive Fama-regression coefficients from about 2006 through the decade after the financial crisis, and negative ones again after 2018.
+
+This paper asks whether the price of crash insurance, measured from G10 foreign-exchange option smiles, accounts for the carry premium and for its change between the zero-rate regime (May 2013 to December 2021) and the hiking regime (from January 2022). The regime labels follow the design and denote calendar periods, not rate paths. The design's question also names the collapse of the carry premium after 2008. The price of $10\D$ protection cannot be measured before the one-month risk-reversal quotes begin, in 2007 for Fenics and between 2010 and 2013 for the composite, so the estimands compare the zero-rate regime from 2013 with the hiking regime, and the collapse appears only in the realised returns of the long at-the-money sample (Section~\ref{sec:e3}): unhedged carry earned 61.4 bp per month over 1995--2007 ($t=3.17$), 33.1 bp over 2009--2021 ($t=1.95$) and 37.0 bp from 2022 ($t=2.08$). The ex-ante carry of a three-long, three-short portfolio, its forward-discount spread, averages 18.61 basis points (bp) per month in the first regime and 27.05 in the second (a supplementary, post hoc split). Realised carry returns, compared by regime in a further post hoc analysis, average 7.4 bp per month in the first regime and 37.0 in the second, but the difference (29.6 bp, standard error 23.8) is not significant, and their full-sample mean is itself insignificant ($t=1.47$). The regime comparison therefore concerns the forward-discount spread, and asks whether the option market's price of left-tail protection moved with it.
+
+I fixed the research design on 23 September 2026, before any return, hedge cost or option-implied statistic was computed. Later changes are recorded in the research log with their date and reason, and where a result had been computed under the original rule, it remains reported. Month-end smiles for nine currencies against the dollar are calibrated to dealer-contributed at-the-money, $25\D$ risk-reversal and $25\D$ butterfly quotes from LSEG Workspace. The carry portfolio is formed as in Lustig, Roussanov and Verdelhan (2011), and each leg is protected by a one-month $10\D$ option that pays when the leg loses. The primary estimand (E1), $\varphi$, is the skew premium of that protection (the premium at the smile volatility less that at the at-the-money volatility, same strike) per unit of the portfolio's forward discount. E2 asks whether $\varphi$ predicts carry returns; E3 splits the realised hedge cost into payoff (delta and diffusive), volatility-level and skew terms; E4 repeats E1 and the skew term under the other butterfly reading; E5 measures exposure to VIX-futures roll-down and global FX volatility.
+
+The primary estimate does not support a claim. Under the market-strangle reading with $10\D$ hedges, $\varphi$ averages 0.809 in the zero-rate regime and 0.454 in the hiking regime; the difference of $-0.355$ has a Newey--West standard error of 0.204 and a stationary-bootstrap 95\% interval of $[-0.814,0.014]$, so I do not claim a regime difference. A supplementary split, added after the first results, shows why the point estimate falls: the skew cost of protection is almost unchanged, at 11.24 bp per month in the first regime and 11.19 in the second, while the forward-discount spread rises by 8.44 bp. After the small-sample bias correction, a higher $\varphi$ predicts higher carry returns in sample (one-sided $p=0.021$), the sign a crash-compensation reading implies, but the out-of-sample Clark--West statistic of 1.639 does not reach the 5\% critical value of 1.645. Only one of the three pre-registered conditions for explaining the regime shift is met, and it concerns in-sample predictability rather than the change between regimes, so the explanation has partial support only.
+
+The ex-post evidence is consistent with this reading. Over 2013--2026 the mean realised cost of $10\D$ protection is close to the skew premium paid ex ante ($-11.2$ bp per month), because the payoff and volatility-level terms are indistinguishable from zero. The hedge-cost ratio $\thUB$ is 0.53, against a diffusive null of about 0.10, but its 95\% test-inversion set is unbounded and I claim no value for it. A longer sample from 1995 with at-the-money protection bounds the set, but the bounded set contains the diffusive null of an at-the-money hedge, and the one-month risk-reversal quotes that an out-of-the-money hedge needs start only in 2007. Unhedged carry loads strongly on the VIX roll-down; the hedge lowers the loading by about a fifth, and neither portfolio earns a significant $\alpha$. Among the robustness variants, only a ten-currency ranking in which the dollar can be a leg makes the difference in $\varphi$ significant under both the Newey--West and the bootstrap inference, and no variant rejects out of sample when training starts in 2013, a training start that departs from the design's rule for E2 (Section~\ref{sec:dev}). The estimates point to a rise in the forward-discount spread rather than a change in the price of crash insurance.
+
+Section~\ref{sec:framework} sets out what option prices can and cannot identify. It restates the decomposition of the currency premium of Backus, Foresi and Telmer (2001), in the entropy form of Backus, Chernov and Zin (2014), with the covered-interest-parity basis as a wedge, much as Lustig and Verdelhan (2019) do with a general wedge: option prices identify the risk-neutral law of the log exchange-rate change but not how the entropy difference behind the currency premium divides across cumulant orders, so the design measures the price of the carry position's left-tail exposure, not the crash share of discount-factor entropy. I also bound option-implied moments from truncated quotes, in the spirit of the truncation bounds of Jiang and Tian (2005) but under a stated tail condition, and derive the diffusive null of the hedge cost, whose leading-order form is due to Farhi et al.\ (2015), in an exact form with an error bound. For the tail condition I characterise the exponents compatible with the quotes, show that at the largest of them the tails are unique power laws, derive the sharp identified set of the moments, which shows that, for nonnegative weights, the upper bounds of R4 are attained and, for weights positive near the boundary, its lower bounds are not, and give a check of the boundary-elasticity setting and a breakdown point for the sign of skewness (R10).
+
+The closest work is Jurek (2014), who studies unhedged carry over 1990--2012 and option-hedged carry over 1999--2012; this paper extends option-hedged evidence for G10 carry through the hiking regime to 2026. Burnside et al.\ (2011) hedge with at-the-money options; the hedged return here follows their construction, but the primary hedge is at $10\D$, because a one-month $25\D$ option is only about 2\% out of the money. Farhi et al.\ (2015) estimate a disaster share and state the leading-order form of the diffusive null (credited in Section~\ref{sec:r6}); this paper estimates prices and exposures, not a disaster share. Chernov, Graveline and Zviadadze (2018) estimate the jump share of the conditional entropy of dollar exchange-rate changes over 1986--2010, which is distinct from the share of the carry premium. Della Corte, Ramadorai and Sarno (2016) use the volatility risk premium as a currency predictor, read the quoted butterfly as a smile strangle and sort currencies on the $10\D$ risk reversal; here the effect of the reading is measured (E4). Fan, Londono and Xiao (2022) show that equity tail risk, measured from one-month out-of-the-money S\&P 500 puts, is priced in currency returns; here the tail price comes from the currencies' own options. Caballero and Doyle (2012) relate carry returns to a VIX futures roll-down strategy, which E5 adapts to month-ends, and argue that exchange-rate options are cheap systemic insurance. Choi and Suh (2022), according to their abstract and introduction, use risk reversals to predict carry crashes and to hedge conditionally; the hedge here is unconditional. Kutuk and van Wijnbergen (2025) apply the hedged-versus-unhedged comparison to USD/TRY only.
+
+The paper adds three pieces of pre-registered evidence to this literature. The first is a decomposition of the realised cost of G10 crash insurance over 2013--2026 into payoff, volatility-level and skew terms, in the pooled sample and in each of the two rate regimes. The second is a pre-registered test of whether the ex-ante skew price explains the change in the carry premium between the regimes. The third, secondary, is the size of the difference between the two readings of the butterfly quote for the carry estimands; Reiswich and Wystup (2012) set out the market-strangle calibration on which the distinction rests, and Bossens, Ray\'ee, Skantzos and Deelstra (2010, Section 3.3) show that the two readings can differ markedly when the smile is skewed. Two further contributions come from post hoc analyses and are labelled as such. One is a direct comparison of the regime changes in the skew price and in the carry spread, which bounds the share of the rise in the spread matched by the price of crash insurance and, read through the model of Farhi and Gabaix (2016), locates the rise outside disaster exposure. The other is methodological: R10 measures how strong a tail assumption the sign of option-implied skewness needs when quotes stop at the $10\D$ strikes, in G10 data and in Merton and Heston models, and held-out $5\D$ quotes test that assumption out of sample.
+
+Section~\ref{sec:framework} presents the framework, Sections~\ref{sec:data} and~\ref{sec:method} the data and method, Section~\ref{sec:results} the results and Section~\ref{sec:robust} their robustness, and Section~\ref{sec:concl} concludes. Appendix~\ref{app:theory} lists the theory results and Appendix~\ref{app:repro} gives the steps needed to reproduce them, including a route that recomputes the portfolio-level results from published month-level series without an LSEG licence.
+
+\section{Framework: what option prices identify}\label{sec:framework}
+
+The results are labelled R1 to R10 as in \texttt{theory/notes.tex}, which contains the proofs of all of them except R9, which is cited; they are stated here with their hypotheses. Appendix~\ref{app:theory} lists their status and sources. Throughout, $\Phi$ is the standard normal distribution function, $\tau$ is the time to expiry and, for forward $F$, strike $K$ and volatility $\sigma$, $d_\pm(K,\sigma)=[\ln(F/K)\pm\sigma^2\tau/2]/(\sigma\sqrt\tau)$; with $s=\sigma\sqrt\tau$ fixed this is written $d_\pm(K)$.
+
+\subsection{Currency premia and discount-factor entropy}
+
+Let $S_t$ be the USD price of one unit of a foreign currency, $s_t=\log S_t$, $f_t$ the log one-period forward, $r_t$ and $r^*_t$ the one-period USD and foreign interest rates, and
+\[
+x_t=(f_t-s_t)-(r_t-r^*_t)
+\]
+the covered-interest-parity basis of Du, Tepper and Verdelhan (2018); they quote exchange rates in foreign currency per USD, so $x_t$ is minus their basis. For a positive random variable $M$ with $\E_t|\log M|<\infty$, conditional entropy is $L_t(M)=\log\E_tM-\E_t\log M\ge0$.
+
+\begin{result}[R7 (entropy decomposition)]
+Let $M,M^*>0$ be $\mathcal F_{t+1}$-measurable discount factors in $L^2$ that price USD and foreign payoffs in their own currencies, with $\E_tM=e^{-r_t}$, $\E_tM^*=e^{-r^*_t}$, $\E_t|\log M|,\E_t|\log M^*|<\infty$ and $MS_{t+1}/S_t\in L^2$. Suppose $M^*=MS_{t+1}/S_t$, which holds if every foreign payoff in $L^2(\mathcal F_{t+1})$ is traded and priced consistently in both currencies. Write $m=\log M$ and $\D s=s_{t+1}-s_t$. Then:
+\begin{enumerate}
+\item[(i)] $\E_t[\D s+r^*_t-r_t]=L_t(M)-L_t(M^*)$ and $\E_t[s_{t+1}-f_t]=L_t(M)-L_t(M^*)-x_t$;
+\item[(ii)] if the conditional cumulant generating function of $m$ has a Maclaurin series with radius of convergence greater than one, $L_t(M)=\sum_{j\ge2}\kappa_{j,t}/j!$, where $\kappa_{j,t}$ are the conditional cumulants of $m$;
+\item[(iii)] for any gross return $R>0$ with $\E_t[MR]=1$ and $\E_t|\log R|<\infty$, $L_t(M)\ge\E_t\log R-r_t$.
+\end{enumerate}
+\end{result}
+
+The decomposition is due to Backus, Foresi and Telmer (2001): with the exchange rate equal to the ratio of the two kernels (their Proposition 1), the expected excess return on a forward position is the difference between the log of the expectation and the expectation of the log of the kernels (their eq.~(11)), and higher cumulants enter only through that difference (eqs.~(12)--(13)). The name conditional entropy and the bound in (iii) are as in Backus, Chernov and Zin (2014), who relate the bound to Bansal and Lehmann (1997) and Alvarez and Jermann (2005). Lustig and Verdelhan (2019, Section 2.5) restate the decomposition with a wedge between the exchange rate and the ratio of kernels, and Jiang, Krishnamurthy and Lustig (2021) link the value of the dollar to a convenience yield inferred from the Treasury basis, a covered-parity deviation measured with government bond yields. Writing the covered-interest-parity basis into the identity is an elementary step, derived in the notes.
+
+By (i), the expected log excess return on a foreign currency is the difference of two conditional entropies less the basis. By (ii), entropy is a sum of cumulants of log marginal utility, so crash risk enters through cumulants of order three and above. By (iii), applied to the gross returns of fully collateralised hedged and unhedged carry positions, the two positions give two lower bounds on the same $L_t(M)$.
+
+\subsection{Change of numeraire, arbitrage-free prices and spanning}
+
+Options are quoted on currency pairs, five of which have the dollar as the base currency. The change of numeraire connects the two directions of quotation.
+
+\begin{result}[R1 (domestic and foreign risk-neutral measures)]
+Let $(\Omega,\mathcal F,(\mathcal F_t)_{t\in[0,T]},\Q^d)$ satisfy the usual conditions, let $B^d,B^f$ be strictly positive money-market accounts with $B^d_0=B^f_0=1$, let $S>0$ be adapted and c\`adl\`ag, and suppose $Z_t=S_tB^f_t/(S_0B^d_t)$ is a true $\Q^d$-martingale. Define $d\Q^f/d\Q^d=Z_T$. Then (a) $\Q^f\sim\Q^d$; (b) $\E^{\Q^f}[X\mid\mathcal F_t]=\E^{\Q^d}[Z_TX\mid\mathcal F_t]/Z_t$ for $\mathcal F_T$-measurable $X\ge0$ or $X\in L^1(\Q^f)$; (c) foreign prices discounted by $B^f$ are $\Q^f$-martingales exactly when their domestic values discounted by $B^d$ are $\Q^d$-martingales; (d) under Garman--Kohlhagen dynamics, $\E^{\Q^d}S_T=F$ and $\E^{\Q^f}(1/S_T)=1/F$.
+\end{result}
+
+This is the change of numeraire of Geman, El Karoui and Rochet (1995), proved in the notes for completeness. If $Z$ is only a strict local martingale, $Z_T$ does not define an equivalent measure; Carr, Fisher and Ruf (2014) construct a foreign measure in that case that is not equivalent to $\Q^d$. In the moment calculations of Section~\ref{sec:e2}, prices on a pair whose quote currency is not the dollar are converted to the USD forward measure with density $S_T/F$, where $S$ is that pair's price of one dollar.
+
+\begin{result}[R2 (arbitrage-free call prices)]
+Let $c:[0,\infty)\to\mathbb R$ and $F>0$. There is a random variable $X\ge0$ with $\E X=F$ and $c(K)=\E(X-K)^+$ for all $K\ge0$ if and only if $c$ is convex, $c(0)=F$, $c'_+(0)\ge-1$ and $c(K)\to0$ as $K\to\infty$. The law of $X$ is then unique, with distribution function $1+c'_+$ on $[0,\infty)$.
+\end{result}
+
+The link between the second strike derivative of call prices and state prices is due to Breeden and Litzenberger (1978); the characterisation is a known result, proved by the same argument in F\"ollmer and Schied (2004, Lemma 7.23), and is restated in the notes. On a strike grid the necessary conditions reduce to slopes in $[-1,0]$ that are nondecreasing, which is the static-arbitrage test used below, together with the density condition on total implied variance of Gatheral and Jacquier (2014). An arbitrage-free smile at one maturity therefore identifies the whole risk-neutral law of the terminal exchange rate. The quotes, however, pin the smile down only at the at-the-money, $25\D$ and $10\D$ strikes.
+
+\begin{result}[R3 (spanning)]
+Let $f:(0,\infty)\to\mathbb R$ have a locally absolutely continuous derivative, let $X>0$ almost surely with $\E X=F<\infty$, and write $P(K)=\E(K-X)^+$ and $C(K)=\E(X-K)^+$. If $\int_0^F|f''|P\,dK+\int_F^\infty|f''|C\,dK<\infty$, then $f(X)\in L^1$ and
+\[
+\E f(X)=f(F)+\int_0^F f''(K)P(K)\,dK+\int_F^\infty f''(K)C(K)\,dK.
+\]
+\end{result}
+
+The spanning formula is that of Carr and Madan (2001); the notes write out the standard Taylor-remainder proof with explicit integrability conditions under which expectations can be taken term by term. The volatility, cubic and quartic contracts of Bakshi, Kapadia and Madan (2003) are of this type. They expand around the spot price; the contracts used here are centred at the forward.
+
+\subsection{Partial identification from truncated quotes}
+
+Quotes observe $P$ and $C$ only between the $10\D$ strikes $K_{\min}<F<K_{\max}$, so the tails of the spanning integrals must be bounded.
+
+\begin{result}[R4 (bounds on the unobserved tails)]
+Let $G(u)=\Q(X\le u)$. (a) If $G(u)/u^\gamma$ is nondecreasing on $(0,K_{\min}]$ for some $\gamma>0$, then $P(K)\le P(K_{\min})(K/K_{\min})^{\gamma+1}$ for $0<K\le K_{\min}$. (b) If $u^\eta\Q(X>u)$ is nonincreasing on $[K_{\max},\infty)$ for some $\eta>1$, then $C(K)\le C(K_{\max})(K/K_{\max})^{1-\eta}$ for $K\ge K_{\max}$. Hence, for any measurable weight $w\ge0$,
+\[
+\int_0^{K_{\min}}w(K)P(K)\,dK\le\frac{P(K_{\min})}{K_{\min}^{\gamma+1}}\int_0^{K_{\min}}w(K)K^{\gamma+1}dK,
+\]
+and similarly in the upper tail. In particular,
+\[
+\int_0^{K_{\min}}\frac{P(K)}{K^2}\,dK\le\frac{P(K_{\min})}{\gamma K_{\min}},\qquad \int_{K_{\max}}^\infty\frac{C(K)}{K^2}\,dK\le\frac{C(K_{\max})}{\eta K_{\max}}.
+\]
+\end{result}
+
+The bounds use only observed wing prices and assumed tail exponents. Sign-changing weights are split into positive and negative parts. Because $\gamma$ and $\eta$ are not observed, risk-neutral variance and skewness are partially identified: they are reported as intervals over stated exponents, never as point values. Jiang and Tian (2005, Proposition 2) bound the truncation error of model-free implied variance beyond the quoted strikes; the bounds here rest on a different, stated tail condition and extend to the higher moment contracts. The lemma, the bounds and their proofs are my own and are in the notes.
+
+R4 bounds each contract separately and leaves open which exponents the quotes allow. Write $H_L(\gamma)$ and $H_U(\eta)$ for its two hypotheses, and $P_0,G_0,C_0,\bar G_0$ for the smile's put and call prices and their strike slopes at the boundary strikes, taken from inside the quoted range ($G_0=P'(K_{\min}+)$, $\bar G_0=-C'(K_{\max}-)$), which the smile determines.
+
+\begin{result}[R10 (admissible exponents and sharp identification)]
+(a) Some law compatible with $(P_0,G_0)$ satisfies $H_L(\gamma)$ if and only if $\gamma\le\bar\gamma=K_{\min}G_0/P_0-1$, the strike elasticity of the put price less one, and some law compatible with $(C_0,\bar G_0)$ satisfies $H_U(\eta)$ if and only if $1<\eta\le\bar\eta=1+K_{\max}\bar G_0/C_0$; at $\bar\gamma$ and $\bar\eta$ the tails are unique power laws and the moments are point-identified. (b) The identified set of the raw moments is the sum of the observed middle part and two compact convex tail sets, each the image of the probability measures $\mu$ with $G(K_{\min}z)=G_0z^\gamma\mu([0,z])$ (and the upper-tail counterpart) under one linear constraint; without further price constraints, its extreme points come from measures with at most two atoms. (c) For a nonnegative weight, R4's upper bound is attained, and its lower bound of zero is not sharp when the weight is positive on a set of positive measure in $(K_{\min}z^*,K_{\min})$, where $z^*<1$ depends on the boundary price and slope and on $\gamma$; likewise in the upper tail. (d) If the density is continuous and positive at $K_{\min}$, $H_L(\gamma)$ implies $\gamma\le\gamma_i$, the boundary elasticity of setting (i); setting (i) holds exactly when the reversed hazard rate of $\ln X$ is smallest at the boundary, and it requires $\gamma_i\le\bar\gamma$, which says that $\ln P$ is locally concave in $\ln K$ at $K_{\min}$; likewise in the upper tail. (e) The identified sets shrink as the fraction $\theta$ of the maximal exponents rises, so, without further price constraints, the fractions at which the sign of the skewness is identified are either none or an interval with right end 1, whose infimum $\theta^*$ is the breakdown point of the sign. With further prices as constraints, as in the $5\D$ test of Section~\ref{sec:e2}, nesting still holds but the right end is the largest fraction consistent with them, and the breakdown point is defined by the computation the notes describe.
+\end{result}
+
+The hypotheses are tail-restricted forms of the reversed hazard rate (star) order against the power law and its Pareto counterpart (Lando, Arab and Oliveira, 2022); with a density, $H_L(\gamma)$ bounds the elasticity of the distribution function studied by Veres-Ferrer and Pav\'ia (2022); the exponent $KP'/P$ at the last strike is proposed as a natural extrapolation exponent by Benaim, Dodgson and Kainth (2008), and Qin, Yang, Che and Feng (2026) construct the matching power-law tails; Taleb, Yarckin, Mann, Delic and Spitznagel (2023, Section IV) observe that convexity at the strike where a Pareto tail is attached restricts its index, which is close to the admissibility statement in (a), and Bollerslev, Todorov and Xu (2015) estimate tail decay from log-log slopes of out-of-the-money option prices; the reduction to a moment problem over a mixing measure and its two-point extreme points are classical (Kemperman, 1968; Winkler, 1988; Popescu, 2005); and the breakdown point is that of Horowitz and Manski (1995), generalised by Stoye (2005, 2010), as set out by Masten and Poirier (2020) and used by Kline and Santos (2013). My own parts are the characterisation of the admissible exponents with uniqueness in the whole class at the maximum, the generating family with the boundary value fixed and its consequences for R4, the check of setting (i), and the breakdown analysis of option-implied skewness; the proofs are in the notes. The boundary slope is itself only set-identified from finitely many quotes (Zhuang, 2026); here it is the calibrated smile's, and the $10\D$ prices are extrapolated from $25\D$ quotes.
+
+\subsection{The diffusive null of the hedge cost}\label{sec:r6}
+
+As Jurek (2014) notes, buying protection costs part of the carry premium even when no crash risk is priced, because an unlevered option hedge also gives up part of the diffusive premium. For a forward $G$ and the put's strike $K$, write $d_\pm(G)=[\ln(G/K)\pm s^2/2]/s$.
+
+\begin{result}[R6 (diffusive null of the hedge cost)]
+Suppose that under $\Q$ the terminal rate $S_\tau$ is lognormal with mean $F$ and log-variance $s^2$, and that under $\P$ it is lognormal with the same log-variance and mean $Fe^{\lambda\tau}$, $\lambda\ne0$, with no jumps and no volatility premium. A unit long forward has $\P$-expected payoff $\mu_U=F(e^{\lambda\tau}-1)$; adding a put struck at $K$, bought at its $\Q$-value with the premium financed to $\tau$, gives expected payoff $\mu_H$. Then $\theta_0=1-\mu_H/\mu_U=\Phi(-d_+(\xi))$ for some $\xi$ between $F$ and $Fe^{\lambda\tau}$, and
+\[
+\bigl|\theta_0-\Phi(-d_1)\bigr|\le\frac{1}{\sqrt{2\pi}}\,\frac{|\lambda|\sqrt\tau}{\sigma},\qquad d_1=d_+(F).
+\]
+\end{result}
+
+Farhi et al.\ (2015, Section 5.1) state the leading-order form: a put of delta $\D_P$ leaves a fraction $1+\D_P$ of the Gaussian risk premium. Jurek (2014) reads the hedged-to-unhedged comparison as an upper bound on the crash share. The mean-value form and the error bound are my own short derivation. The notes treat a long forward hedged with a put; a short forward hedged with a call follows by the same argument, with the call's forward delta in place of the put's. With no crash premium at all, a put of forward delta $-\Phi(-d_1)$ surrenders approximately that fraction of the carry premium: about 0.25 for a $25\D$ put and 0.10 for a $10\D$ put. This is the null $\theta_0$ against which the realised ratio $\thUB$ of Section~\ref{sec:method} is read.
+
+\subsection{What the design measures}
+
+By R7(i), the carry premium is an entropy difference less the basis, and crash risk enters it through higher cumulants. By R1, R2 and R4, option prices on $S$ reveal the risk-neutral law of $\D s=m^*-m$ at the quoted maturity, only partially beyond the $10\D$ strikes, but neither the physical law nor the separate cumulants of $m$ and $m^*$; they constrain, but do not identify, how $L_t(M)-L_t(M^*)$ divides across cumulant orders. The design accordingly measures the price of the carry position's left-tail exposure, through the premia of options that pay when the legs lose, and does not measure the crash share of discount-factor entropy. A premium that remains after hedging can reflect diffusive risk (R6); options that are cheap as systemic insurance, which is how Caballero and Doyle (2012) explain why option-hedged carry retains high returns that systemic risk does not account for; or the pricing of a peso state (Burnside et al., 2011). The design does not separate these.
+
+\section{Data}\label{sec:data}
+
+\subsection{Instruments and contributors}
+
+I obtained the option and money-market data from LSEG Workspace under a student licence provided by my university (Section~\ref{sec:licence}). The main retrieval, of 23 September 2026, requested daily history from 1 January 1995. For each of the nine currencies (EUR, GBP, AUD, NZD, JPY, CHF, CAD, NOK and SEK, all against USD) the panel contains spot and one-month forward points (composite, bid and ask); at-the-money volatility, $25\D$ and $10\D$ risk reversals and $25\D$ and $10\D$ butterflies at one and three months, from the composite and from the Fenics contributor (bid, ask and mid); and one-month deposit rates, with OIS where an instrument exists (none exists for EUR or SEK). For USD it contains one-month Fed Funds OIS, SOFR OIS and a deposit rate. Three-month forward points and rates were retrieved on 24 September 2026 for the three-month variant, and continuation series of the first two VIX futures complete the panel. One-month $5\D$ risk reversals and butterflies, which only the Fenics contributor quotes (two-sided from June 2022), were retrieved on 27 September 2026 for an out-of-sample test planned before the retrieval (Section~\ref{sec:e2}). Named-broker contributors are short, sparse or mid-only; one is used only as a check. WM/Reuters fixings, the S\&P 500 index and the Cboe VIX index are not licensed. Mid quotes are the average of bid and ask.
+
+The provider does not document the time of day of daily history. Matching daily values against intraday bars in winter and summer 2026 places the composite value at about 21:18 UTC throughout the year and the Fenics value at about 17:16 London time. Option payoffs use end-of-day spot on the expiry date, because the 10:00 New York cut is not available; a robustness variant uses the previous day's spot.
+
+\subsection{Samples and the month-end rule}
+
+Sampling is at New York month-ends: the last business day of the calendar month under the Federal Reserve holiday calendar (Federal Reserve Board, K.8), with a Saturday holiday not moved to the Friday. A quote is observed if it is two-sided on the month-end and substituted if the last two-sided quote lies within the five preceding business days. Otherwise it is missing and the currency is excluded that month; a month is used only if at least twice the number of legs remain. In the one-month primary sample, 24 of the 11,520 quote fields (eight per currency-month) were substituted, in 23 currency-months, and no currency-month was excluded.
+The primary sample uses composite quotes. It starts at the first month-end at which all 45 composite one-month smile series (at-the-money, $25\D$ and $10\D$ risk reversals and butterflies for nine currencies) and the nine forward-point series are available under this rule, and runs from May 2013 to August 2026: 160 month-ends, of which 104 fall in the zero-rate regime (May 2013 to December 2021) and 56 in the hiking regime (from January 2022). The return window of the last month-end ends after the last spot observation and is excluded, so the return sample has 159 month-ends, May 2013 to July 2026, with returns realised from June 2013 to August 2026.
+
+The extended sample uses Fenics quotes before the primary start, with two long and two short legs, from January 2007 to April 2013; 72 of these month-ends have the required four currencies with the calibration set (at-the-money, $25\D$ risk reversal and butterfly) and forward points. Fenics quotes before 2010 update infrequently, butterflies in particular, so results from this sample are secondary evidence. The design also defines a long at-the-money sample, at-the-money-hedged carry as in Burnside et al.\ (2011) from the start of the at-the-money and forward series. It uses composite spot, forward points and at-the-money volatility only, with three long and three short legs when at least six currencies are available and two and two when four or five are, and the month is excluded otherwise. Its first month-end, January 1995, is the first of the provider's one-month at-the-money series: a request on 1 October 2026 for history from 1970 returned no at-the-money quote before 6 January 1995, although spot quotes go back to 1971 and forward points to 1982. The sample has 379 month-ends with realised returns to July 2026, the first 36 with two legs per side. I fixed its rules after the E2, E3 and E5 results had been recorded: its 159 primary-window months reproduce the at-the-money-hedged returns of Table~\ref{tab:e3} exactly, and the Fenics at-the-money series of the extended sample was also known, but no return before May 2013 had been computed under these rules (Section~\ref{sec:dev}).
+
+\subsection{Quote conventions and audit outcomes}
+
+Quote conventions follow Reiswich and Wystup (2012), who report the pair conventions of Clark (2011): spot delta up to one year; premium-adjusted delta for the dollar-base pairs (USDJPY, USDCHF, USDCAD, USDNOK and USDSEK) and pips delta otherwise; at-the-money as the delta-neutral straddle, with strike $F\exp(\pm\sigma^2\tau/2)$ for pips and premium-adjusted delta respectively; and the risk reversal as call minus put volatility on the quoted pair. For dollar-base pairs, spot and forward are inverted so that $X^j_t$ is the USD price of one unit of currency $j$; the outright forward is spot plus forward points times the pip factor.
+
+The data audit checked coverage, two-sidedness, staleness, the underlying pair, quote semantics, conventions, the splice between contributors and plausibility (implausible quotes are flagged, not removed). Provider metadata give every volatility instrument, including those for NOK and SEK, as the currency against USD, and a realised-volatility test agrees, so no triangulation through EURUSD is needed. The forward-point scaling factors equal the configured pip factors. Risk reversals are call minus put on the quoted pair, and the $10\D$ quotes follow the $25\D$ convention. Instrument metadata name only the quote type and the delta, and LSEG's documentation of its own surfaces does not define the contributed quotes (LSEG Developer Portal), so delta and premium conventions follow market convention as above. Fenics and composite skew costs agree leg by leg, with correlations of 0.995 before the primary sample and 0.997 within it. A second retrieval of every instrument over the same dates, on 26 September 2026, returned byte-identical files for all 243 instruments with data, so no quote was revised between my retrievals; the check cannot detect revisions made before the first. The same retrieval's metadata describe the three-month USD OIS series of the three-month variant as the Fed Funds OIS rate.
+
+\subsection{The butterfly reading}\label{sec:bf}
+
+The quoted $25\D$ butterfly $BF$ can be read in two ways. Under the market-strangle reading, a strangle struck at the $25\D$ strikes of the flat volatility $\sigma_{ATM}+BF$ has the same premium under the smile as at that flat volatility. Under the smile-strangle reading, $BF$ is the average of the smile's volatilities at its own $25\D$ strikes less $\sigma_{ATM}$. A three-parameter smile fits either reading exactly, so the quotes cannot decide between them. The design sets the reading by provider documentation first, then by the interdealer market-strangle convention (Reiswich and Wystup, 2012), with the fit to the held-out $10\D$ quotes as supporting evidence only. Provider documentation is silent, so the market-strangle reading is primary. The supporting diagnostic points the other way: smiles calibrated under the smile-strangle reading predict the held-out $10\D$ butterflies better in most month-ends and in every currency, with small absolute differences. This is recorded as evidence against the primary reading, and E4 (smile-strangle reading) is reported alongside the primary results.
+
+\subsection{VIX futures}
+
+Individual VIX futures contracts are taken from the Cboe Futures Exchange historical settlement files, one per contract, for contracts from January 2007 to December 2026. Before 26 March 2007 the archive quotes contracts at ten times the index level; the change of scale is detected in the files and removed. After this, Cboe second-month settlements equal the LSEG second-month continuation at every month-end (223 of 223). The Cboe files are stored privately because their redistribution terms are not established.
+
+\subsection{Licence}\label{sec:licence}
+
+I obtained the LSEG data under an LSEG Workspace student licence provided by my university. The licence covers only me: it permits individual study and research, and it does not permit redistribution of the data or placing them in a public repository. Neither this paper nor the repository therefore contains raw LSEG data. They publish code, methods and aggregate results: means, standard errors, test statistics, intervals and coverage facts such as sample windows and counts. My university, the licence holder, has since confirmed that manipulated or transformed data may be published and that the raw data may not. The pooled results reported here are transformed data in that sense, and so are the month-level series at the level of the carry portfolio that the repository publishes. From them the main portfolio-level results can be recomputed: E1 under the market reading with $10\D$ hedges, E2 with $\varphi$, the secondary moment predictors, E3 and its split by regime, E5, the hedge-cost ratio and its confidence sets, the long at-the-money sample apart from two details, the comparison of the regime changes in the skew price and the spread, the base and at-the-money rows of the robustness grid and the returns of its $25\D$ row; Appendix~\ref{app:repro} lists what needs the quotes. Each published value averages at least four currencies whose identities are not published, and each month publishes fewer values than the quotes it depends on. Series that would have let an adversary who knew the legs and the exact forwards narrow individual risk-reversal quotes were withheld, and the repository's publication policy records the test applied. Quote values, per-currency series and calibrated smile parameters are held privately; the parameters are not a substantive transformation, because a calibrated smile reproduces the quotes it was fitted to, so they would let a reader recover the raw quotes. No figure of LSEG-derived time series is shown. Anyone else who wants to rerun the acquisition, and hence the estimation, needs their own LSEG Workspace licence.
+
+\section{Method}\label{sec:method}
+
+\subsection{Smile calibration}
+
+For each currency, month-end and butterfly reading, a SABR smile with $\beta=1$ (Hagan, Kumar, Lesniewski and Woodward, 2002) is calibrated to the at-the-money volatility, the $25\D$ risk reversal and the $25\D$ butterfly. Under the primary reading the three equations are: the smile's volatility at the delta-neutral-straddle strike equals $\sigma_{ATM}$; the difference of the smile's volatilities at its own $25\D$ call and put strikes equals the risk reversal; and the market strangle has the same premium under the smile as under the flat volatility $\sigma_{ATM}+BF$ (Reiswich and Wystup, 2012). The system is solved by Levenberg--Marquardt in $(\ln\alpha,\operatorname{atanh}\rho,\ln\nu)$, starting from the previous month's solution with three fixed starting points as fall-backs. A calibration has converged when the largest absolute residual is below $10^{-8}$ volatility units. The $10\D$ quotes are held out as a fit test. Strikes are found from deltas in each pair's own convention.
+
+\begin{result}[R5 (delta-to-strike inversion)]
+(a) For pips spot delta $\D=\omega D_b\Phi(\omega d_+)$ of a call ($\omega=1$) or put ($\omega=-1$) at a flat volatility, with $D_b$ the base-currency discount factor, $K=F\exp\bigl(\sigma^2\tau/2-\omega\sigma\sqrt\tau\,\Phi^{-1}(|\D|/D_b)\bigr)$ for $0<|\D|<D_b$ with $\D$ of the sign of $\omega$. (b) The premium-adjusted call delta $h(K)=D\,(K/F)\,\Phi(d_-(K))$, with $D$ the base-currency discount factor for spot delta and $D=1$ for forward delta, tends to zero at both ends, is strictly increasing up to a unique maximiser $K^*$ and strictly decreasing after it; each $\D\in(0,h(K^*))$ is attained at exactly two strikes, and the convention takes the one in $[K^*,\infty)$. (c) For a continuously differentiable smile $\sigma(K)$, if $|\partial\sigma/\partial k|\sqrt\tau\,|d_-(K,\sigma(K))|<1$ on an interval, with $k=\ln(K/F)$, the pips delta $\omega D\Phi(\omega d_+(K,\sigma(K)))$ is strictly decreasing there, so each delta attained on the interval is attained at exactly one strike.
+\end{result}
+
+Reiswich and Wystup (2012) give the delta definitions, the non-monotonicity of the premium-adjusted call delta, the right-branch convention and the first-order condition for its maximum. J\"ackel (2020, Section 2, eq.~(20)) gives the single maximum in (b) through the inverse Mills ratio, the argument the notes write out. Reiswich (2010, Section 3.8) shows that a smile delta can fail to be monotone, and Fukasawa (2012, Lemma 2.1 and Propositions 2.1--2.2) shows by the same derivative calculation that $d_+$ and $d_-$ are strictly decreasing for every arbitrage-free smile, which Mingone (2023, Lemma 4.1) links to a unique strike for each delta. My own part of (c) is only the explicit slope bound, which can be checked on a fitted smile not assumed to be free of arbitrage. Across the calibrated one-month smiles of the primary sample, the condition in (c) holds over $\pm4$ at-the-money standard deviations at every month-end, and premium-adjusted deltas are monotone on the conventional branch over the same range at every month-end.
+
+\begin{result}[R8 (local well-posedness of the calibration)]
+For $\beta=1$ the Hagan implied volatility is infinitely differentiable in $(K,\alpha,\rho,\nu)$ on $\{K>0\}\times(0,\infty)\times(-1,1)\times[0,\infty)$. Let $\Psi(\theta,q)=0$ be the three calibration equations in $\theta=(\alpha,\rho,\nu)$ for quotes $q=(\sigma_{ATM},RR,BF)$, with a solution $(\theta^*,q^*)$. Suppose that at the solution (i) the at-the-money strike equation has a non-zero strike derivative; (ii) the smile delta has a non-zero strike derivative at the $25\D$ strikes; (iii) for premium-adjusted delta, the $25\D$ call strike at the flat volatility $\sigma_{ATM}+BF$ lies strictly right of the maximiser $K^*$; and (iv) $D_\theta\Psi$ is non-singular. Then there are neighbourhoods $U\ni q^*$ and $W\ni\theta^*$ and a unique $C^1$ map $\theta:U\to W$ with $\Psi(\theta(q),q)=0$.
+\end{result}
+
+The proof applies the implicit function theorem first to the strikes and then to the system, following the argument Reiswich (2010, Theorems 2 and 3) uses for the market-strangle calibration of a simpler smile. Le Floc'h and Kennedy (2014, Section 4, eqs.~(30)--(31)) invert the leading-order expansion of the Hagan formula (Hagan et al., 2002, eq.~(3.1a)) in closed form, recovering $(\alpha,\rho,\nu)$ from the at-the-money level, skew and curvature, which is an approximate, global counterpart of the local and exact statement here. The three equations are the conditions of Reiswich and Wystup (2012), to which Reiswich (2010, Section 3.2) calibrates SABR, and Henrard (2011) uses the implicit function theorem in the same way for any exactly determined calibration. In the smoothness lemma, the value of the Hagan formula's ratio at the money is known (Choi and Wu, 2021) and the integral representation is Hadamard's lemma (Milnor, 1963). What I claim as my own is the joint smoothness statement for $\beta=1$, including $\nu=0$, and the local well-posedness statement for SABR under conditions (i) to (iv), written for FX delta conventions. Because the result is local, the solver restarts from several points; condition (iv) is checked at every calibration through the solver's Jacobian, whose condition numbers confirm non-singularity everywhere. Under the smile-strangle reading the result holds without (iii).
+
+Every smile is checked for static arbitrage (R2) on log-moneyness grids of $\pm4$ and $\pm10$ at-the-money standard deviations, by discrete convexity of call prices and by the density condition of Gatheral and Jacquier (2014). Non-convergence and arbitrage flags are counted, not dropped. In the primary sample every month-end smile converged under both readings, with residuals below $10^{-13}$, and every smile passed both checks.
+
+\subsection{Portfolios and protective options}
+
+At each month-end $t$ the available currencies are ranked by the forward discount $\fd^j_t=s^j_t-f^j_t=\log(X^j_t/F^j_t)$, where $F^j_t$ is the one-month outright forward. Lustig, Roussanov and Verdelhan (2011) sort currencies into six portfolios on the forward discount at each month-end and take the highest minus the lowest; with nine currencies the analogue is long the top $n=3$ and short the bottom $n=3$, each with $1/n$ USD of forward notional ($n=2$ in the extended sample). With arithmetic excess returns $\rx^j_{t+1}=X^j_{t+1}/F^j_t-1$ per USD of forward notional,
+\[
+\HML^U_{t+1}=\frac1n\sum_{\text{long}}\rx^j_{t+1}-\frac1n\sum_{\text{short}}\rx^j_{t+1},\qquad
+\FD_t=\frac1n\Bigl(\sum_{\text{long}}\fd^j_t-\sum_{\text{short}}\fd^j_t\Bigr)\ge0.
+\]
+Returns are evaluated at the spot quote on the option expiry date, the spot rate for value on the forward's delivery date. Dates follow the New York business calendar, and volatility time is trade to expiry in days over 365.
+
+Each leg buys a one-month option that pays when the leg loses: a put on the currency for a long leg, which is a USD call for dollar-base pairs, and a call on the currency for a short leg. The hedge follows the construction of Burnside et al.\ (2011, Section 1.2): option notional matches the forward notional, and premia are compounded forward, here to the delivery date. Premia are therefore in USD per USD of forward notional at delivery, which for both quotation types equals the undiscounted premium on the quoted pair divided by the pair forward. The primary strike is the $10\D$ strike on the calibrated smile in the pair's own delta convention (R5); $25\D$ and at-the-money hedges are comparisons. Pricing is Garman and Kohlhagen (1983) in forward form. The quote-currency discount factor comes from Fed Funds OIS for USD and one-month deposit rates otherwise, and the base-currency factor is implied by the forward, $D_b=FD_q/S$, so no separate covered-interest-parity assumption is made. With $\Pi_{t+1}$ the option payoff per USD of notional and $\Vsmile_t$ its premium at the smile volatility,
+\[
+\HML^H_{t+1}=\HML^U_{t+1}+\frac1n\sum_{\text{legs}}\bigl(\Pi_{t+1}-\Vsmile_t\bigr).
+\]
+Estimands use mid prices. An implementable version trades forwards at bid and ask and buys options at the smile volatility plus $k\in\{1,1.5,2\}$ times the at-the-money half-spread, converted to premium by vega, because package quotes do not give a single-option ask.
+
+\subsection{Estimands}
+
+The primary estimand, E1, is measured ex ante. For each leg, $\Vsmile_t$ is the premium of the $10\D$ protective option at the calibrated smile volatility and $\Vflat_t$ the premium at the same strike with the at-the-money volatility. Then
+\[
+\Cskew_t=\frac1n\sum_{\text{legs}}\bigl(\Vsmile_t-\Vflat_t\bigr),\qquad \varphi_t=\Cskew_t/\FD_t,
+\]
+the skew price of protection per unit of forward discount. E1 reports the means of $\varphi_t$ in the zero-rate and hiking regimes and their difference. The $25\D$ version is a comparison. The at-the-money comparison named in the design is identically zero, because the calibrated smile passes through the at-the-money volatility, and is not reported.
+
+E2 asks whether the skew price predicts carry returns, through the regression $\HML^U_{t+1}=a+b\,z_t+e_{t+1}$ with $z_t=\varphi_t$ (primary) or the oriented $10\D$ risk reversal: the quoted volatility of the protective option minus that of the opposite option, averaged over legs. The out-of-sample test uses an expanding window, with the first forecast, made at the end of December 2016, for January 2017 and training that starts with the extended sample. Option-implied variance and skewness are secondary predictors, reported as R4 intervals.
+
+E3 is measured ex post. The realised excess payoff of each option splits into three terms, all carried to delivery:
+\[
+\Pi-\Vsmile=\underbrace{\bigl[\Pi-\VGK(\sigP)\bigr]}_{\text{(i) payoff}}\;\underbrace{-\bigl[\Vflat-\VGK(\sigP)\bigr]}_{\text{(ii) volatility level}}\;\underbrace{-\bigl[\Vsmile-\Vflat\bigr]}_{\text{(iii) skew}},
+\]
+where $\VGK(\sigP)$ is the Garman--Kohlhagen premium at the same strike with $\sigP$, the annualised realised volatility of daily log spot changes over the previous 21 business days. Term (i) carries the delta and diffusive part; term (iii) is known at $t$. Averaged over legs with weight $1/n$, the three terms add up to $\HML^H-\HML^U$. The hedge-cost ratio is
+\[
+\thUB=1-\hat\mu_H/\hat\mu_U,
+\]
+with $\hat\mu_H$ and $\hat\mu_U$ the sample means of $\HML^H$ and $\HML^U$; it can take any real value. Jurek (2014) reads such a ratio as an upper bound on the crash share, but an unlevered hedge also gives up part of the diffusive premium, so $\thUB$ is compared with $\theta_0$ of R6 and is not described as a crash share. Here $\theta_0$ is the equal-weight average over legs of the absolute forward delta of the hedging options; for the portfolio, R6 weights each leg by its expected forward payoff, so the equal weights are an approximation.
+
+E4 recomputes E1 and the skew term of E3 under the smile-strangle reading of the butterfly quote.
+
+E5 measures exposure to systemic risk: $\HML^U$ and $\HML^H$ are regressed on two factors, both measured over each carry return window from the month-end to the one-month option expiry. The VIX roll-down is minus the percentage change of the second-month VIX future's settlement price, holding the same contract. It is a month-end analogue of the strategy of Caballero and Doyle (2012), who short the VIX future whose expiry matches the one-month forward's maturity and hold it to expiry. The global FX-volatility level follows Menkhoff, Sarno, Schmeling and Schrimpf (2012, eq.~4): the average over the window's days of the cross-sectional mean absolute daily log spot change of the nine currencies. Its innovation is the residual of an AR(1) fitted to that series. E5 reports the exposure-adjusted ratio $1-\alpha_H/\alpha_U$.
+
+The design also names a descriptive account of smiles, $\varphi_t$ and returns around 5 August 2024; Section~\ref{sec:e5} reports it from averages over the portfolio's legs and the nine currencies.
+
+\subsection{Inference}
+
+Standard errors are those of Newey and West (1987) with a Bartlett kernel, and the bandwidth follows the automatic procedure of Newey and West (1994) without prewhitening: a pilot truncation of $\lfloor4(T/100)^{2/9}\rfloor$, then a bandwidth of $\lfloor\hat\gamma T^{1/3}\rfloor$. The E1 difference is the coefficient on a regime dummy. Its bootstrap interval uses the stationary bootstrap of Politis and Romano (1994), resampling each regime separately with its own expected block length chosen by the rule of Politis and White (2004) as corrected by Patton, Politis and White (2009), with 9,999 draws and percentile intervals. The tuning caps of the block-length rule are taken from the arch package (Sheppard, 2026), which I read to check formulas and constants; no code is copied.
+
+For the predictive regressions, a residual bootstrap under the null of no predictability, with 9,999 draws, draws the pairs $(\hat u_k,\hat v_{k+1})$ independently, where $\hat u$ are residuals of the unrestricted regression and $\hat v$ are AR(1) residuals of the predictor. The slope is corrected by the bootstrap bias estimate, which is checked against the first-order approximation $-(\sigma_{uv}/\sigma_v^2)(1+3\rho)/T$ of Stambaugh (1999, eq.~18). The out-of-sample test is the one-sided MSPE-adjusted statistic of Clark and West (2007) against the historical mean, with the least-squares standard error they recommend for one-step forecasts, since the design names none; the Newey--West version is reported alongside.
+
+The 95\% set for $\thUB$ is obtained, as the design specifies, by test inversion: $\{\vartheta:|\hat\mu_H-(1-\vartheta)\hat\mu_U|\le1.96\,\widehat{se}_{HAC}(\vartheta)\}$, with $\widehat{se}_{HAC}(\vartheta)$ the Newey--West standard error of $\hat\mu_H-(1-\vartheta)\hat\mu_U$. This is the construction of Fieller (1954, Sections 2--4) for a ratio of means, with a Newey--West variance in place of his independent variance estimate: the set is a bounded interval only when the denominator $\hat\mu_U$ is significantly different from zero, and is otherwise the complement of an interval or the whole line. Unbounded sets are reported as unbounded. Because the automatic bandwidth does not depend on the scale of the series, the statistic tends to $|\hat\mu_U|/\widehat{se}_{HAC}(\hat\mu_U)$ as $|\vartheta|$ grows, so the set is unbounded on both sides when that $t$-statistic is below 1.96 in absolute value and bounded when it is above, whatever finite grid is scanned. The design names delta-method intervals as secondary; Section~\ref{sec:e3} reports them to show how they mislead here. Because E1 is the single primary estimand, no multiple-testing adjustment is made.
+
+\begin{result}[R9 (inference; cited)]
+(a) If $(X_t)$ is strictly stationary with $\E|X_t|^{2+\delta}<\infty$ for some $\delta>0$, strong-mixing coefficients with $\sum_n\alpha(n)^{\delta/(2+\delta)}<\infty$ and a positive long-run variance, its sample mean is asymptotically normal (Ibragimov, 1962, Theorem 1.7). (b) The stationary bootstrap is valid under the moment and mixing conditions of Theorem 2 of the technical-report version of Politis and Romano (1994); Gon\c{c}alves and de Jong (2003) weaken them. (c) Confidence procedures for a ratio that are bounded with probability one have zero worst-case coverage (Gleser and Hwang, 1987; Dufour, 1997), hence test inversion.
+\end{result}
+
+These conditions are assumptions, not checked properties. The persistence of $\varphi$ and the heavy right tail of its zero-rate distribution bear directly on them, and each regime mean averages a short, dependent stretch of calendar time; the post hoc analyses of Section~\ref{sec:e1} address this only in part.
+
+\subsection{Interpretation rules}
+
+Section 9 of the design fixes how results are read. A regime difference in E1 is claimed only if its 95\% interval excludes zero, and its size is read relative to $\FD_t$. The design reports a Newey--West and a stationary-bootstrap interval without saying which governs; I treat a difference as significant only when both exclude zero. This reading is mine, not the design's; I adopted it when interpreting the robustness grid, after the primary results, and the research log records it. It does not affect the primary E1 result, where both intervals include zero, but it decides the dollar-carry variant and the three three-month phases, in which only the bootstrap interval excludes zero (Section~\ref{sec:robust}). The statement that crash-insurance pricing explains the regime shift requires all three of: the E1 difference, $b>0$ in E2 after the Stambaugh correction, and an out-of-sample Clark--West rejection at 5\%; otherwise the result is reported as partial or no support. $\thUB$ is not described as a crash share, and a skew term whose interval includes zero is reported as no evidence of priced crash risk beyond the diffusive and volatility-level terms. Null results are reported with the same prominence as positive ones.
+
+\subsection{Validation}
+
+Pricing and delta conventions are checked against analytic identities (put--call parity, the delta-neutral straddle and delta-to-strike round trips), and smile calibration by synthetic recovery under both readings and both delta types. QuantLib 1.43, an independent open-source implementation, agrees with the project's premia, deltas in three conventions, strike inversion, delta-neutral strikes and Hagan volatilities to between $10^{-9}$ and $10^{-13}$ on the test grid. Before the E1 results were recorded, a separate review of the estimand and inference code rebuilt every leg in QuantLib, which agreed to machine precision, and found that the standard errors matched the R package sandwich (Zeileis and contributors, 2026) exactly. The base variant of the robustness grid reproduces the E1 regime difference and the means of $\HML^U$, $\HML^H$ and the skew term to machine precision. The stationary bootstrap and its block-length rule are checked against the arch package (Sheppard, 2026, release 8.0.0) as an independent implementation. The two differ by design in two choices, the lag at which the window of insignificant autocorrelations starts and the normalisation of the autocorrelations; with these switched to arch's, the block lengths are identical, and the two resamplers agree in distribution. Recomputing every E1 interval entirely with arch, its own block lengths included, moves no bound by more than 0.0094 for $\varphi$ or 0.031 bp for $\Cskew$ and $\FD$, and changes no conclusion.
+
+The moment code reproduces the lognormal moments of Garman and Kohlhagen (1983) from a flat smile when nothing is truncated, a test in the suite, and is validated against Merton (1976) and Heston (1993) models with one-month FX-typical parameters, priced in QuantLib (Merton through its Bates engine with constant variance, which agrees with Merton's eq.~(19) to within $10^{-14}F$, and Heston through its analytic engine, which agrees with direct Fourier prices to within $3\times10^{-16}F$), with exact moments from the cumulant generating functions (for Heston through the characteristic function in the form of Albrecher, Mayer, Schoutens and Tistaert, 2007). In all eight model and pair combinations, spanning over the model smile reproduces the model moments and the R4 intervals contain the true moments, which the test suite asserts, and the R10 identified sets at the model's own tail exponents contain them (Table~\ref{tab:models}). These analyses are synthetic and involve no LSEG data.
+
+As the design specifies, $\HML^U$ is compared in sign and magnitude with the public developed-currency portfolios of Lustig, Roussanov and Verdelhan (2011), whose file ends in May 2021. Over the 96 overlapping months from June 2013, with each of my returns paired with their return for the following month-end, the means are 7.8 bp per month (Newey--West s.e.\ 16.1) here and 7.2 bp (s.e.\ 26.5) there, the correlation is 0.51, the signs agree in 77\% of months and the slope of $\HML^U$ on their series is 0.41 (s.e.\ 0.12). The two portfolios differ in currencies, in the number of portfolios and in timing, so agreement in sign and magnitude is what the check can show.
+
+Four further checks, named in the design or, for the named-broker contributor, in the data plan, were computed after the main results (Section~\ref{sec:dev}). Discounting the dollar with SOFR OIS instead of Fed Funds OIS from June 2018, when the SOFR series starts under the month-end rule, changes the base-currency discount factor by at most 0.013\%, $\varphi$ by at most $1.1\times10^{-4}$ and the skew price by at most 0.002 bp in any month, because the dollar rate enters E1 only through that factor; recalibrating every affected smile, the E1 difference is $-0.3548$ under both rates and no conclusion changes. Over 96 EUR month-ends from July 2018, the named-broker contributor's at-the-money volatility is on average 0.02 volatility points below the composite's (s.d.\ 0.09) and its $25\D$ risk reversal and butterfly differ by less than 0.005 points on average. Smiles fitted to its quotes change the EUR leg's $10\D$ skew cost by 0.07 bp per month on a mean of 2.7 bp, and the portfolio's skew price by 0.03 bp on 11.5 bp; the broker quotes no $10\D$ strikes, so this compares two extrapolations from $25\D$ quotes. In the moment code, the adaptive tail quadrature agrees with the closed-form R4 bounds to $1.6\times10^{-15}$ relative in all 1,440 currency-months, and Simpson's rule for the middle part converged in all of them. Finally, a C++ kernel reimplements the premia, deltas, strike inversion, SABR volatilities and the middle part of the moment integrals, operation by operation as in the Python code, which remains the code of record. Parity tests on synthetic inputs bound the differences at $10^{-13}$ relative. For premia the bound is normwise, because an out-of-the-money premium is a difference of nearly equal terms, which amplifies the difference of some twenty units in the last place between the two implementations of $\Phi$. On one core the kernel is about 1.2 to 2.7 times faster than the vectorised NumPy code, 3 to 9 times faster for the middle part of the moment integrals and 70 to 350 times faster for strike inversion, where the Python code loops.
+
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Model validation of the tail hypotheses (synthetic models)}\label{tab:models}
+\begin{tabular}{llcccccc}
+\toprule
+Model & Pair & Skew & $\theta_{\mathrm{true}}$ & (i) & Check & Sign & $\theta^*$ \\
+\midrule
+Merton, down jumps & EURUSD & $-1.578$ & 0.85, 0.58 & fails & fails & yes & 0.21 \\
+ & USDJPY & 1.471 & 0.84, 0.58 & fails & fails & yes & 0.26 \\
+Merton, symmetric jumps & EURUSD & $-0.000$ & 0.61, 0.61 & fails & fails & no & 1.00 \\
+ & USDJPY & $-0.077$ & 0.61, 0.61 & fails & fails & no & 0.98 \\
+Heston, $\rho=-0.3$ & EURUSD & $-0.638$ & 0.97, 0.96 & fails & holds & yes & 0.49 \\
+ & USDJPY & 0.592 & 0.97, 0.96 & fails & holds & yes & 0.54 \\
+Heston, $\rho=+0.3$ & EURUSD & 0.477 & 0.92, 0.95 & holds & holds & yes & 0.56 \\
+ & USDJPY & $-0.507$ & 0.92, 0.94 & fails & holds & yes & 0.52 \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.97\linewidth}\footnotesize
+One-month models: Merton with diffusive volatility 0.08, jump intensity 2 (down jumps: mean log jump $-0.04$, s.d.\ 0.06) or 1 (symmetric: mean 0, s.d.\ 0.05); Heston with initial and long-run variance 0.01, mean reversion $\kappa=2$ and vol of variance 0.5 ($\rho=-0.3$) or 0.4 ($\rho=0.3$). Skew: skewness of $\log(X_T/F_X)$ under the USD forward measure. $\theta_{\mathrm{true}}$: the model's largest valid exponent in the lower and upper tail, the infimum of the reversed hazard (lower) and hazard (upper) rate of $\ln S_T$ beyond the $10\D$ strikes, as a fraction of $\bar\gamma$ and of $\bar\eta-1$ (R10(a)). (i): whether the boundary elasticities of setting (i) satisfy R4's hypotheses in the model. Check: whether $\gamma_i\le\bar\gamma$ and $\eta_i\le\bar\eta$. Sign: whether the sign of the skewness is identified at the model's own exponents. In every row the R10 identified set at the model's own exponents contains the true variance and third central moment. $\theta^*$: breakdown point of the sign (R10(e)); the sign at $\theta=1$ agrees with the true sign wherever the skewness is not close to zero.
+\end{minipage}
+\end{table}
+
+\subsection{Deviations, corrections and items not reported}\label{sec:dev}
+
+The research log records every departure from the design with its date. Before any inference, the Newey--West lag, first set to the pilot truncation of Newey and West (1994), was replaced by the full automatic procedure, and the extended sample was clarified to require the calibration set only. Before the E1 results were recorded, a review led to New York calendar dates, provider days-to-maturity instead of a 30-day fallback, exclusion of currencies rather than whole months when inputs are missing, and a leg-by-leg splice test; each had a negligible effect on the primary estimates. Deposit rates are used for every non-USD currency, although the design allows OIS where available; the effect on the base-currency discount factor, the only channel through which rates enter E1, is bounded at about 0.1 per cent. Before the E2 and E3 results were recorded, two errors were corrected: the first E2 bootstrap resampled blocks of pairs, which reintroduced the sample's predictive relation into the null and inflated the bias about tenfold relative to Stambaugh's approximation; and the leg weights of $\theta_0$ summed to two. After the first E2 and E3 results, and before the E5 results were recorded, return windows ending after the last spot observation were excluded; the E2 and E3 estimates changed only in the third significant figure, the Clark--West statistic from 1.640 to 1.639. The supplementary E1 analyses are post hoc. The open rules of the robustness grid were fixed after the primary results were recorded but before any variant was estimated, and the choices for the three-month tenor, vanna--volga smiles and moment intervals before those estimates were computed.
+
+Five items named in the design or the data plan were computed only after the main results had been recorded, on 27 September 2026: the long at-the-money sample, the SOFR OIS check, the delta-method intervals, the check against the named-broker contributor and the closed-form checks of the moment code, together with the C++ kernel of the design's last stage. Their rules are stated in their scripts and in the research log. An independent review of the code preceded their reporting and led to four corrections, none of which changed an estimate: a confidence set of the long sample had been given a finite end that was an edge of the scanned grid; the long sample's rules had been described as fixed before any of its returns were seen, which is not true of its primary-window months; the kernel's bracket check could underflow for inputs far outside the project's range; and the test of a zero hedge cost, added after a first run, rested on a normal reference that the skewness of option payoffs makes unreliable. Every test of $\thUB=0$ and the studentised bootstrap in Section~\ref{sec:e3} are post hoc.
+
+On 2 October 2026 I checked every item of the design and every commitment in the research log against what had been computed and reported. Four items had not been computed: the E3 terms in each regime, which the design's statement of the contribution names; the stale-butterfly rule in the extended sample, which the log of 23 September applies there; the descriptive account of 5 August 2024; and the comparison of $\thUB$ with premium shares in the literature. I computed the first three under rules fixed in their scripts before they were run, and made the comparison (Sections~\ref{sec:e3}, \ref{sec:e5} and~\ref{sec:robust}). The robustness grid, the three-month tenor and the secondary moment predictors had been run with 1,999 bootstrap draws instead of the design's 9,999, a departure the log had not recorded. I reran them with 9,999 draws, which changes no conclusion at the 5\% level, and the tables report those results. A further check on 3 October found three more items: the payoff and volatility-level terms and $\theta_0$ of the three-month variant, which the log of 24 September commits to E3 as at one month; the test-inversion sets of $\thUB$ in the robustness grid; and static-arbitrage checks of the daily smiles behind the account of 5 August 2024. I computed them (Sections~\ref{sec:e5} and~\ref{sec:robust}). It also found a departure the log had not recorded: the design fixes initial training on the extended sample for the out-of-sample test of E2, but the robustness grid trains every variant from the primary start, a rule fixed before any variant was estimated and described in the log as one the design leaves open. The final clean-environment reproduction dates from 3 October (Appendix~\ref{app:repro}).
+
+\section{Results}\label{sec:results}
+
+All results are aggregate statistics over the primary sample unless stated. Means and E3 terms are in basis points (bp) of notional per month; the units of regression coefficients are given with each table.
+
+\subsection{E1 and E4: the skew price of protection across regimes}\label{sec:e1}
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{E1 and E4: regime means and differences}\label{tab:e1}
+\begin{tabular}{llccccc}
+\toprule
+\multicolumn{7}{l}{\emph{Panel A: pre-registered estimand $\varphi$ and comparisons}}\\
+Reading, hedge & Quantity & Zero-rate & Hiking & Difference & HAC s.e. & Bootstrap 95\% \\
+\midrule
+Market, $10\D$ (E1) & $\varphi$ & 0.809 (0.185) & 0.454 (0.066) & $-0.355$ & 0.204 & $[-0.814,\,0.014]$ \\
+Market, $25\D$ & $\varphi$ & 0.613 (0.152) & 0.341 (0.048) & $-0.272$ & 0.166 & $[-0.642,\,0.027]$ \\
+Smile, $10\D$ (E4) & $\varphi$ & 0.781 (0.178) & 0.437 (0.062) & $-0.345$ & 0.196 & $[-0.787,\,0.010]$ \\
+Smile, $25\D$ & $\varphi$ & 0.595 (0.148) & 0.330 (0.046) & $-0.265$ & 0.161 & $[-0.624,\,0.024]$ \\
+\midrule
+\multicolumn{7}{l}{\emph{Panel B: supplementary (post hoc) split of the E1 ratio}}\\
+Market, $10\D$ & $\Cskew$ & 11.24 (0.82) & 11.19 (0.83) & $-0.05$ & 1.30 & $[-2.44,\,2.20]$ \\
+ & $\FD$ & 18.61 (1.77) & 27.05 (1.41) & 8.44 & 2.30 & $[3.48,\,13.65]$ \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.97\linewidth}\footnotesize
+Market: market-strangle reading; smile: smile-strangle reading. Primary sample, May 2013 to August 2026: 104 zero-rate and 56 hiking month-ends. $\varphi$ is dimensionless; $\Cskew$ and $\FD$ in bp per month. Newey--West standard errors in parentheses. The interval is the stationary-bootstrap 95\% percentile interval for the difference (hiking minus zero-rate), 9,999 draws. Panel B was added after the first results and does not replace the pre-registered estimand.
+\end{minipage}
+\end{table}
+
+Table~\ref{tab:e1} reports E1 and E4. Under the market-strangle reading with $10\D$ hedges, the point estimate of $\varphi$ falls from 0.809 to 0.454, but both intervals for the difference include zero, under both readings and at both hedge deltas, so the regime difference is not claimed. The design reads its size relative to $\FD_t$. A supplementary (post hoc) split, Panel B, separates the two components of the ratio: there is no evidence that the skew cost of protection changed (difference $-0.05$ bp, interval $[-2.44,2.20]$), whereas the forward-discount spread is higher in the hiking regime (difference 8.44 bp, interval $[3.48,13.65]$). The point estimate of the fall in $\varphi$ therefore reflects the forward-discount spread, which was smallest in 2020--2021: excluding those years, the difference is $-0.03$ (post hoc, below).
+
+Under the smile-strangle reading (E4) the difference is $-0.345$ (standard error 0.196, interval $[-0.787,0.010]$); the reading moves $\varphi$ by less than 4 per cent and the skew term of E3 from $-11.2$ to $-10.8$ bp per month (Table~\ref{tab:rob}), so the bias from misreading the butterfly convention is small and changes no conclusion.
+
+I added several supplementary analyses after the first E1 results, and they are reported as post hoc. They were prompted by two features of the series: $\varphi$ is highly persistent and its zero-rate distribution has a heavy right tail from months with very small forward discounts; they do not replace the pre-registered estimand. The first-order autocorrelations of $\varphi$ are 0.85 and 0.76 in the two regimes, leaving roughly 8 effective observations per regime. With so few, the automatic Newey--West bandwidth is capped well below what the persistence would require, so the pre-registered intervals are likely too narrow. An AR(1) plug-in standard error of the difference is 0.27 ($t=-1.31$). Excluding 2020--2021, the zero-rate period with the smallest forward discounts, the difference is $-0.03$. The median of $\varphi$ falls from 0.53 to 0.38 and the 10\% trimmed mean from 0.63 to 0.41; the mean of $\log\varphi$ falls from $-0.46$ to $-0.89$, and the ratio of regime means, mean $\Cskew$ over mean FD, from 0.60 to 0.41. The Newey--West standard error of the difference rises with the lag, from 0.079 at lag 0 to 0.204 at lag 9 and 0.236 at lag 20, and the two-sided bootstrap $p$-value is 0.064. Dropping the largest 1, 3, 5 and 10 zero-rate observations gives differences of $-0.32$, $-0.28$, $-0.23$ and $-0.14$. The excluded 2020--2021 period contains 24 of the 104 zero-rate month-ends.
+
+A further post hoc comparison asks directly whether the rise in the forward-discount spread was matched by a rise in the price of crash insurance, comparing the regime changes of the numerator and denominator of $\varphi$ instead of the change in the ratio. The skew price did not change ($-0.05$ bp, s.e.\ 1.30, AR(1) plug-in s.e.\ 1.29), nor did the oriented $10\D$ risk reversal of the portfolio (0.21 volatility points, s.e.\ 0.29, bootstrap interval $[-0.34,0.67]$), while the rise in the spread survives a persistence-robust standard error ($t=2.80$). The ratio of the two changes, $\Delta\Cskew/\Delta\FD=-0.006$, is the grouping estimator of Wald (1940) with the regime as the grouping variable. Its 95\% test-inversion set, constructed as for $\thUB$ and, with one binary instrument, the set of Anderson and Rubin (1949), is $[-0.26,0.49]$ with Newey--West standard errors and $[-0.23,0.48]$ with a stationary bootstrap that resamples the pair jointly; it is bounded because $\Delta\FD$ is significant. At most about half of the rise in the spread was matched by a rise in the skew price, and a one-for-one rise is rejected ($t=-2.66$, bootstrap $p=0.009$).
+
+In the rare-disaster model of Farhi and Gabaix (2016), a pair's risk reversal is proportional to the difference in the two countries' resilience (Lemma 2, eq.~(34)), the disaster-related part of the interest differential and the expected carry return move with that difference (Proposition 3, eq.~(22); Proposition 4, eqs.~(24)--(25)), and inflation moves nominal rates without moving risk reversals or risk premia (proof of Proposition 9). Applied to a change between regimes, which they do not consider, their equations say that a wider spread with unchanged risk reversals and skew prices did not come from disaster exposure but from a component of the differential that carries no premium, so that the expected carry return need not have risen. This reading is mine, and it inherits the random-walk interpretation of the spread that underlies $\varphi$: carry equals the expected return only if the expected spot change is zero (Koijen, Moskowitz, Pedersen and Vrugt, 2018, eqs.~(4)--(5)), which disaster models reject. The evidence extends to 2013--2026 the weak within-currency relation between option skew and interest differentials found earlier (Brunnermeier, Nagel and Pedersen, 2008, Table~4 of their working paper; Jurek, 2014, footnote~12 of the 2013 version), against the significant relation for option-implied disaster exposure in Farhi et al.\ (2015, Table~5).
+
+The extended sample gives secondary evidence only, because Fenics butterflies before 2010 are often stale. Over January 2007 to April 2013 (72 month-ends with at least four currencies, Fenics quotes, two long and two short) the mean $\Cskew$ is 22.3 bp and the mean $\varphi$ is 0.64.
+
+\subsection{E2: predictability of carry returns}\label{sec:e2}
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{E2: predictive regressions of $\HML^U_{t+1}$}\label{tab:e2}
+\begin{tabular}{lcccccc}
+\toprule
+\multicolumn{7}{l}{\emph{Panel A: in sample (159 months)}}\\
+Predictor & $b$ & HAC $t$ & Bootstrap bias & Analytic bias & Corrected $b$ & One-sided $p$ \\
+\midrule
+$\varphi$ & 0.0062 & 5.95 & 0.00055 & 0.00049 & 0.0057 & 0.021 \\
+Oriented $10\D$ RR & 0.397 & 4.13 & 0.0183 & 0.0148 & 0.379 & 0.004 \\
+\midrule
+\multicolumn{7}{l}{\emph{Panel B: out of sample (116 forecasts from January 2017)}}\\
+Predictor & OOS $R^2$ & \multicolumn{2}{c}{Clark--West $t$ ($p$)} & \multicolumn{3}{c}{Clark--West $t$, Newey--West ($p$)} \\
+\midrule
+$\varphi$ & 3.7\% & \multicolumn{2}{c}{1.639 (0.051)} & \multicolumn{3}{c}{1.50 (0.067)} \\
+Oriented $10\D$ RR & $-5.5$\% & \multicolumn{2}{c}{$-1.11$ (0.87)} & \multicolumn{3}{c}{$-1.18$ (0.88)} \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.97\linewidth}\footnotesize
+The dependent variable is the monthly return in decimal fractions; $\varphi$ is dimensionless and the risk reversal is in decimal volatility units. HAC $t$ is for the uncorrected $b$. Bootstrap bias from the residual bootstrap under the null (9,999 draws); analytic bias from Stambaugh (1999, eq.~18). The corrected $b$ subtracts the bootstrap bias; the one-sided $p$-value, for $b>0$, is from the same bootstrap. Out of sample: expanding window with training from the extended sample, one-sided test against the historical mean with the least-squares standard error; Newey--West alongside.
+\end{minipage}
+\end{table}
+
+Table~\ref{tab:e2} reports E2. The two predictors are persistent (AR(1) coefficients of 0.86 for $\varphi$ and 0.52 for the risk reversal), with a correlation of 0.56, and their innovations are negatively correlated with returns ($-0.39$ and $-0.53$), so the least-squares slope is biased upwards in small samples (Stambaugh, 1999). After the bias correction, a higher skew price per unit of forward discount predicts higher carry returns in the following month (slope 0.0057, one-sided $p=0.021$), the sign a crash-compensation reading implies. The Newey--West $t$-statistic of 5.95 on the uncorrected slope is far stronger than the bootstrap evidence; for a persistent predictor with a heavy right tail it is unreliable, and it is not the pre-registered test.
+
+Out of sample, the Clark--West statistic of 1.639 does not reach the one-sided 5\% critical value of 1.645 ($p=0.051$; 1.50 with the Newey--West standard error), so predictability is not established. Because training starts with the extended sample, the test splices the Fenics $\varphi$ of 2007--2013, built from two long and two short legs, with the composite primary series built from three and three; training from the primary start gives 0.96 (Section~\ref{sec:robust}). The risk reversal predicts in sample (corrected slope 0.379, $p=0.004$) but not out of sample.
+
+The design also names option-implied variance and skewness as secondary predictors. Their moments are those of $\log(X_T/F_X)$ under the USD one-month forward measure, with dollar-base pairs converted by R1, from contracts spanned by out-of-the-money options (R3). Between the $10\D$ strikes the contracts come from the calibrated smile by composite Simpson's rule with the forward as a node, converged to $10^{-10}$ relative in all 1,440 currency-months; beyond them each contract is bounded by R4, and the variance and skewness intervals are the exact ranges over the box of contract intervals. Two tail settings were fixed before estimation: (i) the local elasticities of the distribution function implied by the smile, $Kg/G$ in the lower tail and $Kg/\bar G$ in the upper, at the $10\D$ strikes (median $\gamma=61$, $\eta=67$), which assumes the tails beyond the quotes are no heavier than at the quotes; and (ii) $\gamma=\eta=2$. The predictors are variance and skewness oriented to each leg (sign reversed for short legs), averaged over the six E1 legs.
+
+Identification is weak. Under setting (ii) no skewness interval excludes zero, and the variance interval is about fifty times wider than under (i), so truncated quotes do not identify skewness without a tail assumption of the strength of (i). Under setting (i) the median currency-month skewness interval is $[-0.70,0.14]$, and 32\% of intervals exclude zero; but the calibrated smile's own extrapolation contradicts setting (i) in about three quarters of currency-months in each tail (75.8\% in the lower and 74.1\% in the upper).
+
+\begin{table}[t]
+\centering\small
+\caption{E2, secondary predictors: option-implied moments under tail setting (i)}\label{tab:mom}
+\begin{tabular}{lccc}
+\toprule
+Predictor & $b$ (lower, mid, upper) & Newey--West $t$ & One-sided bootstrap $p$ \\
+\midrule
+Variance & 4.98, 4.81, 4.64 & 0.87, 0.90, 0.93 & 0.186, 0.175, 0.167 ($b>0$) \\
+Oriented skewness & $-0.024$, $-0.028$, $-0.028$ & $-2.74$, $-2.59$, $-1.87$ & 0.013, 0.014, 0.037 ($b<0$) \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.97\linewidth}\footnotesize
+$\HML^U_{t+1}$, in decimal fractions, on the predictor evaluated at the lower endpoint, midpoint and upper endpoint of its R4 interval, 159 months. Variance is that of $\log(X_T/F_X)$; skewness is dimensionless. A conclusion is reported only if it holds at all three.
+\end{minipage}
+\end{table}
+
+Table~\ref{tab:mom} reports the regressions under setting (i). Variance does not predict carry returns at any endpoint. More negative oriented skewness, meaning more left-tail risk in the carry position, predicts higher returns, the same economic direction as the test on $\varphi$. The one-sided bootstrap test rejects at 5\% at all three endpoints, but the Newey--West $t$ does not reach the two-sided 5\% critical value at the upper endpoint ($-1.87$). The result holds across the interval only under the bootstrap and only under a tail setting that the smile's own wings contradict, and that the boundary prices themselves exclude in three quarters of currency-months (below), so it is conditional supporting evidence, not a finding.
+
+A post hoc analysis with R10 makes the identification statement precise (Table~\ref{tab:ident}). Across the 1,440 currency-months the largest exponents compatible with the smile's boundary price and slope have medians $\bar\gamma=59.7$ and $\bar\eta=67.8$. Setting (i) exceeds them in the lower tail in 54.4\% of currency-months and in one or both tails in 75.3\%; its ratio $\gamma_i/\bar\gamma$ has median 1.01, so it sits at the strongest assumption the boundary admits. Every currency-month in which this check refutes setting (i) also fails the smile-extrapolation diagnostic above, which fails in some further months, as a necessary condition should allow. With the sharp identified set, the sign of the skewness is identified in 93.3\% of the currency-months where setting (i) is admissible, but in none under setting (ii), in 26.7\% at half the maximal exponents and in 70.3\% at three quarters of them. The breakdown point $\theta^*$ has quartiles 0.49, 0.63 and 0.80, so in the median currency-month the sign survives only if the tail exponents beyond the $10\D$ strikes are at least 63\% of the largest ones the boundary admits. In the Merton and Heston models of Table~\ref{tab:models} the models' own exponents are between 0.58 and 0.97 of the maximal ones. Truncated one-month quotes therefore identify the sign of risk-neutral skewness only under tail assumptions close to the strongest the boundary prices admit, which standard models sometimes meet and sometimes do not. At the maximal exponents, where the moments are point-identified, the skewness has median $-0.34$ and is negative in 78.5\% of currency-months.
+
+\begin{table}[t]
+\centering\small
+\caption{Identification of the sign of one-month risk-neutral skewness (post hoc)}\label{tab:ident}
+\begin{tabular}{lccc}
+\toprule
+Tail exponents & Admissible & Sign identified (sharp set) & Sign identified (R4 box) \\
+\midrule
+Setting (ii), $\gamma=\eta=2$ & 100\% & 0.0\% & 0.0\% \\
+Setting (i), boundary elasticities & 24.7\% & 93.3\% & 32.1\% \\
+$\theta=0.25$ & 100\% & 0.7\% & \\
+$\theta=0.5$ & 100\% & 26.7\% & \\
+$\theta=0.75$ & 100\% & 70.3\% & \\
+$\theta=0.9$ & 100\% & 87.6\% & \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.9\linewidth}\footnotesize
+1,440 currency-months of the primary sample, one-month smiles, $10\D$ boundaries. $\theta$: fraction of the largest compatible exponents, $\gamma=\theta\bar\gamma$ and $\eta=1+\theta(\bar\eta-1)$ (R10). Admissible: share of currency-months in which the exponents do not exceed the largest compatible ones. Sharp set: share of admissible currency-months in which the R10 identified set of the third central moment excludes zero. R4 box: share of all currency-months in which the skewness range over the box of R4 contract intervals excludes zero (Table~\ref{tab:mom}). Identified sets computed on a grid of 1,000 step points per tail; a fourfold refinement in 40 currency-months moved no bound by more than $1.2\times10^{-3}$ of its interval width. The optimisation over the mean uses a grid of means refined near the best, so the sets are inner approximations; in the same 40 currency-months, eight times as many means widened no range by more than $2.8\times10^{-3}$ of its width and changed no identification of the sign and no $\theta^*$.
+\end{minipage}
+\end{table}
+
+These hypotheses concern the tails beyond the $10\D$ strikes, which the quotes used so far do not reach. The one-month $5\D$ quotes of the Fenics contributor, which entered no calibration, test them out of sample. I recorded the test in the research log before retrieving their history. For each of the 450 currency-months from July 2022 to August 2026 the boundary is the Fenics smile at its $10\D$ strikes, the $5\D$ volatilities are $\sigma_{ATM}+BF_5\mp RR_5/2$, and the test uses a consequence of R10: under $H_L(\gamma)$ the put price at $K=kK_{\min}$ lies in $[\max(0,P_0-G_0K_{\min}(1-k^{\gamma+1})/(\gamma+1)),\,P_0k^{\gamma+1}]$, whose upper end is R4's bound and whose ends move monotonically in $\gamma$, and likewise for calls (Table~\ref{tab:wing}); at the weakest hypothesis, the limit $\gamma\to0$ (or $\eta\to1$), the upper end is approached but not attained. The $5\D$ risk reversal has the sign of the $10\D$ one in 99.8\% of currency-months. The class of hypotheses is consistent with the $5\D$ prices in both tails in 99.1\% of currency-months, all four exceptions being USDJPY months, and the largest exponents the $5\D$ prices allow are high, with median fractions of the maximum of 0.88 in the lower and 0.86 in the upper tail. With the $5\D$ prices as constraints and the exponents at these values, the sign of the skewness is identified in 90.6\% of the 446 currency-months consistent with the hypotheses. By the rule fixed in the plan, the $5\D$ quotes therefore do not rule identification out in nine currency-months out of ten, and in the remaining tenth the sign is identified under no hypothesis of the class consistent with them. Consistency with one further price is necessary for a hypothesis, not sufficient, so this is the favourable case. The $5\D$ prices also lower the breakdown point, from a median of 0.62 without them to 0.45 with them on the 394 currency-months where the breakdown point with them is defined (a supplementary comparison), and they lie about 4\% below the SABR smile's extrapolation. The sample is short, lies in the hiking regime and consists of indications from one contributor.
+
+\begin{table}[t]
+\centering\small
+\caption{Out-of-sample test of the tail hypotheses with one-month $5\D$ quotes (post hoc)}\label{tab:wing}
+\begin{tabularx}{\linewidth}{@{}Xcc@{}}
+\toprule
+& Lower tail & Upper tail \\
+\midrule
+$5\D$ price consistent with the weakest hypothesis & 99.1\% & 99.6\% \\
+Largest consistent fraction $\theta_5$ of the maximal exponent (quartiles) & 0.82, 0.88, 0.95 & 0.81, 0.86, 0.93 \\
+\midrule
+Sign of skewness identified at the largest exponents allowed, with the $5\D$ constraints & \multicolumn{2}{c}{90.6\% of 446} \\
+Breakdown point with the $5\D$ constraints (quartiles, where identified) & \multicolumn{2}{c}{0.36, 0.45, 0.57} \\
+Breakdown point without them, same currency-months (quartiles; supplementary) & \multicolumn{2}{c}{0.53, 0.62, 0.73} \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\begin{minipage}{0.95\linewidth}\footnotesize
+Fenics one-month quotes, July 2022 to August 2026, nine currencies, 450 currency-months. Boundary: the Fenics market-reading SABR smile at its $10\D$ strikes. $5\D$ volatilities from the smile-strangle reading of the quotes. The plan was recorded before the $5\D$ history was retrieved; the comparison without the $5\D$ prices was not in the plan.
+\end{minipage}
+\end{table}
+
+\subsection{E3: decomposition of the realised hedge cost}\label{sec:e3}
+
+\begin{table}[t]
+\centering\small
+\caption{E3: realised returns and the decomposition of the hedge cost}\label{tab:e3}
+\begin{tabular}{lcc}
+\toprule
+Quantity & Mean & s.e. \\
+\midrule
+$\HML^U$ (unhedged) & 17.7 & 12.1 \\
+$\HML^H$, $10\D$ & 8.3 & 11.9 \\
+$\HML^H$, $25\D$ & 9.1 & 11.3 \\
+$\HML^H$, at-the-money & 9.7 & 8.9 \\
+\midrule
+(i) payoff less $\sigP$ value & 0.5 & 3.8 \\
+(ii) volatility level & 1.4 & 1.4 \\
+(iii) skew (ex-ante premium) & $-11.2$ & 0.65 \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.6\linewidth}\footnotesize
+Primary sample, 159 months, bp per month, Newey--West standard errors. Terms (i)--(iii) are for the $10\D$ hedge.
+\end{minipage}
+\end{table}
+
+Table~\ref{tab:e3} reports E3. Unhedged carry earns 17.7 bp per month with a standard error of 12.1, so the carry premium itself is not significant in this sample ($t=1.47$); the $10\D$ hedge lowers the mean to 8.3 bp. Term (iii), $-11.2$ bp per month, is the skew premium paid ex ante and carried to delivery, equal to the skew price of E1 by construction; its standard error of 0.65 measures the time variation of a premium known at the start of each month, not uncertainty about realised compensation, which is all in term (i). The point estimate of the realised hedge cost is close to the skew premium because the payoff term (0.5 bp, s.e.\ 3.8) and the volatility-level term (1.4 bp, s.e.\ 1.4) are indistinguishable from zero. The total hedge cost, $\HML^H-\HML^U$, is $-9.3$ bp per month with a Newey--West standard error of 4.0 ($t=-2.35$; post hoc), but the normal reference is unreliable for it. $\HML^H-\HML^U$ is the net profit of the options, which is strongly right-skewed (skewness 3.6), and for the mean of right-skewed data the $t$-statistic has a heavier left tail than the normal. A studentised version of the stationary bootstrap (the bootstrap-$t$; Hall, 1992, Chapter 3), with the Newey--West standard error recomputed in each of 9,999 draws, puts the 2.5\% quantile of the $t$-statistic at $-2.78$ and gives a 95\% interval of $[-16.4,1.7]$ bp, which contains zero, so a two-sided test at 5\% does not reject (the one-sided bootstrap $p$-value is 0.04). I therefore do not claim that the realised hedge cost differs from zero. How many large payoffs the sample contains decides the result: without the month in which the options' net profit was largest the $t$-statistic is $-3.55$, and over the extended sample, which contains 2008 but holds two legs per side priced from Fenics smiles, it is $-0.25$. By regime (supplementary, post hoc), unhedged carry averages 7.4 bp (s.e.\ 12.4) before 2022 and 37.0 bp (17.8) after, and hedged carry $-2.7$ bp (15.7) and 29.3 bp (16.0); neither difference is significant, with bootstrap 95\% intervals of $[-19.5,80.0]$ and $[-16.8,80.3]$ bp. The design states the decomposition for both regimes. Before 2022 and from 2022, the payoff term averages $-0.4$ bp (s.e.\ 5.3) and 2.2 bp (4.9), the volatility-level term 1.5 bp (1.9) and 1.3 bp (1.5), and the skew term $-11.24$ bp (0.82) and $-11.21$ bp (0.84). No term differs between the regimes: the bootstrap 95\% intervals of the differences, with 9,999 draws resampling each regime separately as for E1, are $[-13.2,18.9]$, $[-5.4,5.1]$ and $[-2.2,2.4]$ bp. The cost of $10\D$ protection is therefore close to its ex-ante skew premium in both regimes, and neither its realised nor its ex-ante part shows a change between them.
+
+$\thUB$ is 0.53 at $10\D$, 0.49 at $25\D$ and 0.45 at the money, against a diffusive null of $\theta_0\approx0.10$ at $10\D$ (the average forward delta of the hedges) and about 0.25 for a $25\D$ put by R6. Its 95\% test-inversion set is unbounded, because the mean unhedged return is not significantly different from zero; as the design anticipated, the ratio is weakly identified, no value is claimed, and the gap between 0.53 and 0.10 is not read as a crash share. At $10\D$ the set is the line less the interval from $-1.23$ to 0.09 (post hoc): it excludes $\vartheta=0$ only under the normal reference questioned above, and it retains $\theta_0$ narrowly, with $t=-1.93$ at the automatic lag of six and rejection at every fixed lag up to five. The delta-method intervals that the design names as secondary are $[-0.21,1.27]$ at $10\D$, $[-0.30,1.27]$ at $25\D$ and $[-0.30,1.20]$ at the money. They are bounded only because the delta method holds the standard error at its value at $\thUB$ while dividing by a mean that cannot be distinguished from zero, and procedures that always return bounded sets have zero worst-case coverage for such ratios (R9(c)). The realised terms also depend on the crashes that happened to occur in the sample, a peso-problem caveat: in the extended sample (secondary; Fenics quotes, 72 months, 2007--2013) term (i) is 16.7 bp (s.e.\ 10.2), reflecting option payoffs in 2008, the skew term is $-22.3$ bp (s.e.\ 3.0) and the unhedged mean is 8.4 bp with a standard error of 62.7.
+
+The long at-the-money sample (Section~\ref{sec:data}) asks what a longer sample identifies. From January 1995 to July 2026 (379 months) unhedged carry earns 37.2 bp per month (s.e.\ 13.2, $t=2.83$) and at-the-money-hedged carry 16.3 bp (s.e.\ 7.7), so the hedge gives up 20.9 bp (s.e.\ 7.9). With a significant unhedged premium the test-inversion set of $\thUB=0.56$ is bounded, unlike the primary sample's: $[0.27,0.94]$, or $[0.33,0.85]$ without 2008. For an at-the-money hedge the diffusive null is about one half (0.50, whether the dollar-base legs use the pips or the premium-adjusted forward delta), and the set contains it, as does every sub-period's set; the at-the-money hedge gives up about what a diffusion predicts. It has no skew term, and the set is wide, so the result is uninformative about priced crash risk rather than evidence against it. In 2008 the hedge paid: the option payoff averaged 502 bp per month against a premium of 378 bp, and hedged carry lost 99 bp per month against 222 bp unhedged, so the positive $\thUB$ of that year measures a gain, not a cost share. The sample shows what bounding the ratio at $10\D$ would take: the set is bounded when the $t$-statistic of the unhedged mean exceeds 1.96, and at the primary sample's ratio of mean to long-run standard deviation that needs about $159\times(1.96/1.47)^2\approx280$ months, some 24 years, of $10\D$-hedged returns. The one-month risk-reversal quotes that such a hedge needs begin in 2007 (Fenics) and between 2010 and 2013 (composite) in the licensed panel, against 1995 for the at-the-money volatility.
+
+The design compares $\thUB$ only with premium shares in the literature, noting differences in hedge moneyness. Jurek (2014) compares hedged and unhedged G10 carry over 1999--2012 with out-of-the-money options and finds that crash premia account for at most one third of the excess return; like $\thUB$, his comparison contains the diffusive premium that an unlevered hedge gives up, which is why he reads it as an upper bound. The $10\D$ ratio of 0.53 lies above one third, but its set is unbounded and contains one third, so the two do not conflict. Farhi et al.\ (2015) estimate from a structural model, not from a hedge, that disaster risk accounts for more than a third of currency risk premia in advanced countries over 1996--2011 (NBER revision of May 2013, abstract); no hedge moneyness enters their share, and $\thUB$ is not a model share of the premium. The closest comparison in moneyness is with Burnside et al.\ (2011), who hedge with options close to the money: over February 1987 to April 2009 and the six currencies of their option data, their hedged carry trade earns 1.58 per cent against 2.96 per cent unhedged (NBER Working Paper 14054, Section 5), a ratio of about 0.47. That is close to the at-the-money $\thUB$ of 0.45 in the primary sample and 0.56 in the long sample, and to the at-the-money diffusive null of one half: at the money, the hedge gives up about what a diffusion predicts in their sample as in mine.
+
+\subsection{E5: systemic-risk exposure}\label{sec:e5}
+
+\begin{table}[t]
+\centering\small
+\caption{E5: exposures to VIX roll-down and FX-volatility innovations}\label{tab:e5}
+\begin{tabular}{lcccc}
+\toprule
+Portfolio & $\alpha$ (bp) & $\beta$, VIX roll-down & $\beta$, FX-volatility innovation & $R^2$ \\
+\midrule
+$\HML^U$ & $-7.3$ ($-0.61$) & 0.049 (7.41) & $-3.11$ ($-2.16$) & 0.33 \\
+$\HML^H$, $10\D$ & $-10.6$ ($-0.79$) & 0.039 (4.69) & $-1.76$ ($-1.21$) & 0.22 \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.9\linewidth}\footnotesize
+Primary sample, 159 months. Newey--West $t$-statistics in parentheses. Returns are in decimal fractions and $\alpha$ in bp per month; the VIX roll-down is a decimal return and the FX-volatility innovation is in units of mean absolute daily log change. The AR(1) coefficient of the FX-volatility level is 0.76.
+\end{minipage}
+\end{table}
+
+Table~\ref{tab:e5} reports E5. Unhedged carry returns load strongly on the VIX roll-down (correlation 0.55), consistent with Caballero and Doyle (2012), and negatively on FX-volatility innovations. The $10\D$ hedge lowers the VIX loading by about a fifth but leaves most of it, whereas Caballero and Doyle (2012) report that option-hedged carry retains high returns that systemic risk does not account for; the hedged FX-volatility loading is not significant. After adjusting for both factors, neither portfolio earns a significant $\alpha$; the exposure-adjusted ratio $1-\alpha_H/\alpha_U$ is $-0.45$ and its test-inversion set is unbounded, so it is unidentified. In the extended sample (secondary, 65 months) the loadings are larger, 0.124 unhedged ($t=5.39$) and 0.112 hedged ($t=4.53$), and the $\alpha$s are not significant.
+
+The design also asks for a descriptive account of smiles, $\varphi_t$ and returns around 5 August 2024, which I computed after the main results from daily composite quotes between 15 July and 30 August 2024, calibrating a smile for every currency on every New York business day under the month-end rules; all 315 smiles converged and passed both static-arbitrage checks. I report only averages over at least six currencies. Averaged over the nine currencies, the one-month at-the-money volatility rose from 7.98 volatility points on 31 July to 10.27 on 5 August, and the absolute $25\D$ risk reversal from 0.73 to 1.15, both their highest values in the window; by 30 August they were 8.72 and 0.66. For one-month $10\D$ protection on the portfolio formed on each day as at a month-end, the skew price rose from 11.2 bp on 31 July to 19.4 bp on 5 August while the forward-discount spread barely moved (29.7 and 31.0 bp), so $\varphi_t$ rose from 0.38 to 0.63, its highest value in the window, against 0.25 to 0.40 in the second half of July; it was 0.46 on 30 August. Marked at each day's spot against its forward, the position opened at the 31 July month-end was worth $-310$ bp of notional on 5 August, its low, against $+30$ bp on 31 July, when the mark equals the forward discount it earns; its $10\D$ options were still out of the money at that day's spot, so at intrinsic value they offset none of the loss. The position recovered by the end of August, and over the month to expiry it earned 25.8 bp unhedged and 42.6 bp hedged. The price of crash insurance rose sharply with volatility in the episode and fell most of the way back within the month, while the carry spread hardly moved.
+
+\subsection{The regime-shift question under the pre-registered rules}
+
+The design requires three conditions: an E1 difference whose interval excludes zero (not met: $-0.355$, bootstrap interval $[-0.814,0.014]$), a bias-corrected $b>0$ in E2 (met: 0.0057, one-sided $p=0.021$) and an out-of-sample Clark--West rejection at 5\% (not met: 1.639 against 1.645). Only the second holds, so the claim that the ex-ante price of crash insurance explains the change in the carry premium between the regimes has partial support only, the pre-registered label for this outcome: the condition met concerns in-sample predictability, and no estimate indicates that the price of crash insurance changed between the regimes. The skew-term rule of Section~\ref{sec:method} is uninformative here: term (iii) is an ex-ante premium, whose interval excludes zero whenever smiles are skewed, so its precision is mechanical and is not by itself evidence of priced crash risk.
+
+\section{Robustness}\label{sec:robust}
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{2pt}
+\caption{Robustness grid (one-month tenor)}\label{tab:rob}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{4}{c}{E1 and E2} & \multicolumn{4}{c}{Returns and E3 (bp per month)}\\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+Variant & $\D\varphi$ (s.e.) & Bootstrap 95\% & $b$ ($p$) & CW & $\HML^U$ & $\HML^H$ & Skew & $\thUB$ \\
+\midrule
+Base & $-0.355$ (0.204) & $[-0.81,0.01]$ & 0.0057 (0.021) & 0.96 & 17.7 (1.47) & 8.3 (0.70) & $-11.2$ & 0.53 \\
+$25\D$ hedge & $-0.272$ (0.166) & $[-0.64,0.03]$ & 0.0073 (0.015) & 0.75 & 17.7 (1.47) & 9.1 (0.81) & $-8.4$ & 0.49 \\
+ATM hedge & n.d. & & & & 17.7 (1.47) & 9.7 (1.09) & 0 & 0.45 \\
+Smile strangle & $-0.345$ (0.196) & $[-0.79,0.01]$ & 0.0058 (0.022) & 0.99 & 17.7 (1.47) & 8.7 (0.73) & $-10.8$ & 0.51 \\
+Fenics quotes & $-0.347$ (0.203) & $[-0.80,0.02]$ & 0.0057 (0.023) & 0.98 & 17.7 (1.47) & 8.5 (0.71) & $-11.2$ & 0.52 \\
+Stale BF missing & $-0.440$ (0.265) & $[-1.06,0.04]$ & 0.0037 (0.025) & 0.19 & 17.7 (1.53) & 8.8 (0.76) & $-11.2$ & 0.50 \\
+Excl.\ March 2020 & $-0.329$ (0.193) & $[-0.76,0.02]$ & 0.0053 (0.036) & 1.31 & 19.9 (1.73) & 8.8 (0.77) & $-11.0$ & 0.56 \\
+Excl.\ CHF 2014--15 & $-0.353$ (0.204) & $[-0.81,0.02]$ & 0.0055 (0.019) & 0.84 & 20.4 (1.86) & 10.4 (0.89) & $-11.2$ & 0.49 \\
+Implem., $k=1$ & base & base & 0.0058 (0.020) & 0.92 & 5.4 (0.45) & $-6.7$ ($-0.55$) & $-11.2$ & n.m. \\
+Implem., $k=1.5$ & base & base & 0.0058 (0.020) & 0.92 & 5.4 (0.45) & $-8.0$ ($-0.66$) & $-11.2$ & n.m. \\
+Implem., $k=2$ & base & base & 0.0058 (0.020) & 0.92 & 5.4 (0.45) & $-9.4$ ($-0.78$) & $-11.2$ & n.m. \\
+Dollar carry & $-1.060$ (0.559) & $[-2.19,-0.37]$ & 0.0001 (0.397) & $-1.51$ & 0.3 (0.02) & $-2.6$ ($-0.17$) & $-2.8$ & n.m. \\
+Ten currencies & $-0.300$ (0.149) & $[-0.64,-0.02]$ & 0.0051 (0.058) & 1.17 & 15.3 (1.37) & 8.2 (0.74) & $-9.7$ & 0.47 \\
+Log returns & base & base & 0.0055 (0.023) & 0.86 & 16.7 (1.38) & 7.4 (0.62) & $-11.2$ & 0.56 \\
+Previous-day spot & base & base & base & base & 17.7 (1.47) & 5.2 (0.43) & $-11.2$ & 0.70 \\
+Vanna--volga & $-0.337$ (0.190) & $[-0.77,0.01]$ & 0.0059 (0.024) & 1.08 & 17.7 (1.47) & 8.7 (0.73) & $-10.8$ & 0.51 \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.97\linewidth}\footnotesize
+Primary sample; 160 month-ends for $\varphi$ and 159 return months, except the at-the-money (ATM) hedge (159), stale butterflies (BF) missing (156, 155) and excluding March 2020 (the February and March 2020 month-ends; 158, 157); CHF is excluded at the November 2014 to March 2015 month-ends. $\D\varphi$: hiking minus zero-rate, Newey--West s.e.\ in parentheses, stationary-bootstrap 95\% interval. $b$: bias-corrected E2 slope on $\varphi$, one-sided bootstrap $p$. CW: Clark--West statistic with training from the primary start (116 forecasts; 112 with stale butterflies missing and 114 excluding March 2020), not comparable with 1.639 in Table~\ref{tab:e2} (training from 2007). $\thUB$: point estimate; its test-inversion set is unbounded in every row. Returns: Newey--West $t$ in parentheses. Implem.: implementable, option half-spread $k$ times the ATM half-spread. base: as in the base row; n.d.: not defined; n.m.: not meaningful (mean unhedged return within half a standard error of zero). Bootstraps use 9,999 draws.
+\end{minipage}
+\end{table}
+
+\subsection{The one-month grid}
+
+Table~\ref{tab:rob} reports the robustness grid. The rules the design leaves open were fixed in the estimation script after the primary results were recorded but before any variant was estimated. A currency is dropped at a month-end if its selected $25\D$ butterfly lies in a run of five or more identical two-sided business-day quotes (109 currency-months). A month-end is removed if its quote date or return window falls in an excluded period. Dollar carry follows Lustig, Roussanov and Verdelhan (2014, Section 3.2), long or short all available currencies with equal weights by the sign of their average forward discount (here the nine-currency average). In the ten-currency ranking the dollar enters with $\fd=0$ and a dollar leg has zero return and no option; the previous-day variant changes option payoffs only.
+
+$\varphi$ is lower in the hiking regime in every variant. The difference is significant at 5\% under both inferences only in the ten-currency ranking ($t=-2.01$, interval $[-0.64,-0.02]$). For dollar carry only the bootstrap interval excludes zero, and its $\varphi$ divides by the absolute average forward discount, below 5 bp in 40 zero-rate months, so the difference comes mainly from the denominator. In the base and ten-currency portfolios the skew price per month is nearly the same in both regimes (11.2 and 11.2 bp; 10.0 and 9.3 bp), and the fall in $\varphi$ comes from the forward-discount spread. Under my reading of the rule the E1 conclusion therefore depends on the portfolio definition, although the ten-currency ranking is one of many correlated variants, with no multiplicity adjustment. The smile-strangle reading and Fenics quotes move $\varphi$ by less than 4 per cent.
+
+In E2, the bias-corrected slope is positive with one-sided $p\le0.036$ in every HML variant, $p=0.058$ for ten currencies, and for dollar carry it is essentially zero (0.0001, $p=0.40$). No variant rejects out of sample at 5\% when training starts in 2013. The design fixes initial training on the extended sample for E2; for the variants I fixed the primary start before estimating any of them, because several variants cannot be built on the extended sample, and this departure was not recorded as such until 3 October (Section~\ref{sec:dev}).
+
+The skew term of E3 is $-8.4$ to $-11.2$ bp per month across the HML variants, and its small standard error reflects the stability of an ex-ante premium; $\thUB$ lies between 0.45 and 0.70 at mid prices, its test-inversion set is unbounded in every variant, because no unhedged mean is significant, and the hedged mean is insignificant everywhere. Quoted spreads on forwards and spot reduce the unhedged mean from 17.7 to 5.4 bp, and option spreads make the hedged mean negative for every $k$. With the previous day's spot the hedged mean falls by 3.1 bp, from 43 months with an option in the money on one of the two days, no single month contributing more than 0.5 bp; neither close is the 10:00 New York cut, which lies between them, so both are reported.
+
+The research log of 23 September applies the stale-butterfly rule to the extended sample as well, which the grid does not cover. Under the audit rule the Fenics $25\D$ butterflies are stale in 311 currency-months, in 67 of the 76 extended month-ends (63 of the 72 used), so treating them as missing leaves 28 month-ends with at least four currencies. Over those, the mean skew price is 16.2 bp and the mean $\varphi$ 0.55, against 22.3 bp and 0.64 over all 72, and the Clark--West statistic of E2, whose training starts in the extended sample, is 1.35 instead of 1.639; out-of-sample predictability is not established either way.
+
+\subsection{Vanna--volga smiles}
+
+The alternative smile is the implied volatility of the vanna--volga price of Castagna and Mercurio (2007, eqs.~(6)--(7)), with Greeks at the at-the-money volatility; pillars at the delta-neutral-straddle strike and at the $25\D$ strikes at the pillar volatilities (Castagna and Mercurio, 2006, Section 2; Bossens, Ray\'ee, Skantzos and Deelstra, 2010, Sections 3.2 and 3.3); and, under the market reading, a smile strangle solved so that the smile prices the market strangle (Reiswich, 2010, Section 3.3.3; Bossens et al., 2010, Section 3.3). I chose the price smile before estimation, because the properties Castagna and Mercurio prove belong to the price; the first-order approximation overvalues the wings (Castagna and Mercurio, 2007, p.~10) and the second-order one can be undefined (Reiswich, 2010, Section 3.3.2). An implementation rule not from a source (a $10\D$ strike must connect to the at-the-money pillar through strikes where the smile is defined) does not bind. The smile passes the static-arbitrage check over $\pm4$ at-the-money standard deviations in 99.7\% of the 1,440 currency-months (market reading), and no leg uses one that fails. It gives $\varphi$ within 5 per cent of SABR in each regime, the same conclusions, and a better fit to the held-out $10\D$ risk reversal and butterfly (mean absolute errors of 0.10 and 0.13 volatility points, against 0.13 and 0.16 for SABR).
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Three-month tenor, quarterly non-overlapping positions}\label{tab:3m}
+\begin{tabular}{lcccccccc}
+\toprule
+Phase & Quarters & $\D\varphi$ (s.e.) & Bootstrap 95\% & $b$ ($p$) & $\HML^U$ & $\HML^H$ & Skew & $\thUB$ \\
+\midrule
+Mar (primary) & 53; 35, 18 & $-0.301$ (0.166) & $[-0.63,\,-0.05]$ & 0.0222 (0.045) & 47.5 (1.29) & 36.6 (1.12) & $-24.9$ & 0.23 \\
+Jan & 53; 34, 19 & $-0.275$ (0.167) & $[-0.62,\,-0.02]$ & 0.0139 (0.127) & 57.8 (1.64) & 42.8 (1.25) & $-23.6$ & 0.26 \\
+Feb & 54; 35, 19 & $-0.246$ (0.130) & $[-0.51,\,-0.04]$ & 0.0119 (0.174) & 42.9 (1.18) & 9.7 (0.26) & $-22.7$ & 0.77 \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.97\linewidth}
+Phases by first quarter-end month: March, June, September, December (primary, from June 2013); January, April, July, October; February, May, August, November (both supplementary). Quarters of $\varphi$: total; zero-rate, hiking. $\D\varphi$ and $b$ as in Table~\ref{tab:rob}, with the Stambaugh bootstrap for $p$. Returns and skew term in bp per quarter, Newey--West $t$ in parentheses. Bootstraps use 9,999 draws.
+\end{minipage}
+\end{table}
+
+\subsection{Three-month tenor}
+
+Positions are quarterly and non-overlapping, three long and three short on the three-month forward discount, protected at the $10\D$ strike of the three-month smile. The primary rebalancing dates are the calendar-quarter month-ends from June 2013; the other two phases are supplementary. The quotes are complete for all nine currencies from May 2013 (11 of 11,520 fields substituted, 2 missing), and 1,436 of 1,440 smiles converge under each reading, all passing both arbitrage checks. In Table~\ref{tab:3m}, $\varphi$ falls from about 0.6 to 0.3 in every phase; the bootstrap interval excludes zero in all three, but the Newey--West $t$-statistic lies between $-1.65$ and $-1.89$, so under my reading the difference is not significant. The skew price per quarter changes little (25.4 to 23.6 bp in the primary phase) while the forward-discount spread rises from 55 to 82 bp. The bias-corrected E2 slope is positive in every phase, significant at 5\% only in the primary one ($p=0.045$); the skew term ($-23$ to $-25$ bp per quarter) is stable over time ($t$ between $-14$ and $-24$), which reflects the stability of an ex-ante premium rather than precision about realised compensation, and $\thUB$ (0.23 to 0.77) has an unbounded set in each phase. As at one month, the payoff and volatility-level terms are indistinguishable from zero: 10.0 bp (s.e.\ 16.1) and 4.1 bp (4.3) per quarter in the primary phase, against a skew term of $-24.9$ bp, with $\theta_0$ of 0.10.
+
+\section{Conclusion}\label{sec:concl}
+
+Under the pre-registered rules the answer is partial support only. The point estimate of $\varphi$ falls from 0.809 to 0.454, but the interval for the difference includes zero, and a supplementary (post hoc) split shows no evidence that the skew price per month changed (11.24 and 11.19 bp). $\varphi$ predicts carry returns in sample ($p=0.021$) but not out of sample (1.639 against 1.645): one condition of three, and it concerns predictability, not the change between regimes. Under my reading of the E1 rule the conclusion depends on the portfolio definition, but in the ten-currency ranking, the only variant where both intervals exclude zero, the fall also comes from the forward-discount spread. The evidence points to a rise in the forward-discount spread rather than a change in the price of crash insurance.
+
+The mean realised cost of $10\D$ protection is close to the skew premium paid ex ante, in both regimes, and unhedged carry is strongly exposed to the VIX roll-down, which the hedge lowers by about a fifth. The evidence cannot say what share of the carry premium compensates for crashes, or how the entropy difference behind it divides across cumulant orders (R7): the confidence sets of $\thUB$ (one and three months) and of the exposure-adjusted ratio are unbounded, because the unhedged carry premium is insignificant ($t=1.47$ at one month, 1.29 in the primary three-month phase), and quoted spreads reduce it from 17.7 to 5.4 bp. Over 1995--2026 the premium is significant and the at-the-money set is bounded, but it contains the at-the-money diffusive null, which is also close to the ratio implied by the at-the-money hedge of Burnside et al.\ (2011), and an at-the-money hedge has no skew term.
+
+Two post hoc analyses sharpen these conclusions. The skew price did not rise with the carry spread: the ratio of the two regime changes is $-0.006$ with a 95\% set of $[-0.26,0.49]$, and a one-for-one rise is rejected. In the model of Farhi and Gabaix (2016) this places the rise in the spread outside disaster exposure, in a component that carries no premium; that reading is mine and rests on the random-walk interpretation of the spread. The second concerns what truncated quotes can say about crash risk at all. Under the tail hypotheses of R4, the quotes admit exponents only up to bounds set by the strike elasticities of the boundary prices, the boundary-elasticity setting exceeds them in three quarters of currency-months, and the sign of one-month risk-neutral skewness is identified only if the tail exponents reach at least 63\% of the admissible maximum in the median currency-month, along a common path for both tails. Standard jump-diffusion and stochastic-volatility models sometimes meet that requirement and sometimes do not, so option-implied skewness from quotes that stop at $10\D$ is identified only under an explicit and strong tail assumption. Held-out $5\D$ quotes, available from 2022, do not contradict that assumption: they are consistent with the tail hypotheses in 99\% of currency-months, allow exponents of about 0.87 of the maximum, above the breakdown point, and do not rule identification out: under the strongest hypothesis they allow, the sign is identified in 91\% of the consistent currency-months. That is the favourable case, since one further price cannot confirm a hypothesis about a whole tail.
+
+Several limitations qualify these conclusions. The hiking regime is short (56 month-ends), and a supplementary (post hoc) analysis finds roughly 8 effective observations per regime, so the pre-registered intervals are likely too narrow. The persistence and heavy right tail of $\varphi$ make the Newey--West inference in E2 unreliable, the out-of-sample result is sensitive to the training start, and the cross-section is small (nine currencies, three per side). $\thUB$ is weakly identified, and the realised E3 terms depend on the crashes that happened to occur. The $10\D$ premium is extrapolated from $25\D$ quotes, and SABR fits the held-out $10\D$ quotes less well than vanna--volga. The sign of option-implied skewness is identified only under strong tail assumptions, and the pre-registered setting (i) is contradicted by the smile's own wings in about three quarters of currency-months. The quotes are dealer-contributed composites, not transaction prices, and implementable returns rest on an assumed spread rule. Payoffs use end-of-day spot, not the 10:00 New York cut; the hedged mean moves by 3.1 bp between the closes that bracket it. Dates use New York holidays only, and the revision check covers only the three days between my two retrievals.
+
+Further data would narrow the remaining uncertainty. A longer hiking regime would add effective observations; executable single-option quotes would replace the spread rule; fixings at the 10:00 New York cut would settle payoff timing; quotes beyond $10\D$ would narrow the R4 intervals. Above all, a bounded set for $\thUB$ at $10\D$ needs a significant unhedged carry premium, about 24 years of hedged returns at the primary sample's ratio of mean to standard deviation; the long at-the-money sample shows that three decades of carry deliver one, but the risk-reversal quotes that out-of-the-money protection needs begin in 2007 in the licensed panel.
+
+\clearpage
+\appendix
+
+\section{Theory results}\label{app:theory}
+
+Table~\ref{tab:theory} lists the results used in the paper. Proofs are in \texttt{theory/notes.tex}, with the hypotheses stated in full. Status: P, proved in the notes, with the part I claim as my own named in the last column; P$^*$, a known result whose published or standard proof the notes write out; C, cited with its hypotheses.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Theory results R1 to R10}\label{tab:theory}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.55cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+ & Statement & Status & Source \\
+\midrule
+R1 & If $Z_t=S_tB^f_t/(S_0B^d_t)$ is a true martingale, $d\Q^f/d\Q^d=Z_T$ defines an equivalent foreign measure; Bayes formula; foreign and domestic martingale prices correspond; under Garman--Kohlhagen $\E^{\Q^d}S_T=F$ and $\E^{\Q^f}(1/S_T)=1/F$ & P$^*$ & Geman, El Karoui and Rochet (1995); Shreve (2004); strict local martingales: Carr, Fisher and Ruf (2014) \\
+R2 & A function is the call-price curve of some $X\ge0$ with mean $F$ if and only if it is convex, equals $F$ at zero, has right slope at least $-1$ at zero and vanishes at infinity; the law is then unique & P$^*$ & F\"ollmer and Schied (2004, Lemma 7.23); context: Breeden and Litzenberger (1978); density test: Gatheral and Jacquier (2014) \\
+R3 & Spanning of $\E f(X)$ by the forward and out-of-the-money puts and calls, under an explicit integrability condition & P$^*$ & Carr and Madan (2001), standard proof; contracts of Bakshi, Kapadia and Madan (2003), centred here at the forward \\
+R4 & Bounds on the unobserved tails of put and call prices from observed wing prices and tail exponents; variance and skewness as intervals & P & Mine; truncation bounds for model-free variance: Jiang and Tian (2005); wings and finite moments: Lee (2004); contracts adapted from Bakshi, Kapadia and Madan (2003) \\
+R5 & (a) Closed-form strike for pips spot delta; (b) the premium-adjusted call delta rises to a unique maximum then falls, the convention taking the right root; (c) a slope condition makes the smile delta monotone, so inversion is unique & (a), (b) P$^*$; (c) P & Reiswich and Wystup (2012) for definitions and the convention; (b): J\"ackel (2020), Mills-ratio monotonicity: Bagnoli and Bergstrom (2005), Sampford (1953); (c): monotone $d_\pm$ for arbitrage-free smiles: Fukasawa (2012), Mingone (2023); non-monotone smile deltas: Reiswich (2010); the explicit slope bound is mine \\
+R6 & Diffusive null of the hedge cost: $\theta_0=\Phi(-d_+(\xi))$ exactly for a forward $\xi$ between $F$ and $Fe^{\lambda\tau}$, with $d_+(G)=[\ln(G/K)+s^2/2]/s$ for the put's strike $K$; within $(2\pi)^{-1/2}|\lambda|\sqrt\tau/\sigma$ of $\Phi(-d_1)$, $d_1=d_+(F)$ & P (exact form and bound) & Leading-order form: Farhi et al.\ (2015); diffusive premium given up by an unlevered hedge: Jurek (2014) \\
+R7 & Expected log currency excess return equals the entropy difference less the covered-interest-parity basis; cumulant expansion of entropy; entropy bound & P$^*$ & Backus, Foresi and Telmer (2001, eqs.~(9)--(13)); wedge: Lustig and Verdelhan (2019); convenience yields: Jiang, Krishnamurthy and Lustig (2021); Backus, Chernov and Zin (2014); bound: Bansal and Lehmann (1997) and Alvarez and Jermann (2005), as stated by Backus, Chernov and Zin; sign against Du, Tepper and Verdelhan (2018) \\
+R8 & Hagan volatility with $\beta=1$ is smooth; the calibration has a locally unique $C^1$ solution in the quotes under non-degeneracy conditions & P & Hagan et al.\ (2002); calibration conditions: Reiswich and Wystup (2012), Reiswich (2010, Section 3.2); implicit-function-theorem argument: Reiswich (2010, Theorems 2--3), Henrard (2011); lemma: Choi and Wu (2021), Milnor (1963); explicit leading-order inversion: Le Floc'h and Kennedy (2014); the joint smoothness and local well-posedness statements for SABR are mine \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\addtocounter{table}{-1}
+\begin{table}[H]
+\centering\footnotesize
+\caption{Theory results R1 to R10 (continued)}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.55cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+ & Statement & Status & Source \\
+\midrule
+R9 & Central limit theorem for strongly mixing sequences (strict stationarity, $2+\delta$ moments, summable $\alpha(n)^{\delta/(2+\delta)}$, positive long-run variance); validity of the stationary bootstrap; bounded confidence sets for ratios have zero worst-case coverage, hence test inversion & C & Ibragimov (1962, Theorem 1.7); Politis and Romano (1994), Theorem 2 of the 1991 report; Gon\c{c}alves and de Jong (2003); Gleser and Hwang (1987); Dufour (1997); test inversion for a ratio: Fieller (1954) \\
+R10 & The exponents compatible with the boundary price and slope are $\gamma\le K_{\min}G_0/P_0-1$ and $\eta\le1+K_{\max}\bar G_0/C_0$, with unique power-law tails at the maximum; the identified set of the moments is a sum of two convex tail sets generated, without further price constraints, by two-atom mixtures; for nonnegative weights R4's upper bound is sharp and, for weights positive near the boundary, its lower bound is not; a check of setting (i); breakdown point of the sign of skewness & P & Mine as stated in the text; star and hazard-rate orders: Lando, Arab and Oliveira (2022); elasticity: Veres-Ferrer and Pav\'ia (2022); exponent $KP'/P$: Benaim, Dodgson and Kainth (2008); Pareto index and convexity: Taleb et al.\ (2023); tail decay: Bollerslev, Todorov and Xu (2015); power-law tails: Qin et al.\ (2026); moment problem: Kemperman (1968), Winkler (1988), Popescu (2005); breakdown: Horowitz and Manski (1995), Stoye (2005, 2010), Masten and Poirier (2020), Kline and Santos (2013); related sharp bounds: Zhuang (2026) \\
+GK & The Garman--Kohlhagen price solves its PDE and is the unique $C^{1,2}$ solution of polynomial growth; no boundary condition at $S=0$ is needed & P$^*$ & Garman and Kohlhagen (1983); It\^o and Feynman--Kac, standard results stated for example in Shreve (2004) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Reproduction and data access}\label{app:repro}
+
+The code, under the MIT licence, is in the GitHub repository \url{https://github.com/Amanjeet-S/Crash-Insurance-G10-Carry-Premium}, and commands run from its root; this paper, the theory notes and the published series are under CC BY 4.0. Without an LSEG licence, the results listed in Section~\ref{sec:licence} can be recomputed from the published series in \texttt{data/public/\allowbreak fx\_carry\_portfolio\_series} with \texttt{python scripts/\allowbreak reproduce\_from\_public.py}, which compares each recomputed number with the number printed here; the E5 factor and the comparison with published portfolios use public downloads by \texttt{scripts/acquire\_cboe\_vx.py} and \texttt{scripts/acquire\_verdelhan.py}. The rest needs the quotes: E4 and the $25\D$ skew prices, every result of the oriented risk reversal, the other robustness variants, the three-month tenor, the per-currency analyses (identification, the $5\D$ test, the calibration diagnostics and the design checks), the extended-sample stale-butterfly check, the account of 5 August 2024, the 2008 payoff and premium and the $\theta_0$ of the long sample's at-the-money hedge, the check of the Cboe settlements against LSEG's continuation, and the audit counts. The script lists each with its reason. The two Python environments are created with
+{\small\begin{verbatim}
+python -m venv .venv && .venv/bin/pip install -r requirements.lock \
+  && .venv/bin/pip install -e . --no-deps
+.venv/bin/python -m pytest -q
+python -m venv .venv-lseg && .venv-lseg/bin/pip install -r requirements-lseg.lock
+\end{verbatim}}
+The LSEG acquisition reads the App Key of whoever runs it from \texttt{\string~/.lseg/app\_key}. The steps, in order, are those of the reports' reproduction blocks, with the checks of Section~\ref{sec:dev}:
+{\small\begin{verbatim}
+# Acquisition and audit (Section 3; reports/data_audit.md)
+.venv-lseg/bin/python scripts/acquire_lseg_fx.py --retrieval-date 2026-09-23
+.venv/bin/python scripts/audit_fx_panel.py --retrieval-date 2026-09-23
+# Smiles, E1 and E4 (Sections 4.1 and 5.1; reports/smile_calibration.md, e1.md)
+.venv/bin/python scripts/calibrate_smiles.py --start 2010-07-30 --end 2026-08-31
+.venv/bin/python scripts/calibrate_smiles.py --contributor FN \
+  --start 2007-01-31 --end 2026-08-31
+.venv/bin/python scripts/estimate_e1.py
+# Returns, E2, E3, E5 and moments (Sections 5.2-5.4; reports/stage4.md)
+.venv/bin/python scripts/estimate_stage4.py
+.venv/bin/python scripts/acquire_cboe_vx.py --retrieval-date 2026-09-24
+.venv/bin/python scripts/estimate_e5.py
+.venv/bin/python scripts/estimate_moments.py
+# Robustness (Section 6; reports/robustness.md)
+.venv/bin/python scripts/calibrate_vv.py
+.venv/bin/python scripts/robustness.py
+.venv/bin/python scripts/calibrate_smiles.py --tenor 3M \
+  --extra-raw-root data/private/lseg/2026-09-24/raw
+.venv/bin/python scripts/estimate_3m.py
+# Post hoc analyses and validation (Sections 5.1, 5.2 and 4.6)
+.venv/bin/python scripts/estimate_regime_attribution.py
+.venv/bin/python scripts/estimate_identification.py
+.venv/bin/python scripts/validate_moments_models.py
+.venv-lseg/bin/python scripts/acquire_lseg_fx.py --retrieval-date 2026-09-27 \
+  --skip-search --only <CCY>1MR5=FN <CCY>1MB5=FN (nine currencies)
+.venv/bin/python scripts/estimate_wing_test.py
+.venv/bin/python scripts/acquire_verdelhan.py --retrieval-date 2026-09-27
+.venv/bin/python scripts/compare_verdelhan.py
+.venv/bin/python scripts/check_bootstrap_arch.py
+# Checks computed after the main results (Sections 3.2, 4.6, 5.3, 5.4 and 6.1)
+.venv/bin/python scripts/estimate_long_atm.py
+.venv/bin/python scripts/estimate_design_checks.py
+.venv/bin/python scripts/estimate_outstanding_items.py
+.venv/bin/python scripts/describe_august_2024.py
+.venv/bin/python scripts/check_reported_conditions.py
+bash cpp/build.sh && .venv/bin/python scripts/benchmark_kernel.py
+\end{verbatim}}
+The three-month forward points and rates come from the separate retrieval of 24 September 2026, which the three-month calibration reads. The reports record no separate command for that retrieval; the acquisition script's instrument catalogue includes those instruments, and its \texttt{--only}, \texttt{--retrieval-date} and \texttt{--skip-search} options restrict a run to them and write it to that folder. The robustness script stops if its base variant does not reproduce the E1 regime difference and the means of $\HML^U$, $\HML^H$ and the skew term. The script \texttt{scripts/reproduce.sh} runs all of these steps except the acquisitions and the kernel benchmark, which rewrites the timing block of \texttt{cpp/README.md}, in a new environment built from \texttt{requirements.lock}. I ran it from a fresh clone on 3 October 2026: all tests passed, every step completed, and every number in its outputs agreed with mine to within $10^{-9}$ relative plus $10^{-12}$ absolute, most of them exactly, apart from run times and a density diagnostic that differed by at most $4.2\times10^{-10}$ and changed no flag. The remaining differences come from the linear-algebra library linked to the installed numpy.
+
+Rerunning the acquisition, and hence the estimation, requires the reader's own LSEG Workspace licence, not mine; the acquisition script lets a reader with that licence rebuild the private layer. Raw tables, the selected month-end inputs, audit counts by instrument, per-currency month-level series and calibrated parameters are kept in \texttt{data/private/}, which Git ignores, and a repository test fails if a data extract or anything under that folder is tracked. The Cboe settlement files are public but are stored privately because their redistribution terms are not established. The licence holder has confirmed that transformed data may be published and raw data may not (research log, 1 October 2026).
+
+\section*{References}
+Page, section and equation numbers refer to the version consulted, as stated in each entry. ``Bibliographic record'' means that only the bibliographic details were checked and the source is cited for a standard result.
+
+\smallskip
+\begin{list}{}{\leftmargin=1.5em \itemindent=-1.5em \itemsep=2pt \parsep=0pt}\small
+\item Albrecher, H., Mayer, P., Schoutens, W. and Tistaert, J. (2007). The little Heston trap. \emph{Wilmott Magazine}, January 2007. Version consulted: working paper of 11 September 2006.
+\item Alvarez, F. and Jermann, U. J. (2005). Using asset prices to measure the persistence of the marginal utility of wealth. \emph{Econometrica} 73(6), 1977--2016. Not consulted directly; cited as stated in Backus, Chernov and Zin (2014).
+\item Anderson, T. W. and Rubin, H. (1949). Estimation of the parameters of a single equation in a complete system of stochastic equations. \emph{Annals of Mathematical Statistics} 20(1), 46--63. Bibliographic record.
+\item Backus, D. K., Foresi, S. and Telmer, C. I. (2001). Affine term structure models and the forward premium anomaly. \emph{Journal of Finance} 56(1), 279--304. Versions consulted: published article, Sections I.A--I.B, to which equation numbers refer, and NBER Working Paper 5623, 1996.
+\item Backus, D., Chernov, M. and Zin, S. (2014). Sources of entropy in representative agent models. \emph{Journal of Finance} 69(1), 51--99. Version consulted: NBER Working Paper 17219, 2011.
+\item Bagnoli, M. and Bergstrom, T. (2005). Log-concave probability and its applications. \emph{Economic Theory} 26(2), 445--469. Consulted: published article, Section 2.1 and the discussion of the normal distribution.
+\item Bakshi, G., Kapadia, N. and Madan, D. (2003). Stock return characteristics, skew laws, and the differential pricing of individual equity options. \emph{Review of Financial Studies} 16(1), 101--143.
+\item Bansal, R. and Lehmann, B. N. (1997). Growth-optimal portfolio restrictions on asset pricing models. \emph{Macroeconomic Dynamics} 1(2), 333--354. Not consulted directly; cited as stated in Backus, Chernov and Zin (2014).
+\item Benaim, S., Dodgson, M. and Kainth, D. (2008). An arbitrage-free method for smile extrapolation. Technical report, Royal Bank of Scotland. Version consulted: RiskTailsPaper\_v5, January 2009.
+\item Bollerslev, T., Todorov, V. and Xu, L. (2015). Tail risk premia and return predictability. \emph{Journal of Financial Economics} 118(1), 113--134. Consulted: published article, Sections 2--3.
+\item Bossens, F., Ray\'ee, G., Skantzos, N. S. and Deelstra, G. (2010). Vanna-volga methods applied to FX derivatives: from theory to market practice. \emph{International Journal of Theoretical and Applied Finance} 13(8), 1293--1324. Version consulted: arXiv:0904.1074v3, 3 May 2010.
+\item Breeden, D. T. and Litzenberger, R. H. (1978). Prices of state-contingent claims implicit in option prices. \emph{Journal of Business} 51(4), 621--651. Consulted: bibliographic record.
+\item Brunnermeier, M. K., Nagel, S. and Pedersen, L. H. (2008). Carry trades and currency crashes. \emph{NBER Macroeconomics Annual} 23, 313--348. Table 4 is cited from NBER Working Paper 14473 (November 2008).
+\item Burnside, C., Eichenbaum, M., Kleshchelski, I. and Rebelo, S. (2011). Do peso problems explain the returns to the carry trade? \emph{Review of Financial Studies} 24(3), 853--891. Versions consulted: published article, Sections 1.2, 2.3, 4, 5.1--5.3 and Appendix B; NBER Working Paper 14054, revised version with option data to April 2009, Section 5, for the hedged and unhedged payoffs.
+\item Bussi\`ere, M., Chinn, M. D., Ferrara, L. and Heipertz, J. (2022). The new Fama puzzle. \emph{IMF Economic Review} 70(3), 451--486. Consulted: published abstract; authors' manuscript of 17 February 2022.
+\item Caballero, R. J. and Doyle, J. B. (2012). Carry trade and systemic risk: why are FX options so cheap? NBER Working Paper 18644. Consulted: abstract, introduction and data section.
+\item Carr, P. and Madan, D. (2001). Towards a theory of volatility trading. In E. Jouini, J. Cvitani\'c and M. Musiela (eds), \emph{Option Pricing, Interest Rates and Risk Management}, Cambridge University Press, 458--476. First published in R. Jarrow (ed.), \emph{Volatility}, Risk Books, 1998. Consulted: bibliographic record.
+\item Carr, P., Fisher, T. and Ruf, J. (2014). On the hedging of options on exploding exchange rates. \emph{Finance and Stochastics} 18(1), 115--144. Version consulted: arXiv:1202.6188v3.
+\item Castagna, A. and Mercurio, F. (2006). Consistent pricing of FX options. Working paper, Banca IMI; first posted as SSRN Working Paper 873788, January 2006. Version consulted: revision of 1 September 2006.
+\item Castagna, A. and Mercurio, F. (2007). The vanna-volga method for implied volatilities. \emph{Risk}, January 2007, 106--111. Version consulted: authors' post-review preprint of 30 October 2006.
+\item Cboe Futures Exchange. VX historical data: daily settlement files per contract. Retrieved 24 September 2026.
+\item Chernov, M., Graveline, J. and Zviadadze, I. (2018). Crash risk in currency returns. \emph{Journal of Financial and Quantitative Analysis} 53(1), 137--170.
+\item Choi, J. and Wu, L. (2021). The equivalent constant-elasticity-of-variance (CEV) volatility of the stochastic-alpha-beta-rho (SABR) model. \emph{Journal of Economic Dynamics and Control} 128, 104143. Consulted: arXiv:1911.13123v5, eqs.~(4)--(5).
+\item Choi, J. H. and Suh, S. (2022). Conditionally-hedged currency carry trades. \emph{Journal of International Financial Markets, Institutions and Money} 79, 101591. Consulted: published abstract and introduction only.
+\item Clark, I. J. (2011). \emph{Foreign Exchange Option Pricing: A Practitioner's Guide}. Wiley. Not consulted directly; cited as reported in Reiswich and Wystup (2012).
+\item Clark, T. E. and West, K. D. (2007). Approximately normal tests for equal predictive accuracy in nested models. \emph{Journal of Econometrics} 138(1), 291--311. Version consulted: NBER Technical Working Paper 326, 2006.
+\item Della Corte, P., Ramadorai, T. and Sarno, L. (2016). Volatility risk premia and exchange rate predictability. \emph{Journal of Financial Economics} 120(1), 21--40. Version consulted: accepted manuscript, revised February 2015.
+\item Du, W., Tepper, A. and Verdelhan, A. (2018). Deviations from covered interest rate parity. \emph{Journal of Finance} 73(3), 915--957. Version consulted: NBER Working Paper 23170, February 2017.
+\item Dufour, J.-M. (1997). Some impossibility theorems in econometrics with applications to structural and dynamic models. \emph{Econometrica} 65(6), 1365--1387. Consulted: bibliographic record.
+\item Fan, Z., Londono, J. M. and Xiao, X. (2022). Equity tail risk and currency risk premiums. \emph{Journal of Financial Economics} 143(1), 484--503.
+\item Farhi, E. and Gabaix, X. (2016). Rare disasters and exchange rates. \emph{Quarterly Journal of Economics} 131(1), 1--52. Consulted: published article, Lemma 2 and Propositions 3, 4 and 9.
+\item Farhi, E., Fraiberger, S. P., Gabaix, X., Ranci\`ere, R. and Verdelhan, A. (2015). Crash risk in currency markets. Working paper, version of 12 March 2015, SSRN 1397668 (NYU Working Paper FIN-09-007); first issued as NBER Working Paper 15062, June 2009, revised May 2013. Versions consulted: SSRN version of 12 March 2015, to which section numbers refer, and NBER revision of May 2013.
+\item Federal Reserve Board. Holidays Observed (K.8). \url{https://www.federalreserve.gov/aboutthefed/k8.htm}.
+\item Fieller, E. C. (1954). Some problems in interval estimation. \emph{Journal of the Royal Statistical Society, Series B} 16(2), 175--185. Consulted: published article (JSTOR copy), Sections 1--4.
+\item F\"ollmer, H. and Schied, A. (2004). \emph{Stochastic Finance: An Introduction in Discrete Time}, 2nd edition. De Gruyter. Consulted: Lemma 7.23 and its proof, in a page preview.
+\item Fukasawa, M. (2012). The normalizing transformation of the implied volatility smile. \emph{Mathematical Finance} 22(4), 753--762. Consulted: arXiv:1008.5055v2, Section 2.
+\item Garman, M. B. and Kohlhagen, S. W. (1983). Foreign currency option values. \emph{Journal of International Money and Finance} 2(3), 231--237. Consulted: bibliographic record.
+\item Gatheral, J. and Jacquier, A. (2014). Arbitrage-free SVI volatility surfaces. \emph{Quantitative Finance} 14(1), 59--71. Version consulted: arXiv:1204.0646v4.
+\item Geman, H., El Karoui, N. and Rochet, J.-C. (1995). Changes of num\'eraire, changes of probability measure and option pricing. \emph{Journal of Applied Probability} 32(2), 443--458. Consulted: bibliographic record.
+\item Gleser, L. J. and Hwang, J. T. (1987). The nonexistence of $100(1-\alpha)\%$ confidence sets of finite expected diameter in errors-in-variables and related models. \emph{Annals of Statistics} 15(4), 1351--1362. Consulted: bibliographic record.
+\item Gon\c{c}alves, S. and de Jong, R. (2003). Consistency of the stationary bootstrap under weak moment conditions. \emph{Economics Letters} 81(2), 273--278. Consulted: bibliographic record.
+\item Hagan, P. S., Kumar, D., Lesniewski, A. S. and Woodward, D. E. (2002). Managing smile risk. \emph{Wilmott Magazine}, 84--108. Consulted: typeset article.
+\item Hall, P. (1992). \emph{The Bootstrap and Edgeworth Expansion}. Springer Series in Statistics. New York: Springer. doi:10.1007/978-1-4612-4384-7. Consulted: bibliographic record and chapter titles; cited for the studentised (percentile-$t$) bootstrap, the subject of Chapter 3.
+\item Henrard, M. (2011). Adjoint algorithmic differentiation: calibration and implicit function theorem. OpenGamma Quantitative Research, SSRN 1896329; published in the \emph{Journal of Computational Finance} (2014). Consulted: SSRN version of 1 November 2011, Sections 1--3.
+\item Heston, S. L. (1993). A closed-form solution for options with stochastic volatility with applications to bond and currency options. \emph{Review of Financial Studies} 6(2), 327--343.
+\item Horowitz, J. L. and Manski, C. F. (1995). Identification and robustness with contaminated and corrupted data. \emph{Econometrica} 63(2), 281--302. Not consulted; cited as in Masten and Poirier (2020).
+\item Ibragimov, I. A. (1962). Some limit theorems for stationary processes. \emph{Theory of Probability and Its Applications} 7(4), 349--382. Version consulted: Russian original, \emph{Teoriya Veroyatnostei i ee Primeneniya} 7(4).
+\item J\"ackel, P. (2020). Strike from volatility and delta-with-premium. \emph{Quantitative Finance} 20(8), 1227--1235. Consulted: published article, Sections 1 and 2.
+\item Jiang, G. J. and Tian, Y. S. (2005). The model-free implied volatility and its information content. \emph{Review of Financial Studies} 18(4), 1305--1342. Consulted: published article, Section 1.2.1.
+\item Jiang, Z., Krishnamurthy, A. and Lustig, H. (2021). Foreign safe asset demand and the dollar exchange rate. \emph{Journal of Finance} 76(3), 1049--1089. Consulted: NBER Working Paper 24439, abstract and introduction.
+\item Jurek, J. W. (2014). Crash-neutral currency carry trades. \emph{Journal of Financial Economics} 113(3), 325--347. Versions consulted: published abstract and introduction; SSRN 1262934, August 2013.
+\item Kemperman, J. H. B. (1968). The general moment problem, a geometric approach. \emph{Annals of Mathematical Statistics} 39(1), 93--122.
+\item Kline, P. and Santos, A. (2013). Sensitivity to missing data assumptions: theory and an evaluation of the U.S. wage structure. \emph{Quantitative Economics} 4(2), 231--267.
+\item Koijen, R. S. J., Moskowitz, T. J., Pedersen, L. H. and Vrugt, E. B. (2018). Carry. \emph{Journal of Financial Economics} 127(2), 197--225. Consulted: published article, Sections 1--2.
+\item Kutuk, M. M. and van Wijnbergen, S. (2025). Carry trade and currency crash risk. CEPR Discussion Paper 20745. Version consulted: Tinbergen Institute Discussion Paper TI 2025-058/IV, 1 October 2025.
+\item Lando, T., Arab, I. and Oliveira, P. E. (2022). Transform orders and stochastic monotonicity of statistical functionals. Working paper, arXiv:2112.02383v2.
+\item Le Floc'h, F. and Kennedy, G. (2014). Explicit SABR calibration through simple expansions. Working paper, SSRN 2467231, version 1.2 of July 2014. Consulted: full text, Sections 1 and 4.
+\item Lee, R. W. (2004). The moment formula for implied volatility at extreme strikes. \emph{Mathematical Finance} 14(3), 469--480. Consulted: preprint of 11 August 2003, abstract.
+\item LSEG Developer Portal. IPA Volatility Surfaces: FX. Consulted 24 September 2026.
+\item LSEG Workspace. FX option volatility, forward, deposit, OIS and VIX futures instruments. Retrieved 23 September 2026; three-month forwards and rates retrieved 24 September 2026.
+\item Lustig, H. and Verdelhan, A. (2019). Does incomplete spanning in international financial markets help to explain exchange rates? \emph{American Economic Review} 109(6), 2208--2244. Consulted: manuscript of January 2018, Section 2.5.
+\item Lustig, H., Roussanov, N. and Verdelhan, A. (2011). Common risk factors in currency markets. \emph{Review of Financial Studies} 24(11), 3731--3777.
+\item Lustig, H., Roussanov, N. and Verdelhan, A. (2014). Countercyclical currency risk premia. \emph{Journal of Financial Economics} 111(3), 527--553. Consulted: published article, Sections 3.1--3.3.1.
+\item Masten, M. A. and Poirier, A. (2020). Inference on breakdown frontiers. \emph{Quantitative Economics} 11(1), 41--111.
+\item Menkhoff, L., Sarno, L., Schmeling, M. and Schrimpf, A. (2012). Carry trades and global foreign exchange volatility. \emph{Journal of Finance} 67(2), 681--718. Consulted: published article, Section I.D.
+\item Merton, R. C. (1976). Option pricing when underlying stock returns are discontinuous. \emph{Journal of Financial Economics} 3(1--2), 125--144. Consulted: published article.
+\item Milnor, J. (1963). \emph{Morse Theory}. Annals of Mathematics Studies 51. Princeton University Press. Consulted: Section 2, Lemma 2.1.
+\item Mingone, A. (2023). Smiles in delta. \emph{Quantitative Finance} 23(12), 1713--1728. Consulted: arXiv:2209.00406v1, Remark 2.4 and Lemma 4.1.
+\item Newey, W. K. and West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. \emph{Econometrica} 55(3), 703--708. Consulted: bibliographic record.
+\item Newey, W. K. and West, K. D. (1994). Automatic lag selection in covariance matrix estimation. \emph{Review of Economic Studies} 61(4), 631--653. Version consulted: NBER Technical Working Paper 144, 1993.
+\item Patton, A., Politis, D. N. and White, H. (2009). Correction to ``Automatic block-length selection for the dependent bootstrap''. \emph{Econometric Reviews} 28(4), 372--375. Consulted: bibliographic record.
+\item Pinelis, I. (2012). On the extreme points of moments sets. Working paper, arXiv:1204.0249v1, 1 April 2012. Consulted for its statement of Winkler (1988, Theorem 2.1) (Theorem 12).
+\item Politis, D. N. and Romano, J. P. (1994). The stationary bootstrap. \emph{Journal of the American Statistical Association} 89(428), 1303--1313. Version consulted: Technical Report 91-03, Department of Statistics, Purdue University, 1991.
+\item Politis, D. N. and White, H. (2004). Automatic block-length selection for the dependent bootstrap. \emph{Econometric Reviews} 23(1), 53--70. Consulted: bibliographic record.
+\item Popescu, I. (2005). A semidefinite programming approach to optimal-moment bounds for convex classes of distributions. \emph{Mathematics of Operations Research} 30(3), 632--657. Version consulted: INSEAD Working Paper 2002/15/TM.
+\item Qin, H., Yang, R., Che, C. and Feng, L. (2026). Arbitrage-free multi-maturity risk-neutral marginals. Working paper, arXiv:2607.06204v1.
+\item QuantLib, version 1.43 (Python bindings).
+\item Reiswich, D. (2010). \emph{The Foreign Exchange Volatility Surface}. Doctoral dissertation, Frankfurt School of Finance \& Management. Version consulted: Deutsche Nationalbibliothek archive copy.
+\item Reiswich, D. and Wystup, U. (2012). FX volatility smile construction. \emph{Wilmott} 2012(60), 58--69. Version consulted: CPQF Working Paper No.~20, version 2, Frankfurt School of Finance \& Management, 20 March 2010.
+\item Sampford, M. R. (1953). Some inequalities on Mill's ratio and related functions. \emph{Annals of Mathematical Statistics} 24(1), 130--132. Consulted: scan via Project Euclid, pp.~130--131, inequality (3) and Section 2.
+\item Sheppard, K. (2026). arch. Python package, main branch at commit 91a25ef, 24 September 2026; release 8.0.0 used for the cross-check of the bootstrap.
+\item Shreve, S. E. (2004). \emph{Stochastic Calculus for Finance II: Continuous-Time Models}. Springer. Consulted: bibliographic record; cited for standard textbook statements.
+\item Stambaugh, R. F. (1999). Predictive regressions. \emph{Journal of Financial Economics} 54(3), 375--421. Consulted: published article, Section 2.
+\item Stoye, J. (2005, 2010). Cited as credited by Masten and Poirier (2020); not consulted.
+\item Taleb, N. N., Yarckin, B., Mann, C., Delic, D. and Spitznagel, M. (2023). Tail option pricing under power laws. Working paper, arXiv:1908.02347v3, March 2023. Consulted: Section IV.
+\item Veres-Ferrer, E.-J. and Pav\'ia, J. M. (2022). The elasticity of a random variable as a tool for measuring and assessing risks. \emph{Risks} 10(3), 68. Consulted: published article (open access).
+\item Wald, A. (1940). The fitting of straight lines if both variables are subject to error. \emph{Annals of Mathematical Statistics} 11(3), 284--300. Bibliographic record.
+\item Winkler, G. (1988). Extreme points of moment sets. \emph{Mathematics of Operations Research} 13(4), 581--587. Theorem 2.1 as quoted by Pinelis (2012), arXiv:1204.0249v1.
+\item Zeileis, A. and contributors (2026). sandwich: Robust Covariance Matrix Estimators. R package version 3.1-3, 3 August 2026.
+\item Zhuang, J. (2026). The risk-neutral crash frontier: sharp joint bounds on crash probability and conditional depth from option bid-ask quotes. Working paper, arXiv:2607.25353v4.
+\end{list}
+
+\end{document}
