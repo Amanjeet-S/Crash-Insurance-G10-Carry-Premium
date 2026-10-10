@@ -47,9 +47,12 @@ parameters (no price of volatility risk) and deterministic rates, under Q^q
     dx = −v/2 dt + √v dW1,  dv = κ(θ − v)dt + ξ√v dW2,  d⟨W1, W2⟩ = ρ dt.
 
 The characteristic function is eq. (17). I use the second representation φ2 of
-Albrecher, Mayer, Schoutens and Tistaert (2006, Section 3, with g2 as in eq. (2)),
-which they prove does not cross the branch cut of the logarithm on the lines
-used for Fourier pricing (Theorem 3). With u = −iz,
+Albrecher, Mayer, Schoutens and Tistaert (2007, Section 3, with g2 as in eq. (2)),
+which they prove does not cross the branch cut of the logarithm on the
+Carr–Madan line Re w = α + 1 with α > 0 (Theorem 3). The other lines used here
+(c < 0, and any c for the density) lie outside that theorem; the tests compare
+the resulting prices with QuantLib and the probabilities with strike
+derivatives of the prices. With u = −iz,
 
     b = κ − ρξz,  d = √(b² − ξ²(z² − z)),  g = (b − d)/(b + d),
     K_q(z) = κθ/ξ² [(b − d)τ − 2 ln((1 − g e^{−dτ})/(1 − g))]
@@ -78,7 +81,7 @@ Fourier inversion. On a line w = c + iu inside the strip, with k = ln(K/F),
 The first is Fourier inversion of e^{ck} f(k). The tail probabilities are
 Lee (2004b, Theorem 5.1, eq. (5.4)) for the payoff G3 with b0 = 1 and b1 = 0,
 whose residue term is 1 when the line passes to the left of the pole at w = 0.
-The call is the Carr–Madan formula as written by Albrecher et al. (2006,
+The call is the Carr–Madan formula as written by Albrecher et al. (2007,
 eqs. (3)–(5)) with damping α = c − 1; the put is Lee's eq. (5.4) for G1 with
 α < −1, where the residue term F − K turns the call into the put. c minimises
 the modulus of the integrand at u = 0 over the admissible side (Lord and Kahl
@@ -128,10 +131,10 @@ qef.fx.moments.tail_bounds bounds the tails of a spanning integral beyond a
 strike range.
 
 References (version consulted):
-- Albrecher, H., Mayer, P., Schoutens, W. and Tistaert, J. (2006). The little
-  Heston trap. Working paper, version of 11 September 2006 (first version
-  6 December 2005); published in Wilmott Magazine (2007). Full text: Sections
-  2–5, eqs. (1)–(8), Theorem 3.
+- Albrecher, H., Mayer, P., Schoutens, W. and Tistaert, J. (2007). The little
+  Heston trap. Wilmott Magazine, January 2007, 83–92. Version consulted: working
+  paper of 11 September 2006 (first version 6 December 2005), Sections 2–5,
+  eqs. (1)–(8), Theorem 3.
 - Andersen, L. B. G. and Piterbarg, V. V. (2007). Moment explosions in stochastic
   volatility models. Finance and Stochastics 11(1), 29–50. Not consulted; cited as
   the source of the explosion time through Keller-Ressel (2011) and Lord and Kahl

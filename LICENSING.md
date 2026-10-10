@@ -20,7 +20,7 @@ These grants cover original material that I make publicly available under this n
 
 LSEG observations, cleaned exports, subsets, rounded or rescaled quotes and reversible transformations of observations are excluded. The licence holder advised on 24 September 2026 that the data may be used for individual study and research and may not be redistributed, and confirmed on 1 October 2026 that manipulated or transformed data may be published while the raw data may not. The portfolio-level series are published under that confirmation: each value averages at least four currencies whose identities are not published, and the [publication policy](docs/publication_policy.md) records the test applied before release. The grant in section 1 covers my original contribution to those series and confers no right to the underlying LSEG observations.
 
-Third-party datasets, documents and software retain their own terms. The [third-party notices](THIRD_PARTY_NOTICES.md) identify the external sources the code reads and the conditions under which they are stored.
+Third-party datasets, documents and software retain their own terms, and so do the two routines that follow third-party implementations, the kernel's pairwise summation (NumPy, BSD 3-Clause) and the bootstrap's block-length rule (arch, NCSA), whose notices are in the [LICENSES](LICENSES) folder. The [third-party notices](THIRD_PARTY_NOTICES.md) identify the external sources the code reads and the conditions under which they are stored.
 
 ## 3. Publication and contributions
 

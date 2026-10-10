@@ -43,9 +43,11 @@
  * inverse by scipy.special.ndtri and phi as np.exp(-x**2/2.0) divided by
  * np.sqrt(2*np.pi); the scipy.optimize.brentq docstring states
  * that its root x0 satisfies |x - x0| <= xtol + rtol |x0| for the exact root
- * x). The blocking of numpy's pairwise sum (below) is not documented; I
- * verified it bitwise against numpy.sum on strided arrays of 2 to 40,000
- * elements and did not consult the numpy C source.
+ * x). The pairwise sum (below) follows numpy's own pairwise summation routine
+ * (numpy/_core/src/umath/loops_utils.h.src, BSD-3-Clause; the notice is in
+ * THIRD_PARTY_NOTICES.md and LICENSES/NumPy-BSD-3-Clause.txt) step by step, so
+ * that it reproduces numpy.sum bitwise; I verified this on strided arrays of
+ * 2 to 40,000 elements.
  *
  * Normal distribution. Phi(x) = erfc(-x/sqrt(2))/2 with the C library erfc,
  * accurate in both tails. scipy's ndtr forms the same argument but uses its
@@ -408,7 +410,8 @@ int32_t strike_from_delta_1(double target, double F, double sigma, double tau, d
     return solve_bracketed(fd, k_star, hi, xtol, x0, K);
 }
 
-// numpy's partial pairwise summation of n doubles at a stride (header comment).
+// Partial pairwise summation of n doubles at a stride, following numpy's routine
+// (BSD-3-Clause; see the header comment and THIRD_PARTY_NOTICES.md).
 double pairwise_sum(const double *a, int64_t n, int64_t stride) {
     if (n < 8) {
         double res = 0.0;

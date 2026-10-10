@@ -130,6 +130,10 @@ def month_rows(e1, inputs, panel, spots, n_legs):
 def stambaugh_bootstrap(y, x, B, seed=20260924):
     """Residual bootstrap of the predictive slope under H0: no predictability.
 
+    Simulating the predictive regression under the null, with the predictor's
+    autoregression, to measure small-sample bias is in the manner of Nelson and
+    Kim (1993).
+
     Stambaugh (1999) shows that the slope estimate is biased when the predictor
     is persistent and its innovations are correlated with returns. The null
     distribution is simulated with y*_k = ȳ + û_k and x*_{k+1} = ĉ + ρ̂ x*_k + v̂_{k+1},

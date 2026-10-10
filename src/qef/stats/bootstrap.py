@@ -8,7 +8,9 @@ smallest m such that the autocorrelations at lags m + 1, ..., m + K lie inside
 ±2 √(log10 T / T), with K = max(5, ⌊log10 T⌋) (Politis and White, 2004). The
 caps M ≤ ⌈√T⌉ + K and b ≤ ⌈min(3√T, T/3)⌉ follow the arch package (Sheppard,
 function optimal_block_length), which takes them from Andrew Patton's MATLAB
-implementation; that package served as the reference implementation. Its
+implementation; that package served as the reference implementation, and the
+block-length routine below follows its steps (arch is distributed under the
+NCSA licence; the notice is in THIRD_PARTY_NOTICES.md). Its
 choice of m̂ sits one lag above the definition used here, and it normalises
 autocorrelations by lag-specific sums of squares rather than by γ̂0, so block
 lengths can differ from arch. A third difference concerns a degenerate case:
