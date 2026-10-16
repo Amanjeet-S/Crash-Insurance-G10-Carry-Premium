@@ -2,7 +2,7 @@
 
 Research design, section 4: "The long ATM sample is ATM-hedged carry
 (Burnside et al., 2011) from the start of the ATM and forward series." The
-paper lists it as not reported. Citations below are inherited from the design,
+paper reports it in Sections 3.2 and 5.3. Citations below are inherited from the design,
 references.md and the modules named; none was consulted again for this script.
 
 Rules already fixed by the design, reused from the project's code:
@@ -14,16 +14,16 @@ Rules already fixed by the design, reused from the project's code:
   delivery from qef.data.smile_inputs.option_dates.
 - Ranking on the forward discount fd = log(X/F_X) and legs long the n highest
   and short the n lowest (qef.fx.crash.forward_discount and rank_legs;
-  Lustig, Roussanov and Verdelhan, 2011, not consulted).
+  Lustig, Roussanov and Verdelhan, 2011, not consulted again for this script).
 - The hedge is the 'Hatm' leg of scripts/estimate_stage4.py: each leg buys the
   protective option (qef.fx.crash.protective_option) at the delta-neutral
   straddle strike in the pair's convention, K = F e^{+σ²τ/2} for pips delta
   and F e^{−σ²τ/2} for premium-adjusted delta (qef.fx.gk.atm_dns_strike;
-  Reiswich and Wystup, 2012, not consulted), with σ the quoted ATM volatility,
+  Reiswich and Wystup, 2012, not consulted again for this script), with σ the quoted ATM volatility,
   bought at the Garman–Kohlhagen premium carried to delivery, V = φ[F Φ(φd+)
   − K Φ(φd−)]/F in USD per USD of forward notional (qef.fx.crash; the
   construction of Burnside et al., 2011, Section 1.2, as recorded in
-  references.md, not consulted).
+  references.md, not consulted again for this script).
 - Returns at the end-of-day spot on the option expiry date
   (estimate_stage4.spot_on: substitution within five New York business days;
   a window ending after the last spot observation is unrealised and
@@ -33,7 +33,7 @@ Rules already fixed by the design, reused from the project's code:
   (qef.stats.hac.mean_and_se) and the test-inversion set for
   θ_UB = 1 − mean(HML^H)/mean(HML^U),
   CS = {θ : |mean(HML^H − (1 − θ) HML^U)| ≤ 1.96 se_HAC} on the grid [−10, 10]
-  (estimate_stage4.theta_confidence_set; Fieller, 1954, not consulted); a set
+  (estimate_stage4.theta_confidence_set; Fieller, 1954, not consulted again for this script); a set
   that reaches the edge of the grid is reported as unbounded.
   Amendment, 27 September 2026, after an independent review: whether the set
   is bounded is now decided from the limit, not from the grid. The automatic

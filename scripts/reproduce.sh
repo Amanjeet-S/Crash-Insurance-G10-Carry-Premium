@@ -5,7 +5,7 @@
 # The script builds a clean virtual environment from requirements.lock with the
 # commands in docs/development.md, runs the test suite, and then runs the estimation
 # pipeline: the steps of the reproduction blocks in reports/, in their order,
-# followed by the checks that the paper reports in its Section 4.7:
+# followed by the checks that the paper reports in its Sections 4.6 and 4.7:
 #
 #   1. the Stage 1 audit of the 23 September 2026 retrieval (data_audit.md);
 #   2. the one-month composite smile calibration, 30 July 2010 to 31 August 2026
@@ -30,7 +30,7 @@
 #  16. added on 27 September 2026: the sign and magnitude check of HML_FX
 #      against Verdelhan's public portfolios (paper, Section 4.6);
 #  17. added on 27 September 2026: the E1 bootstrap intervals recomputed with
-#      the arch package as an independent implementation (paper, Section 4.6).
+#      the arch package, which the block-length routine follows (paper, Section 4.6).
 #  18. and 19., added on 28 September 2026: the long at-the-money sample
 #      (stage4.md, about 20 seconds) and the design checks (e1.md and
 #      stage4.md; SOFR OIS, the named-broker contributor, delta-method

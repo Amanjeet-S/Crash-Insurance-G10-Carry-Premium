@@ -93,7 +93,8 @@ def atm_dns_strike(F, sigma, tau, convention: DeltaConvention):
 
 
 def pa_call_delta_maximiser(F, sigma, tau):
-    """Strike K* maximising the premium-adjusted call delta (result R5(b)).
+    """Strike K* maximising the premium-adjusted call delta (result R5(b); first-order
+    condition of Reiswich and Wystup, 2012; single maximum as in Jäckel, 2020, Section 2).
 
     K* solves σ√τ Φ(d−) = φ(d−). The ratio φ/Φ is strictly decreasing, so the
     root d* is unique; then K* = F exp(−d* σ√τ − σ²τ/2).

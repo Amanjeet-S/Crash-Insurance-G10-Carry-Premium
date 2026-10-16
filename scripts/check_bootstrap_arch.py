@@ -1,4 +1,4 @@
-"""The E1 bootstrap intervals recomputed with arch 8.0.0 (Sheppard) as an independent implementation.
+"""The E1 bootstrap intervals recomputed with arch 8.0.0 (Sheppard), the reference implementation of the block-length routine.
 
     .venv/bin/python scripts/check_bootstrap_arch.py
 

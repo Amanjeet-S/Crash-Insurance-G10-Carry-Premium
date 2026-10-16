@@ -174,7 +174,7 @@ def test_readme_states_theta0_and_the_licence():
 
 
 def test_e1_regime_means_of_phi(frames):
-    # Paper, Table 1 (Section 5.1): 0.809 (0.185), 0.454 (0.066), difference -0.355, HAC s.e. 0.204.
+    # Paper, Table 2 (Section 5.1): 0.809 (0.185), 0.454 (0.066), difference -0.355, HAC s.e. 0.204.
     p = frames["primary.csv"]
     s = pd.DataFrame({"date": p.date, "status": "ok", "phi": p.phi_market_10d})
     r = regime_summary(s, "phi", B=19)
@@ -185,7 +185,7 @@ def test_e1_regime_means_of_phi(frames):
 
 
 def test_e3_means_and_theta_ub(frames):
-    # Paper, Table 4 and Section 5.3: HML^U 17.7 (12.1), HML^H 8.3 (11.9) bp; theta_UB 0.53, 0.49, 0.45.
+    # Paper, Table 7 and Section 5.3: HML^U 17.7 (12.1), HML^H 8.3 (11.9) bp; theta_UB 0.53, 0.49, 0.45.
     p = frames["primary.csv"]
     ok = p[p.status == "ok"]
     u, h = mean_and_se(ok.U.to_numpy()), mean_and_se(ok.H10.to_numpy())
@@ -197,7 +197,7 @@ def test_e3_means_and_theta_ub(frames):
 
 
 def test_e5_fx_volatility_factor(frames):
-    # Paper, Table 5 (Section 5.4): the AR(1) coefficient of the FX-volatility level is 0.76. As in
+    # Paper, Table 8 (Section 5.4): the AR(1) coefficient of the FX-volatility level is 0.76. As in
     # estimate_e5.main, the AR(1) is fitted to sigma_fx over the months with a realised return of both samples.
     p, e = frames["primary.csv"], frames["extended.csv"]
     s = pd.concat([f.loc[f.status == "ok", ["date", "sigma_fx"]] for f in (e, p)]).sort_values("date")

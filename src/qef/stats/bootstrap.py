@@ -1,11 +1,13 @@
 """Stationary bootstrap (Politis and Romano, 1994) with automatic block length.
 
-The expected block length follows Politis and White (2004) as corrected by
-Patton, Politis and White (2009): b = (2 G² / D)^{1/3} T^{1/3} with
+The expected block length is the rule of Politis and White (2004) as corrected by
+Patton, Politis and White (2009), in the form implemented by the arch package:
+b = (2 G² / D)^{1/3} T^{1/3} with
 G = Σ_{|k|≤M} λ(k/M) |k| γ̂k, D = 2 ĝ0², ĝ0 = Σ_{|k|≤M} λ(k/M) γ̂k and the
 flat-top kernel λ(x) = min(1, 2(1 − |x|)). M = 2 max(m̂, 1), where m̂ is the
 smallest m such that the autocorrelations at lags m + 1, ..., m + K lie inside
-±2 √(log10 T / T), with K = max(5, ⌊log10 T⌋) (Politis and White, 2004). The
+±2 √(log10 T / T), with K = max(5, ⌊log10 T⌋), as in the arch package (the rule is that of
+Politis and White, 2004). The
 caps M ≤ ⌈√T⌉ + K and b ≤ ⌈min(3√T, T/3)⌉ follow the arch package (Sheppard,
 function optimal_block_length), which takes them from Andrew Patton's MATLAB
 implementation; that package served as the reference implementation, and the

@@ -11,7 +11,13 @@ import numpy as np
 
 
 def _z_over_x(z, rho):
-    """z / x(z) with x(z) = ln[(√(1 − 2ρz + z²) + z − ρ) / (1 − ρ)], continuous at z = 0."""
+    """z / x(z) with x(z) = ln[(√(1 − 2ρz + z²) + z − ρ) / (1 − ρ)], continuous at z = 0.
+
+    The value 1 at z = 0 is that of the at-the-money formula of Hagan et al.
+    (2002, eq. (2.18)); near zero the function is replaced by its Taylor
+    expansion, which Choi and Wu (2021, eq. (5)) give for x(z)/z in their sign
+    convention.
+    """
     z = np.asarray(z, dtype=float)
     out = np.empty_like(z)
     small = np.abs(z) < 1e-7

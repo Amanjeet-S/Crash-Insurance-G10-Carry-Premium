@@ -317,7 +317,8 @@ def test_calibration_returns_status_instead_of_raising():
 
 def test_delta_strike_is_nan_when_no_strike_attains_the_delta():
     # The first-order smile's premium-adjusted put delta stays above 0.10 in absolute value, so no
-    # 10Δ put strike exists (the case of Reiswich, 2010, Fig. 3.6).
+    # 10Δ put strike exists (the analogue, for a premium-adjusted put, of the first-order
+    # call case in Reiswich, 2010, Section 3.8.2, Fig. 3.6).
     sm = calibrate_vv(SKEWED, "market", FIRST_ORDER).smile
     assert np.isnan(smile_delta_strike(sm, -0.10, PUT, PA, SKEWED.df_base))
     iq = implied_quotes(sm, PA, 0.10, SKEWED.df_base, "market")

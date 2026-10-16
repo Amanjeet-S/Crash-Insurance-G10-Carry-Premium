@@ -1,4 +1,4 @@
-"""Regime attribution of the change in the carry spread, post hoc.
+"""Regime attribution of the change in the forward-discount spread, post hoc.
 
 Research log, 27 September 2026. Added after the E1 to E5 results were
 recorded, and reported as post hoc. Primary sample, market reading, 10Δ
@@ -20,8 +20,9 @@ test inversion, as for θ_UB: r is kept if the regime difference of
 C_skew − r FD is not significant at 5%, with (a) the Newey–West standard error
 and (b) the stationary bootstrap, resampling the pair (C_skew, FD) jointly
 within each regime with the larger of the two block lengths. This is Fieller's
-(1954) construction, which with one binary instrument coincides with the set of
-Anderson and Rubin (1949). The one-for-one hypothesis r = 1 is tested in the
+(1954) construction, which with one binary instrument coincides with a
+heteroskedasticity- and autocorrelation-robust form of the Anderson and Rubin
+(1949) set. The one-for-one hypothesis r = 1 is tested in the
 same way.
 
 Writes regime_attribution.csv and regime_attribution_summary.md to

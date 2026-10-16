@@ -4,7 +4,7 @@
 
 I ask whether the price of crash insurance in G10 currency option smiles accounts for the carry premium and for its change between the zero-rate regime (May 2013 to December 2021) and the hiking regime from January 2022. Month-end SABR smiles for nine currencies against the US dollar, calibrated to dealer quotes from LSEG Workspace, price one-month protective options on a three-long, three-short carry portfolio. The primary estimand is the skew price of that protection per unit of the portfolio's forward discount; the design also tests whether it predicts carry returns, decomposes the realised hedge cost into payoff, volatility-level and skew terms, and measures exposure to systemic risk.
 
-The rise in the carry spread between the regimes was not matched by a rise in the price of protection, so the regime-shift explanation has partial support only. The share of the carry premium paid for crash insurance is not identified at one month in a sample of this length; over 1995 to 2026 with at-the-money protection the confidence set is bounded but contains the diffusive null. The sign of one-month option-implied skewness is identified only under a strong and explicit assumption about the tails beyond the quoted strikes, which I characterise exactly and test out of sample with 5-delta quotes.
+The rise in the forward-discount spread between the regimes was not matched by a rise in the price of protection, so the regime-shift explanation has partial support only. The share of the carry premium paid for crash insurance is not identified at one month in a sample of this length; over 1995 to 2026 with at-the-money protection the confidence set is bounded but contains the diffusive null. The sign of one-month option-implied skewness is identified only under a strong and explicit assumption about the tails beyond the quoted strikes; I measure how strong it must be and test it out of sample with 5-delta quotes.
 
 The design was fixed on 23 September 2026 before any return or option-implied statistic was computed. Every later change is recorded in the [research log](research_log.md) with its date and reason, and analyses added after the main results are labelled post hoc in the paper and the reports.
 
@@ -22,22 +22,22 @@ Read the [paper (PDF)](paper/Crash_Insurance_and_the_G10_Carry_Premium.pdf), wit
 | [reports/](reports/) | Data audit, smile calibration, E1 and E4, returns and E2 to E5, robustness and model validation |
 | [replication/](replication/README.md) | Public and licensed reproduction |
 
-Python implements the data audit, smile calibration, estimation and inference; a [C++ kernel](cpp/README.md) of the pricing, delta, SABR and moment code is checked against the Python reference. Independent implementations serve as cross-checks: QuantLib for pricing, deltas, strikes and Hagan volatilities, the R package sandwich for the Newey-West standard errors (checked once) and the arch package for the stationary bootstrap and its block length.
+Python implements the data audit, smile calibration, estimation and inference; a [C++ kernel](cpp/README.md) of the pricing, delta, SABR and moment code is checked against the Python reference. QuantLib, an independent implementation, cross-checks pricing, deltas, strikes and Hagan volatilities. The R package sandwich (Newey-West standard errors, checked once) and the arch package (stationary bootstrap and block length) were the reference implementations for the bandwidth and block-length code, so their agreement checks the implementation, not the reading of the papers. The block-length routine follows arch step by step, and the kernel's pairwise summation follows NumPy's; both are credited in the code and in the [third-party notices](THIRD_PARTY_NOTICES.md).
 
-The [reproduction instructions](docs/reproducing_paper.md) give one command that recomputes, without a data licence, the paper's results that the [published series](data/public/fx_carry_portfolio_series/README.md) support and compares each with the printed number. These are E1 under the market reading with 10-delta hedges, E2 with φ as predictor, the secondary moment predictors, E3 and its split by rate regime, E5, the hedge-cost ratio and its confidence sets, the long at-the-money sample, the post hoc regime comparison, the comparison with published currency portfolios, and part of the robustness grid. The command lists the results it cannot reproduce, each with its reason; they include E4 and the 25-delta skew prices of E1, every result of the oriented 10-delta risk reversal, the other robustness variants, the three-month tenor and the per-currency analyses. Recomputing the series and those results needs the reader's own LSEG Workspace licence. The [development guide](docs/development.md) covers installation and the automated checks.
+The [reproduction instructions](docs/reproducing_paper.md) give one command that recomputes, without a data licence, the paper's results that the [published series](data/public/fx_carry_portfolio_series/README.md) support and compares each with the printed number. These are E1 under the market reading with 10-delta hedges, E2 with φ as predictor, the secondary moment predictors, E3 and its split by rate regime, E5, the hedge-cost ratio and its confidence sets, the long at-the-money sample apart from two details, the post hoc regime comparison, the comparison with published currency portfolios, and part of the robustness grid. The command lists the results it cannot reproduce, each with its reason; they include E4 and the 25-delta skew prices of E1, every result of the oriented 10-delta risk reversal, the other robustness variants, the three-month tenor and the per-currency analyses. Recomputing the series and those results needs the reader's own LSEG Workspace licence. The [development guide](docs/development.md) covers installation and the automated checks.
 
 ## 3. Repository structure
 
 ```text
 Crash-Insurance-G10-Carry-Premium/
 ├── .github/workflows/   Automated tests
-├── LICENSES/            CC BY 4.0 licence text
+├── LICENSES/            CC BY 4.0, NumPy and arch licence texts
 ├── cpp/                 C++ kernel with parity tests
 ├── data/
 │   ├── README.md        Data organisation and the private layer
 │   └── public/          Published portfolio-level series
 ├── docs/                Development, reproduction and publication policies
-├── paper/               Paper, LaTeX source and extended abstract
+├── paper/               Paper, LaTeX source, figures and extended abstract
 ├── replication/         Public and licensed reproduction guides
 ├── reports/             Audit, calibration and estimation records
 ├── scripts/             Acquisition, estimation and verification entry points

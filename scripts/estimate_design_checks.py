@@ -1,4 +1,4 @@
-"""Four design checks that the paper lists as not reported (paper, Section 4.7).
+"""Four design checks, reported in Section 4.6 of the paper.
 
 Added on 27 September 2026, after every pre-registered result had been
 recorded. Each check is named in the research design or the data plan, but
@@ -31,9 +31,9 @@ and the paper and were not consulted for this script.
    EUR1MBF=TIFO, "only as a check over its available period"). The pooled
    daily comparison is read from the private audit's splice.csv (check 8 of
    audit_fx_panel.py). I add the comparison at month-ends under the design's
-   month-end rule, from the raw tables, and the effect on the skew cost of the
+   month-end rule, from the raw tables, and the effect on the skew price of the
    EUR legs: a SABR smile calibrated to the TIFO calibration set, with spot,
-   forward and rate from the composite inputs, and the 10Δ leg skew cost
+   forward and rate from the composite inputs, and the 10Δ leg skew price
    V_smile − V_flat (leg_skew_cost of qef.fx.crash) compared with the
    composite and Fenics ones at the same month-ends.
 
@@ -128,7 +128,7 @@ R7  TIFO smile: EUR month-ends at which all three TIFO calibration quotes are
     set. Spot, forward, rate and dates come from the composite inputs. TIFO
     quotes no 10Δ, so no held-out prediction is made. The market-strangle
     smile is used, as in E1.
-R8  TIFO leg skew cost: 10Δ, both sides (a long EUR leg is protected by a put
+R8  TIFO leg skew price: 10Δ, both sides (a long EUR leg is protected by a put
     on EURUSD, a short leg by a call), in bp of notional per month, compared
     with the composite at the same month-ends and with Fenics where a Fenics
     market-reading smile exists (status ok or not_converged). Effect on E1:
@@ -492,7 +492,7 @@ def tifo_check(inputs, panel, fn_in, fn_panel, e1_pub, raw, month_ends, audit_di
     t_fit.to_csv(out_dir / "design_checks_tifo_smiles.csv", index=False)
     t_mkt = t_fit[(t_fit.reading == "market") & t_fit.status.isin(["ok", "not_converged"])].set_index("date")
 
-    # Leg skew costs (R8).
+    # Leg skew prices (R8).
     ci = inputs[inputs.currency == "EUR"].set_index("date")
     fc = panel[(panel.currency == "EUR") & (panel.reading == "market") & panel.status.isin(["ok", "not_converged"])].set_index("date")
     fi = fn_in[(fn_in.currency == "EUR") & fn_in.complete_calib].set_index("date")

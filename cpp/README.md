@@ -55,9 +55,11 @@ same expressions, in the same order, with every product and sum rounded
 separately (`-ffp-contract=off`, never `-ffast-math`). Nodes are placed as
 `numpy.linspace` places them, and Simpson's rule sums with NumPy's partial
 pairwise summation, so that the two implementations differ only where a
-library function differs. On this machine NumPy's `log`, `exp` and `sqrt`
-agree bitwise with the C library, and the SABR volatilities agree bitwise with
-the reference.
+library function differs. The kernel's `pairwise_sum` follows NumPy's routine
+step by step and is not original in that respect; NumPy's BSD 3-Clause notice
+applies to it (`THIRD_PARTY_NOTICES.md`, `LICENSES/NumPy-BSD-3-Clause.txt`).
+On this machine NumPy's `log`, `exp` and `sqrt` agree bitwise with the C
+library, and the SABR volatilities agree bitwise with the reference.
 
 The one material difference is the normal distribution function. The kernel
 uses Φ(x) = erfc(−x/√2)/2 with the C library's `erfc`; SciPy's `ndtr` forms

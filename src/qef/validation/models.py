@@ -62,7 +62,7 @@ M(w) is finite for real w exactly when τ < T*(w), where T*(w) = ∞ if
 Δ(w) = (κ − ρξw)² − ξ²(w² − w) ≥ 0 and otherwise, with ω = √(−Δ(w)) and
 χ(w) = ρξw − κ, T*(w) = 2 arctan2(ω, χ)/ω (Keller-Ressel 2011, Section 6.1,
 eq. (6.2), after Andersen and Piterbarg 2007; arctan2 combines the two branches
-of eq. (6.2), which assumes κ > ρξ; Lord and Kahl 2006, Section 3.1.1, note that
+of eq. (6.2), which assumes κ > ρξ; Lord and Kahl 2007, Section 3.1.1, note that
 the formula also holds for w < 0). The critical moments w₋ < 0 and w₊ > 1 solve
 T*(w) = τ. The derivatives of K_q come from Cauchy's integral formula on a circle
 of radius r about c, discretised by the trapezoidal rule with m nodes,
@@ -85,7 +85,7 @@ The call is the Carr–Madan formula as written by Albrecher et al. (2007,
 eqs. (3)–(5)) with damping α = c − 1; the put is Lee's eq. (5.4) for G1 with
 α < −1, where the residue term F − K turns the call into the put. c minimises
 the modulus of the integrand at u = 0 over the admissible side (Lord and Kahl
-2006, Section 3.2, eq. (61)); for the density this is the saddle point
+2007, Section 3.2, eq. (61)); for the density this is the saddle point
 K_q'(c) = k. On that line the integrand has no large oscillating part, so prices
 and probabilities far below 1e−16 keep their relative accuracy. The integral is
 taken by the trapezoidal rule in u, truncated where the modulus of the integrand
@@ -138,7 +138,7 @@ References (version consulted):
 - Andersen, L. B. G. and Piterbarg, V. V. (2007). Moment explosions in stochastic
   volatility models. Finance and Stochastics 11(1), 29–50. Not consulted; cited as
   the source of the explosion time through Keller-Ressel (2011) and Lord and Kahl
-  (2006).
+  (2007).
 - Bornemann, F. (2011). Accuracy and stability of computing high-order
   derivatives of analytic functions by Cauchy integrals. Foundations of
   Computational Mathematics 11(1), 1–63. arXiv:0910.1841v2 (20 November 2009),

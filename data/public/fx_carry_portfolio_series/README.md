@@ -7,6 +7,7 @@ market reading with 10-delta hedges, E2 with phi, the secondary moment predictor
 regime, E5, the hedge-cost ratio and its confidence sets, the long at-the-money sample and the regime
 comparison. `scripts/reproduce_from_public.py` recomputes those results from these files alone and
 compares each with the number printed in the paper; the results that need the quotes are listed below.
+Figures 1, 2 and 4 of the paper plot these series (`scripts/make_figures.py`).
 
 Every value is a portfolio-level quantity: an average over the legs of a carry portfolio (six legs in
 the primary sample, four in the extended sample, four or six in the long at-the-money sample), an
@@ -93,7 +94,7 @@ form at the stated volatility (`qef.fx.crash`, `qef.fx.gk`, `qef.fx.sabr`).
 | `date`, `regime` | As above. | |
 | `status` | `ok`: every column is present. `missing_spot`: the spot at the option expiry is not observed in the retrieval (the month-end of August 2026, whose return window ends after the retrieval), so `U`, `H10`, `H25`, `Hatm`, `c1`, `c2`, `c3` and `sigma_fx` are empty; the E1 columns, `FD` and the moment predictors are present. Every primary month-end has E1 status ok. | `estimate_stage4.month_rows` |
 | `C_skew_market_10d` | The ex-ante skew price of protection, (1/3) times the sum over the six legs of V_smile minus V_flat, where V_smile is the premium of the leg's protective option at its 10-delta strike on the calibrated smile (market-strangle reading of the 25-delta butterfly, the primary reading of E1), priced at the smile volatility, and V_flat is the premium at the same strike priced at the ATM volatility. | `estimate_e1.e1_series`, `qef.fx.crash.leg_skew_cost` |
-| `phi_market_10d` | phi = C_skew / FD, the skew price per unit of forward discount: the E1 estimand. | `estimate_e1.e1_series` |
+| `phi_market_10d` | phi = C_skew/FD, the skew price per unit of forward discount: the E1 estimand. | `estimate_e1.e1_series` |
 | `FD` | Forward-discount spread, (1/3) times (the sum of fd over the long legs minus the sum over the short legs), with fd = log(X/F), X the spot and F the one-month outright forward, both as USD per unit of the currency. The legs are the three highest and the three lowest fd at t. | `qef.fx.crash.forward_discount`, `rank_legs` |
 | `U` | Unhedged carry return HML^U: (1/3) times the sum over the legs of the signed forward return, rx = X_T/F - 1 for a long leg and minus that for a short leg, with X_T the spot on the option expiry date. | `estimate_stage4.month_rows`, `qef.fx.crash.forward_return` |
 | `H10`, `H25`, `Hatm` | Hedged carry return HML^H: U plus (1/3) times the sum over the legs of the option payoff less its premium. `H10` and `H25` use the smile 10-delta and 25-delta strikes and the smile premium; `Hatm` uses the delta-neutral-straddle strike and the premium at the ATM volatility. | `estimate_stage4.month_rows` |
@@ -129,7 +130,7 @@ Fenics smiles and the market-strangle reading at 10 delta only.
 ## Exact identities
 
 Some columns are exact functions of others and add no information; I publish them for convenience.
-Before rounding, `phi` = `C_skew` / `FD` in both files; `c3` = -`C_skew_market_10d` in
+Before rounding, `phi` = `C_skew`/`FD` in both files; `c3` = -`C_skew_market_10d` in
 `primary.csv` and `c3` = -`C_skew` in `extended.csv` (to 1e-16); and `H10` = `U` + `c1` + `c2` + `c3` in
 both files (to 3e-16). After rounding these hold to the rounding error of each file's significant figures.
 

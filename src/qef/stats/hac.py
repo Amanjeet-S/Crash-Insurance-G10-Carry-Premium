@@ -7,7 +7,8 @@ Bartlett kernel without prewhitening (research design, section 7):
 - bandwidth γ̂ T^{1/3} with γ̂ = 1.1447 (s1/s0)^{2/3};
 - lag L = ⌊bandwidth⌋ and weights 1 − j/(L + 1) (Newey and West, 1987).
 
-The constants follow Newey and West (1994, Tables I and II) as implemented in
+The constants are those of the procedure without prewhitening of Newey and West
+(1994, Section III, eqs. (3.8)-(3.13), Table I and Table II, line (6)), as implemented in
 the R package sandwich (functions bwNeweyWest and NeweyWest, version 3.1-3),
 which served as the reference implementation. Two guards depart from it: if
 s0 ≤ 0 the bandwidth is set to zero (the iid variance), and the lag is capped

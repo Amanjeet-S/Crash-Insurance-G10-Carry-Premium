@@ -3,13 +3,13 @@
 A reader with their own LSEG Workspace licence can rebuild the private data layer and rerun every estimation step. The acquisition runs in a separate environment and reads the App Key of whoever runs it from `~/.lseg/app_key`:
 
 ```bash
-python -m venv .venv-lseg && .venv-lseg/bin/pip install -r requirements-lseg.lock
+python3 -m venv .venv-lseg && .venv-lseg/bin/pip install -r requirements-lseg.lock
 .venv-lseg/bin/python scripts/acquire_lseg_fx.py --retrieval-date 2026-09-23
 python scripts/acquire_cboe_vx.py --retrieval-date 2026-09-24
 python scripts/acquire_verdelhan.py --retrieval-date 2026-09-27
 ```
 
-The three-month forwards and rates, the one-month 5-delta quotes and the pre-1995 coverage check come from further retrievals with the options `--only`, `--start`, `--end` and `--skip-search` of the acquisition script (the further retrievals made no metadata search); the header of `scripts/reproduce.sh` lists them.
+The three-month forwards and rates, the one-month 5-delta quotes and the pre-1995 coverage check come from further retrievals with the options `--only`, `--start`, `--end` and `--skip-search` of the acquisition script (the further retrievals made no metadata search); the header of `scripts/reproduce.sh` lists them. The revision check of the data audit needs a second full retrieval, made the same way with `--retrieval-date 2026-09-26`.
 
 ## Inputs
 
@@ -37,11 +37,19 @@ The script builds a new environment from `requirements.lock`, builds the C++ ker
 16. the descriptive account of smiles, φ and returns around 5 August 2024 (`scripts/describe_august_2024.py`);
 17. the checks behind statements of the paper and the theory notes that no earlier step produced: the hypotheses of R5(c) and R8 on the calibrated smiles, a denser grid of means in the identified sets, and the 5-delta breakdown comparison on the same currency-months (`scripts/check_reported_conditions.py`).
 
-It runs no acquisition, and it does not run the kernel benchmark (`scripts/benchmark_kernel.py`), which rewrites the timing block of `cpp/README.md`. The header of `scripts/reproduce.sh` names the report, or the section of the paper, that records each step. It stops at the first step that fails and refuses to overwrite an existing environment, output or link.
+It runs no acquisition, and it does not run the revision check, which needs the retrieval of 26 September 2026, the kernel benchmark (`scripts/benchmark_kernel.py`), which rewrites the timing block of `cpp/README.md`, or the figure script, which the paper's Appendix B runs last. In the environment that the script builds, these are
+
+```bash
+.venv/bin/python scripts/check_quote_revisions.py --new 2026-09-26 --old 2026-09-23 2026-09-24
+bash cpp/build.sh && .venv/bin/python scripts/benchmark_kernel.py
+.venv/bin/python scripts/make_figures.py
+```
+
+The header of `scripts/reproduce.sh` names the report, or the section of the paper, that records each step; the script stops at the first step that fails and refuses to overwrite an existing environment, output or link. The figure script writes the four figures into `paper/figures/` after checking each statement the paper makes about them.
 
 ## Outputs
 
-Outputs go to `data/private/audit/2026-09-23/`, `data/private/results/2026-09-23/` and, for the three-month estimation, `data/private/results/2026-09-24/`. The calibration logs are written next to the results; the other step logs, the interpreter version and the installed package versions go to `data/private/reproduce/`. Every output is LSEG-derived and stays under `data/private/`.
+Outputs go to `data/private/audit/2026-09-23/`, `data/private/results/2026-09-23/` and, for the three-month estimation, `data/private/results/2026-09-24/`. The calibration logs are written next to the results; the other step logs, the interpreter version and the installed package versions go to `data/private/reproduce/`. Every output of the script is LSEG-derived and stays under `data/private/`.
 
 `scripts/reproduce.sh` does not touch the published series. After it, `scripts/export_public_series.py` rebuilds them from the private results, and `scripts/check_public_reversibility.py` repeats the check that they cannot be traced back to the quotes.
 

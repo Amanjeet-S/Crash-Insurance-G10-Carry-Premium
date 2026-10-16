@@ -2,9 +2,11 @@
 
 Writes four figures to paper/figures/. Three are drawn from the portfolio-level
 series published in data/public/fx_carry_portfolio_series/, so they can be
-redrawn without an LSEG licence; the fourth combines a synthetic model
-calculation with the distribution across currency-months of a reported
-statistic. No quote, per-currency series or calibrated parameter is plotted.
+redrawn without an LSEG licence; the third (fig_theta.tex, Figure 3 of the
+paper) combines a synthetic model calculation with the distribution across
+currency-months of a reported statistic, and is skipped when those private
+results are absent. No quote, per-currency series or calibrated parameter is
+plotted.
 
 1. fig_e1.tex (E1): (a) the monthly skew price C_skew and forward-discount
    spread FD of the primary sample, with their regime means; (b) C_skew
@@ -59,7 +61,7 @@ OUT = ROOT / "paper" / "figures"
 HIKE = 2022.0
 TICKS = r"x tick label style={/pgf/number format/1000 sep=,font=\footnotesize}, y tick label style={font=\footnotesize}"
 # Okabe-Ito palette (colour-blind safe); line styles also differ, so the figures remain legible in black and white.
-# Vermillion: skew price and premium; blue: carry spread and unhedged carry; green: hedged carry and realised hedge cost.
+# Vermillion: skew price and premium; blue: forward-discount spread and unhedged carry; green: hedged carry and realised hedge cost.
 COLOURS = "\n".join(rf"\definecolor{{{n}}}{{HTML}}{{{h}}}" for n, h in [
     ("oiBlue", "0072B2"), ("oiVerm", "D55E00"), ("oiGreen", "009E73"), ("oiSky", "56B4E9"),
     ("oiOrange", "E69F00"), ("oiPurple", "CC79A7"), ("oiYellow", "F0E442")])
@@ -323,7 +325,11 @@ def fig_e3() -> str:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    private = all((RES / d / f).exists() for d, f in [("2026-09-23", "identification_1m.csv"), ("2026-09-27", "wing_test_1m.csv")])
     for name, make in [("fig_e1.tex", fig_e1), ("fig_oos.tex", fig_oos), ("fig_theta.tex", fig_theta), ("fig_e3.tex", fig_e3)]:
+        if make is fig_theta and not private:
+            print(f"skipped paper/figures/{name}: it needs the per-currency results in data/private/results/")
+            continue
         (OUT / name).write_text(make())
         print(f"wrote paper/figures/{name}")
 

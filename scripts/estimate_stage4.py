@@ -185,7 +185,7 @@ def clark_west(dates, y, x):
         e_b.append(y[i] - ybar)
         f.append((y[i] - ybar) ** 2 - ((y[i] - yhat) ** 2 - (ybar - yhat) ** 2))
     f, e_m, e_b = map(np.asarray, (f, e_m, e_b))
-    # Clark and West (2006, Section 2): regress f on a constant; for one-step forecasts the
+    # Clark and West (2007; NBER Technical Working Paper 326, Section 2): regress f on a constant; for one-step forecasts the
     # usual least-squares standard error is used (primary); Newey-West reported alongside.
     t_ls = f.mean() / (f.std(ddof=1) / np.sqrt(len(f)))
     r = mean_and_se(f)

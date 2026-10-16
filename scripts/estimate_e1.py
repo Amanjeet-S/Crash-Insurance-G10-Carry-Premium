@@ -21,7 +21,7 @@ stationary-bootstrap percentile interval for the difference. Supplementary
 analyses added after the first results (research log, 24 September 2026) are
 reported separately and labelled as such.
 
-Splice: leg-level comparison of Fenics and composite skew costs on every
+Splice: leg-level comparison of Fenics and composite skew prices on every
 currency-month where both are available. Outputs are LSEG-derived and are
 written to data/private/results/.
 """

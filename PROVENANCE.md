@@ -16,6 +16,7 @@ This repository distinguishes established methods from its implementation, its e
 | Currency portfolios of Lustig, Roussanov and Verdelhan | Adrien Verdelhan's public data page | Acquisition code with URL, retrieval time and hash; file held privately because no terms are stated |
 | Portfolio-level month series | Derived in this project from the private data | [Public series and their definitions](data/public/fx_carry_portfolio_series/README.md) |
 | Model validation of the moment code | Synthetic Merton and Heston models | [Model validation record](reports/model_validation.md) |
+| Figures of the paper | Drawn by `scripts/make_figures.py` from the published portfolio-level series, aggregate results and a synthetic Heston model | Figure captions and Section 3.6 of the [paper](paper/main.tex) |
 
 No external code file, paper table or figure is incorporated into the implementation. Two routines follow existing implementations step by step and are credited where they occur and in the [third-party notices](THIRD_PARTY_NOTICES.md): the pairwise summation of the C++ kernel (NumPy, BSD-3-Clause) and the block-length rule of the stationary bootstrap (arch, NCSA licence). The [public reproduction](docs/reproducing_paper.md) recomputes the paper's results that the public series support, using the public Cboe and Verdelhan files for E5 and the comparison with published portfolios, and lists the results it cannot reproduce with the reason; it does not read or export LSEG observations.
 

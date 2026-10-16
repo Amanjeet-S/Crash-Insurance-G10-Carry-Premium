@@ -21,8 +21,9 @@ Definitions fixed here, before any variant was estimated:
 - Implementable returns: forwards traded at bid and ask, closed at the spot
   bid or ask on the payoff date; options bought at the smile volatility plus
   k times the ATM half-spread, converted to premium by vega.
-- Dollar carry: long all available currencies when their average forward
-  discount is positive, short all otherwise, equal weights.
+- Dollar carry (Lustig, Roussanov and Verdelhan, 2014): long all available
+  currencies when their average forward discount is positive, short all
+  otherwise, equal weights.
 - Ten currencies: USD enters the ranking with fd = 0; a USD leg has zero
   return and no option.
 - Log returns: each leg's forward return is replaced by ±(s_{t+1} − f_t);

@@ -22,7 +22,7 @@ strike-set invariance (Prop. 6.1), consistency with static replication
 of the price in σ (Castagna and Mercurio, 2006, App. A, proofs of Props. 5.1
 and 5.2), so they add approximation error exactly at the 10Δ hedge strikes,
 which lie outside [K1, K3]. There ς1 overvalues the wings and violates the
-bound of Lee (2004), as Castagna and Mercurio (2007, p. 10) state, and it is
+bound of Lee (2004a), as Castagna and Mercurio (2007, p. 10) state, and it is
 the worst 10Δ extrapolator in Reiswich (2010, Section 4.2, Table 4.2). ς2 adds
 a failure mode of its own, a negative radicand (Castagna and Mercurio, 2007,
 pp. 10–11; Reiswich, 2010, Section 3.8.2, Tables 3.3–3.4). The price fails
